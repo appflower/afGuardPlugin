@@ -2,5 +2,8 @@ afGuard plugin
 ==============
 
 This plugin is made from sfGuardPlugin.
-
 It is modified to be compatible for applications using AppFlowerPlugin
+
+In original sfGuardPlugin modules for CRUD operations are auto generated and
+we should probably follow the same approach.
+
