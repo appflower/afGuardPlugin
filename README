@@ -1,0 +1,6 @@
+afGuard plugin
+==============
+
+This plugin is made from sfGuardPlugin.
+
+It is modified to be compatible for applications using AppFlowerPlugin
