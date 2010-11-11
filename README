@@ -7,3 +7,51 @@ It is modified to be compatible for applications using AppFlowerPlugin
 In original sfGuardPlugin modules for CRUD operations are auto generated and
 we should probably follow the same approach.
 
+What you need to use it.
+Your symfony application should have AppFlowerPlugin already installed.
+Next you should install afGuardPlugin in your project - you can just copy its
+files or create local reopistory from SVN or alter svn:externals property of plugins directory.
+
+As always you should rebuild model and sql, running:
+./symfony propel:build-model
+./symfony propel:build-sql
+./symfony cc
+
+Now you should initiate proper database structure with (thiw will delete all your data:O):
+./symfony propel:insert-sql
+
+Make your application secure with apps/frontend/config/security.yml like:
+default:
+  is_secure: true
+
+Change settings.yml like:
+all:
+  .settings:
+    .enabled_modules: [default, ..., afGuardAuth]
+  .actions:
+    login_module: afGuardAuth
+    login_action: signin
+
+
+Copy afGuardPlugin/templates/layoutAuth.php to apps/frontend/templates directory.
+
+Make sure that you ProjectConfiguration class implements AppFlowerApplication interface correctly.
+For example like that:
+   function getAppFlowerUserQuery()
+   {
+      return new afGuardUserPeer();
+   }
+
+Change you apps/frontend/lib/myUser.class.php to extend afGuardSecurityUser and implement AppFlowerSecurityUser
+
+
+You can also enable more modules like: afGuardUser, afGuardGroup to manage users and groups through AF interface.
+all:
+  .settings:
+    .enabled_modules: [defaul, ..., afGuardAuth, afGuardUser, afGuardGroup]
+After this you can access them using url: http://yourapp/#/afGuardUser/list
+
+
+Finally if you want to use "remember me" functionality change security filer in your apps/frontend/config/filters.yml:
+security:
+  class: afGuardBasicSecurityFilter
