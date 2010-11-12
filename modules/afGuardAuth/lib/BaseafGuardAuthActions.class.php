@@ -28,7 +28,8 @@ class BaseafGuardAuthActions extends sfActions
 
                 if ($captchaEnabled) {
                     $wasCaptchaNeeded = afRateLimit::isCaptchaNeeded($request);
-                    if(!afRateLimit::verifyCaptchaIfNeeded($request, $signin['captcha'])){
+                    $captcha = ( isset($signin['captcha']) ? $signin['captcha'] : null);
+                    if(!afRateLimit::verifyCaptchaIfNeeded($request, $captcha)){
                         return array('success' => false,'message'=>'The captcha verification failed!', 'redirect'=>'/login', 'load'=>'page');
                     }
                 }

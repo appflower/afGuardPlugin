@@ -24,7 +24,7 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
       $salt = md5(rand(100000, 999999).$this->getUsername());
       $this->setSalt($salt);
     }
-    $algorithm = sfConfig::get('app_sf_guard_plugin_algorithm_callable', 'sha1');
+    $algorithm = sfConfig::get('app_af_guard_plugin_algorithm_callable', 'sha1');
     $algorithmAsStr = is_array($algorithm) ? $algorithm[0].'::'.$algorithm[1] : $algorithm;
     if (!is_callable($algorithm))
     {
@@ -54,7 +54,7 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
     {
       return $profile->checkPassword($this->getUsername(), $password, $this);
     }
-    else if ($callable = sfConfig::get('app_sf_guard_plugin_check_password_callable'))
+    else if ($callable = sfConfig::get('app_af_guard_plugin_check_password_callable'))
     {
       return call_user_func_array($callable, array($this->getUsername(), $password, $this));
     }
@@ -78,55 +78,55 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
 
     return $this->getPassword() == call_user_func_array($algorithm, array($this->getSalt().$password));
   }
-//
-//  public function getProfile()
-//  {
-//    if (!is_null($this->profile))
-//    {
-//      return $this->profile;
-//    }
-//
-//    $profileClass = sfConfig::get('app_sf_guard_plugin_profile_class', 'afGuardUserProfile');
-//    if (!class_exists($profileClass))
-//    {
-//      throw new sfException(sprintf('The user profile class "%s" does not exist.', $profileClass));
-//    }
-//
-//    $fieldName = sfConfig::get('app_sf_guard_plugin_profile_field_name', 'user_id');
-//    $profilePeerClass =  $profileClass.'Peer';
-//
-//    // to avoid php segmentation fault
-//    class_exists($profilePeerClass);
-//
-//    $foreignKeyColumn = call_user_func_array(array($profilePeerClass, 'translateFieldName'), array($fieldName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME));
-//
-//    if (!$foreignKeyColumn)
-//    {
-//      throw new sfException(sprintf('The user profile class "%s" does not contain a "%s" column.', $profileClass, $fieldName));
-//    }
-//
-//    $c = new Criteria();
-//    $c->add($foreignKeyColumn, $this->getId());
-//
-//    $this->profile = call_user_func_array(array($profileClass.'Peer', 'doSelectOne'), array($c));
-//
-//    if (!$this->profile)
-//    {
-//      $this->profile = new $profileClass();
-//      if (method_exists($this->profile, 'setafGuardUser'))
-//      {
-//        $this->profile->setafGuardUser($this);
-//      }
-//      else
-//      {
-//        $method = 'set'.call_user_func_array(array($profilePeerClass, 'translateFieldName'), array($fieldName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME));
-//        $this->profile->$method($this->getId());
-//      }
-//    }
-//
-//    return $this->profile;
-//  }
-//
+
+  public function getProfile()
+  {
+    if (!is_null($this->profile))
+    {
+      return $this->profile;
+    }
+
+    $profileClass = sfConfig::get('app_af_guard_plugin_profile_class', 'afGuardUserProfile');
+    if (!class_exists($profileClass))
+    {
+      throw new sfException(sprintf('The user profile class "%s" does not exist.', $profileClass));
+    }
+
+    $fieldName = sfConfig::get('app_af_guard_plugin_profile_field_name', 'user_id');
+    $profilePeerClass =  $profileClass.'Peer';
+
+    // to avoid php segmentation fault
+    class_exists($profilePeerClass);
+
+    $foreignKeyColumn = call_user_func_array(array($profilePeerClass, 'translateFieldName'), array($fieldName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_COLNAME));
+
+    if (!$foreignKeyColumn)
+    {
+      throw new sfException(sprintf('The user profile class "%s" does not contain a "%s" column.', $profileClass, $fieldName));
+    }
+
+    $c = new Criteria();
+    $c->add($foreignKeyColumn, $this->getId());
+
+    $this->profile = call_user_func_array(array($profileClass.'Peer', 'doSelectOne'), array($c));
+
+    if (!$this->profile)
+    {
+      $this->profile = new $profileClass();
+      if (method_exists($this->profile, 'setafGuardUser'))
+      {
+        $this->profile->setafGuardUser($this);
+      }
+      else
+      {
+        $method = 'set'.call_user_func_array(array($profilePeerClass, 'translateFieldName'), array($fieldName, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_PHPNAME));
+        $this->profile->$method($this->getId());
+      }
+    }
+
+    return $this->profile;
+  }
+
 //  public function addGroupByName($name, $con = null)
 //  {
 //    $group = afGuardGroupPeer::retrieveByName($name);
