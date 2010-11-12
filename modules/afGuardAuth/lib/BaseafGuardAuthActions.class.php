@@ -13,6 +13,7 @@ class BaseafGuardAuthActions extends sfActions
 	{
 
 		$user = $this->getUser();
+        $captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
 
 		if ($user->isAuthenticated())
 		{
@@ -24,6 +25,14 @@ class BaseafGuardAuthActions extends sfActions
 			if($request->hasParameter('signin'))
 			{
 				$signin=$request->getParameter('signin');
+
+                if ($captchaEnabled) {
+                    $wasCaptchaNeeded = afRateLimit::isCaptchaNeeded($request);
+                    if(!afRateLimit::verifyCaptchaIfNeeded($request, $signin['captcha'])){
+                        return array('success' => false,'message'=>'The captcha verification failed!', 'redirect'=>'/login', 'load'=>'page');
+                    }
+                }
+
                 $afUserQuery = ProjectConfiguration::getActive()->getAppFlowerUserQuery();
 				$user = $afUserQuery->findOneByUsername($signin['username']);
 
@@ -53,12 +62,22 @@ class BaseafGuardAuthActions extends sfActions
 					else
 					{
 						$result = array('success' => false,'message'=>'The username and/or password is invalid. ! Please try again !');
+                        if ($captchaEnabled) {
+                            afRateLimit::rememberSin($request);
+                            if($wasCaptchaNeeded || afRateLimit::isCaptchaNeeded($request)) {
+                                $result['redirect'] = '/login';
+                                $result['load'] = '/page';
+                            }
+                        }
 						$result = json_encode($result);
 						return $this->renderText($result);
 					}
 				}
 				else
 				{
+                    if ($captchaEnabled) {
+                        afRateLimit::rememberSin($request);
+                    }
 					$result = array('success' => false,'message'=>'The username and/or password is invalid. ! Please try again !','redirect'=>'/login','load'=>'page');
 					$result = json_encode($result);
 					return $this->renderText($result);

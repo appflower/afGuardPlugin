@@ -52,6 +52,12 @@ all:
 After this you can access them using url: http://yourapp/#/afGuardUser/list
 
 
+
+
 Finally if you want to use "remember me" functionality change security filer in your apps/frontend/config/filters.yml:
 security:
   class: afGuardBasicSecurityFilter
+
+Another feature you might want to use is captcha.
+You just need to install sfCaptchaPlugin (from AppFlower repository). After this when user fails to log in few times - captcha files will be added to login form to protect against brute force login attacks.
+Captcha feature is using APC

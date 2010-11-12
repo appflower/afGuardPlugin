@@ -14,6 +14,11 @@ $username=new ImmExtjsFieldInput($col,array('name'=>'signin[username]','label'=>
 
 $password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'comment'=>'write your password','width'=>'150'));
 
+$captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
+if($captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())){
+	$captcha=new ImmExtjsFieldCaptcha($col,array('name'=>'signin[captcha]','label'=>'Verify','width'=>'150','src'=>'/sfCaptcha/index','imgStyle'=>''));
+}
+
 $remember=new ImmExtjsFieldCheckbox($col,array('name'=>'signin[remember]','label'=>'Remember','checked'=>true));
 
 $columns->endColumn($col);
