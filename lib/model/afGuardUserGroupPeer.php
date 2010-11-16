@@ -1,19 +1,6 @@
 <?php
+require 'plugins/afGuardPlugin/lib/model/plugin/PluginafGuardUserGroupPeer.php';
 
-require 'plugins/afGuardPlugin/lib/model/om/BaseafGuardUserGroupPeer.php';
+class afGuardUserGroupPeer extends PluginafGuardUserGroupPeer {
 
-
-/**
- * Skeleton subclass for performing query and update operations on the 'af_guard_user_group' table.
- *
- * 
- *
- * You should add additional methods to this class to meet the
- * application requirements.  This class will only be generated as
- * long as it does not already exist in the output directory.
- *
- * @package    plugins.afGuardPlugin.lib.model
- */
-class afGuardUserGroupPeer extends BaseafGuardUserGroupPeer {
-
-} // afGuardUserGroupPeer
+}

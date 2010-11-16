@@ -1,19 +1,6 @@
 <?php
+require 'plugins/afGuardPlugin/lib/model/plugin/PluginafGuardUserPermission.php';
 
-require 'plugins/afGuardPlugin/lib/model/om/BaseafGuardUserPermission.php';
+class afGuardUserPermission extends PluginafGuardUserPermission {
 
-
-/**
- * Skeleton subclass for representing a row from the 'af_guard_user_permission' table.
- *
- * 
- *
- * You should add additional methods to this class to meet the
- * application requirements.  This class will only be generated as
- * long as it does not already exist in the output directory.
- *
- * @package    plugins.afGuardPlugin.lib.model
- */
-class afGuardUserPermission extends BaseafGuardUserPermission {
-
-} // afGuardUserPermission
+}
