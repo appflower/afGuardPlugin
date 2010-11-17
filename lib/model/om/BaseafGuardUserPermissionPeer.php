@@ -1,11 +1,12 @@
 <?php
 
+
 /**
  * Base static class for performing query and update operations on the 'af_guard_user_permission' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
 abstract class BaseafGuardUserPermissionPeer {
 
@@ -62,6 +63,7 @@ abstract class BaseafGuardUserPermissionPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId', 'PermissionId', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId', 'permissionId', ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID, self::PERMISSION_ID, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID', 'PERMISSION_ID', ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id', 'permission_id', ),
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
@@ -76,6 +78,7 @@ abstract class BaseafGuardUserPermissionPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId' => 0, 'PermissionId' => 1, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId' => 0, 'permissionId' => 1, ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID => 0, self::PERMISSION_ID => 1, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID' => 0, 'PERMISSION_ID' => 1, ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id' => 0, 'permission_id' => 1, ),
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
@@ -141,14 +144,20 @@ abstract class BaseafGuardUserPermissionPeer {
 	 * XML schema will not be added to the select list and only loaded
 	 * on demand.
 	 *
-	 * @param      criteria object containing the columns to add.
+	 * @param      Criteria $criteria object containing the columns to add.
+	 * @param      string   $alias    optional table alias
 	 * @throws     PropelException Any exceptions caught during processing will be
 	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function addSelectColumns(Criteria $criteria)
+	public static function addSelectColumns(Criteria $criteria, $alias = null)
 	{
-		$criteria->addSelectColumn(afGuardUserPermissionPeer::USER_ID);
-		$criteria->addSelectColumn(afGuardUserPermissionPeer::PERMISSION_ID);
+		if (null === $alias) {
+			$criteria->addSelectColumn(afGuardUserPermissionPeer::USER_ID);
+			$criteria->addSelectColumn(afGuardUserPermissionPeer::PERMISSION_ID);
+		} else {
+			$criteria->addSelectColumn($alias . '.USER_ID');
+			$criteria->addSelectColumn($alias . '.PERMISSION_ID');
+		}
 	}
 
 	/**
@@ -375,6 +384,20 @@ abstract class BaseafGuardUserPermissionPeer {
 	}
 
 	/**
+	 * Retrieves the primary key from the DB resultset row 
+	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
+	 * a multi-column primary key, an array of the primary key columns will be returned.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @return     mixed The primary key of the row
+	 */
+	public static function getPrimaryKeyFromRow($row, $startcol = 0)
+	{
+		return array((int) $row[$startcol], (int) $row[$startcol + 1]);
+	}
+	
+	/**
 	 * The returned array will contain objects of the default type or
 	 * objects that inherit from the default.
 	 *
@@ -392,7 +415,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = afGuardUserPermissionPeer::getInstanceFromPool($key))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
@@ -404,6 +427,31 @@ abstract class BaseafGuardUserPermissionPeer {
 		}
 		$stmt->closeCursor();
 		return $results;
+	}
+	/**
+	 * Populates an object of the default type or an object that inherit from the default.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
+	 * @return     array (afGuardUserPermission object, last column rank)
+	 */
+	public static function populateObject($row, $startcol = 0)
+	{
+		$key = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, $startcol);
+		if (null !== ($obj = afGuardUserPermissionPeer::getInstanceFromPool($key))) {
+			// We no longer rehydrate the object, since this can cause data loss.
+			// See http://www.propelorm.org/ticket/509
+			// $obj->hydrate($row, $startcol, true); // rehydrate
+			$col = $startcol + afGuardUserPermissionPeer::NUM_COLUMNS;
+		} else {
+			$cls = afGuardUserPermissionPeer::OM_CLASS;
+			$obj = new $cls();
+			$col = $obj->hydrate($row, $startcol);
+			afGuardUserPermissionPeer::addInstanceToPool($obj, $key);
+		}
+		return array($obj, $col);
 	}
 
 	/**
@@ -555,7 +603,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key1 = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserPermissionPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 
@@ -577,7 +625,7 @@ abstract class BaseafGuardUserPermissionPeer {
 					$obj2->hydrate($row, $startcol);
 					afGuardUserPeer::addInstanceToPool($obj2, $key2);
 				} // if obj2 already loaded
-				
+
 				// Add the $obj1 (afGuardUserPermission) to $obj2 (afGuardUser)
 				$obj2->addafGuardUserPermission($obj1);
 
@@ -627,7 +675,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key1 = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserPermissionPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 
@@ -649,7 +697,7 @@ abstract class BaseafGuardUserPermissionPeer {
 					$obj2->hydrate($row, $startcol);
 					afGuardPermissionPeer::addInstanceToPool($obj2, $key2);
 				} // if obj2 already loaded
-				
+
 				// Add the $obj1 (afGuardUserPermission) to $obj2 (afGuardPermission)
 				$obj2->addafGuardUserPermission($obj1);
 
@@ -764,7 +812,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key1 = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserPermissionPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserPermissionPeer::getOMClass(false);
@@ -972,7 +1020,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key1 = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserPermissionPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserPermissionPeer::getOMClass(false);
@@ -1051,7 +1099,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			$key1 = afGuardUserPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserPermissionPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserPermissionPeer::getOMClass(false);
@@ -1118,7 +1166,7 @@ abstract class BaseafGuardUserPermissionPeer {
 	 * relative to a location on the PHP include_path.
 	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
 	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
+	 * @param      boolean $withPrefix Whether or not to return the path with the class name
 	 * @return     string path.to.ClassName
 	 */
 	public static function getOMClass($withPrefix = true)
@@ -1137,15 +1185,6 @@ abstract class BaseafGuardUserPermissionPeer {
 	 */
 	public static function doInsert($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPermissionPeer:doInsert:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserPermissionPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPermissionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -1171,12 +1210,6 @@ abstract class BaseafGuardUserPermissionPeer {
 			throw $e;
 		}
 
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPermissionPeer:doInsert:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserPermissionPeer', $values, $con, $pk);
-    }
-
 		return $pk;
 	}
 
@@ -1191,15 +1224,6 @@ abstract class BaseafGuardUserPermissionPeer {
 	 */
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPermissionPeer:doUpdate:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserPermissionPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPermissionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -1210,10 +1234,20 @@ abstract class BaseafGuardUserPermissionPeer {
 			$criteria = clone $values; // rename for clarity
 
 			$comparison = $criteria->getComparison(afGuardUserPermissionPeer::USER_ID);
-			$selectCriteria->add(afGuardUserPermissionPeer::USER_ID, $criteria->remove(afGuardUserPermissionPeer::USER_ID), $comparison);
+			$value = $criteria->remove(afGuardUserPermissionPeer::USER_ID);
+			if ($value) {
+				$selectCriteria->add(afGuardUserPermissionPeer::USER_ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardUserPermissionPeer::TABLE_NAME);
+			}
 
 			$comparison = $criteria->getComparison(afGuardUserPermissionPeer::PERMISSION_ID);
-			$selectCriteria->add(afGuardUserPermissionPeer::PERMISSION_ID, $criteria->remove(afGuardUserPermissionPeer::PERMISSION_ID), $comparison);
+			$value = $criteria->remove(afGuardUserPermissionPeer::PERMISSION_ID);
+			if ($value) {
+				$selectCriteria->add(afGuardUserPermissionPeer::PERMISSION_ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardUserPermissionPeer::TABLE_NAME);
+			}
 
 		} else { // $values is afGuardUserPermission object
 			$criteria = $values->buildCriteria(); // gets full criteria
@@ -1223,15 +1257,7 @@ abstract class BaseafGuardUserPermissionPeer {
 		// set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
-		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
-
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPermissionPeer:doUpdate:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserPermissionPeer', $values, $con, $ret);
-    }
-
-    return $ret;
+		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
 	/**
@@ -1249,7 +1275,7 @@ abstract class BaseafGuardUserPermissionPeer {
 			// use transaction because $criteria could contain info
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
-			$affectedRows += BasePeer::doDeleteAll(afGuardUserPermissionPeer::TABLE_NAME, $con);
+			$affectedRows += BasePeer::doDeleteAll(afGuardUserPermissionPeer::TABLE_NAME, $con, afGuardUserPermissionPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
 			// instances get re-added by the select statement contained therein).
@@ -1374,8 +1400,8 @@ abstract class BaseafGuardUserPermissionPeer {
 	 * @return     afGuardUserPermission
 	 */
 	public static function retrieveByPK($user_id, $permission_id, PropelPDO $con = null) {
-		$key = serialize(array((string) $user_id, (string) $permission_id));
- 		if (null !== ($obj = afGuardUserPermissionPeer::getInstanceFromPool($key))) {
+		$_instancePoolKey = serialize(array((string) $user_id, (string) $permission_id));
+ 		if (null !== ($obj = afGuardUserPermissionPeer::getInstanceFromPool($_instancePoolKey))) {
  			return $obj;
 		}
 

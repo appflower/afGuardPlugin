@@ -1,6 +1,6 @@
 <?php
-require 'plugins/afGuardPlugin/lib/model/plugin/PluginafGuardUserPeer.php';
+require 'plugins/afGuardPlugin/lib/model/plugin/PluginafGuardUser.php';
 
-class afGuardUserPeer extends PluginafGuardUserPeer {
+class afGuardUser extends PluginafGuardUser {
 
 }

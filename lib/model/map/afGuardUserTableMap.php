@@ -1,6 +1,7 @@
 <?php
 
 
+
 /**
  * This class defines the structure of the 'af_guard_user' table.
  *
@@ -11,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    plugins.afGuardPlugin.lib.model.map
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.map
  */
 class afGuardUserTableMap extends TableMap {
 
@@ -56,6 +57,9 @@ class afGuardUserTableMap extends TableMap {
     $this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
     $this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
     $this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
+    $this->addRelation('UserProfile', 'UserProfile', RelationMap::ONE_TO_ONE, array('id' => 'user_id', ), 'CASCADE', null);
+    $this->addRelation('CompanyFavorite', 'CompanyFavorite', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('CompanyHistory', 'CompanyHistory', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
 	} // buildRelations()
 
 	/**

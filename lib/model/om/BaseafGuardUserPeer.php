@@ -1,11 +1,12 @@
 <?php
 
+
 /**
  * Base static class for performing query and update operations on the 'af_guard_user' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
 abstract class BaseafGuardUserPeer {
 
@@ -83,6 +84,7 @@ abstract class BaseafGuardUserPeer {
 		BasePeer::TYPE_PHPNAME => array ('Id', 'Username', 'Algorithm', 'Salt', 'Password', 'CreatedAt', 'LastLogin', 'IsActive', 'IsSuperAdmin', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'username', 'algorithm', 'salt', 'password', 'createdAt', 'lastLogin', 'isActive', 'isSuperAdmin', ),
 		BasePeer::TYPE_COLNAME => array (self::ID, self::USERNAME, self::ALGORITHM, self::SALT, self::PASSWORD, self::CREATED_AT, self::LAST_LOGIN, self::IS_ACTIVE, self::IS_SUPER_ADMIN, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('ID', 'USERNAME', 'ALGORITHM', 'SALT', 'PASSWORD', 'CREATED_AT', 'LAST_LOGIN', 'IS_ACTIVE', 'IS_SUPER_ADMIN', ),
 		BasePeer::TYPE_FIELDNAME => array ('id', 'username', 'algorithm', 'salt', 'password', 'created_at', 'last_login', 'is_active', 'is_super_admin', ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
 	);
@@ -97,6 +99,7 @@ abstract class BaseafGuardUserPeer {
 		BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Username' => 1, 'Algorithm' => 2, 'Salt' => 3, 'Password' => 4, 'CreatedAt' => 5, 'LastLogin' => 6, 'IsActive' => 7, 'IsSuperAdmin' => 8, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'username' => 1, 'algorithm' => 2, 'salt' => 3, 'password' => 4, 'createdAt' => 5, 'lastLogin' => 6, 'isActive' => 7, 'isSuperAdmin' => 8, ),
 		BasePeer::TYPE_COLNAME => array (self::ID => 0, self::USERNAME => 1, self::ALGORITHM => 2, self::SALT => 3, self::PASSWORD => 4, self::CREATED_AT => 5, self::LAST_LOGIN => 6, self::IS_ACTIVE => 7, self::IS_SUPER_ADMIN => 8, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'USERNAME' => 1, 'ALGORITHM' => 2, 'SALT' => 3, 'PASSWORD' => 4, 'CREATED_AT' => 5, 'LAST_LOGIN' => 6, 'IS_ACTIVE' => 7, 'IS_SUPER_ADMIN' => 8, ),
 		BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'username' => 1, 'algorithm' => 2, 'salt' => 3, 'password' => 4, 'created_at' => 5, 'last_login' => 6, 'is_active' => 7, 'is_super_admin' => 8, ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
 	);
@@ -162,21 +165,34 @@ abstract class BaseafGuardUserPeer {
 	 * XML schema will not be added to the select list and only loaded
 	 * on demand.
 	 *
-	 * @param      criteria object containing the columns to add.
+	 * @param      Criteria $criteria object containing the columns to add.
+	 * @param      string   $alias    optional table alias
 	 * @throws     PropelException Any exceptions caught during processing will be
 	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function addSelectColumns(Criteria $criteria)
+	public static function addSelectColumns(Criteria $criteria, $alias = null)
 	{
-		$criteria->addSelectColumn(afGuardUserPeer::ID);
-		$criteria->addSelectColumn(afGuardUserPeer::USERNAME);
-		$criteria->addSelectColumn(afGuardUserPeer::ALGORITHM);
-		$criteria->addSelectColumn(afGuardUserPeer::SALT);
-		$criteria->addSelectColumn(afGuardUserPeer::PASSWORD);
-		$criteria->addSelectColumn(afGuardUserPeer::CREATED_AT);
-		$criteria->addSelectColumn(afGuardUserPeer::LAST_LOGIN);
-		$criteria->addSelectColumn(afGuardUserPeer::IS_ACTIVE);
-		$criteria->addSelectColumn(afGuardUserPeer::IS_SUPER_ADMIN);
+		if (null === $alias) {
+			$criteria->addSelectColumn(afGuardUserPeer::ID);
+			$criteria->addSelectColumn(afGuardUserPeer::USERNAME);
+			$criteria->addSelectColumn(afGuardUserPeer::ALGORITHM);
+			$criteria->addSelectColumn(afGuardUserPeer::SALT);
+			$criteria->addSelectColumn(afGuardUserPeer::PASSWORD);
+			$criteria->addSelectColumn(afGuardUserPeer::CREATED_AT);
+			$criteria->addSelectColumn(afGuardUserPeer::LAST_LOGIN);
+			$criteria->addSelectColumn(afGuardUserPeer::IS_ACTIVE);
+			$criteria->addSelectColumn(afGuardUserPeer::IS_SUPER_ADMIN);
+		} else {
+			$criteria->addSelectColumn($alias . '.ID');
+			$criteria->addSelectColumn($alias . '.USERNAME');
+			$criteria->addSelectColumn($alias . '.ALGORITHM');
+			$criteria->addSelectColumn($alias . '.SALT');
+			$criteria->addSelectColumn($alias . '.PASSWORD');
+			$criteria->addSelectColumn($alias . '.CREATED_AT');
+			$criteria->addSelectColumn($alias . '.LAST_LOGIN');
+			$criteria->addSelectColumn($alias . '.IS_ACTIVE');
+			$criteria->addSelectColumn($alias . '.IS_SUPER_ADMIN');
+		}
 	}
 
 	/**
@@ -381,15 +397,18 @@ abstract class BaseafGuardUserPeer {
 	 */
 	public static function clearRelatedInstancePool()
 	{
-		// invalidate objects in afGuardUserPermissionPeer instance pool, since one or more of them may be deleted by ON DELETE CASCADE rule.
+		// Invalidate objects in afGuardUserPermissionPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserPermissionPeer::clearInstancePool();
-
-		// invalidate objects in afGuardUserGroupPeer instance pool, since one or more of them may be deleted by ON DELETE CASCADE rule.
+		// Invalidate objects in afGuardUserGroupPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserGroupPeer::clearInstancePool();
-
-		// invalidate objects in afGuardRememberKeyPeer instance pool, since one or more of them may be deleted by ON DELETE CASCADE rule.
+		// Invalidate objects in afGuardRememberKeyPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardRememberKeyPeer::clearInstancePool();
-
+		// Invalidate objects in UserProfilePeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		UserProfilePeer::clearInstancePool();
 	}
 
 	/**
@@ -412,6 +431,20 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
+	 * Retrieves the primary key from the DB resultset row 
+	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
+	 * a multi-column primary key, an array of the primary key columns will be returned.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @return     mixed The primary key of the row
+	 */
+	public static function getPrimaryKeyFromRow($row, $startcol = 0)
+	{
+		return (int) $row[$startcol];
+	}
+	
+	/**
 	 * The returned array will contain objects of the default type or
 	 * objects that inherit from the default.
 	 *
@@ -429,7 +462,7 @@ abstract class BaseafGuardUserPeer {
 			$key = afGuardUserPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = afGuardUserPeer::getInstanceFromPool($key))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
@@ -441,6 +474,31 @@ abstract class BaseafGuardUserPeer {
 		}
 		$stmt->closeCursor();
 		return $results;
+	}
+	/**
+	 * Populates an object of the default type or an object that inherit from the default.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
+	 * @return     array (afGuardUser object, last column rank)
+	 */
+	public static function populateObject($row, $startcol = 0)
+	{
+		$key = afGuardUserPeer::getPrimaryKeyHashFromRow($row, $startcol);
+		if (null !== ($obj = afGuardUserPeer::getInstanceFromPool($key))) {
+			// We no longer rehydrate the object, since this can cause data loss.
+			// See http://www.propelorm.org/ticket/509
+			// $obj->hydrate($row, $startcol, true); // rehydrate
+			$col = $startcol + afGuardUserPeer::NUM_COLUMNS;
+		} else {
+			$cls = afGuardUserPeer::OM_CLASS;
+			$obj = new $cls();
+			$col = $obj->hydrate($row, $startcol);
+			afGuardUserPeer::addInstanceToPool($obj, $key);
+		}
+		return array($obj, $col);
 	}
 	/**
 	 * Returns the TableMap related to this peer.
@@ -474,7 +532,7 @@ abstract class BaseafGuardUserPeer {
 	 * relative to a location on the PHP include_path.
 	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
 	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
+	 * @param      boolean $withPrefix Whether or not to return the path with the class name
 	 * @return     string path.to.ClassName
 	 */
 	public static function getOMClass($withPrefix = true)
@@ -493,15 +551,6 @@ abstract class BaseafGuardUserPeer {
 	 */
 	public static function doInsert($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPeer:doInsert:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -531,12 +580,6 @@ abstract class BaseafGuardUserPeer {
 			throw $e;
 		}
 
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPeer:doInsert:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserPeer', $values, $con, $pk);
-    }
-
 		return $pk;
 	}
 
@@ -551,15 +594,6 @@ abstract class BaseafGuardUserPeer {
 	 */
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPeer:doUpdate:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -570,7 +604,12 @@ abstract class BaseafGuardUserPeer {
 			$criteria = clone $values; // rename for clarity
 
 			$comparison = $criteria->getComparison(afGuardUserPeer::ID);
-			$selectCriteria->add(afGuardUserPeer::ID, $criteria->remove(afGuardUserPeer::ID), $comparison);
+			$value = $criteria->remove(afGuardUserPeer::ID);
+			if ($value) {
+				$selectCriteria->add(afGuardUserPeer::ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardUserPeer::TABLE_NAME);
+			}
 
 		} else { // $values is afGuardUser object
 			$criteria = $values->buildCriteria(); // gets full criteria
@@ -580,15 +619,7 @@ abstract class BaseafGuardUserPeer {
 		// set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
-		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
-
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserPeer:doUpdate:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserPeer', $values, $con, $ret);
-    }
-
-    return $ret;
+		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
 	/**
@@ -607,7 +638,7 @@ abstract class BaseafGuardUserPeer {
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
 			$affectedRows += afGuardUserPeer::doOnDeleteCascade(new Criteria(afGuardUserPeer::DATABASE_NAME), $con);
-			$affectedRows += BasePeer::doDeleteAll(afGuardUserPeer::TABLE_NAME, $con);
+			$affectedRows += BasePeer::doDeleteAll(afGuardUserPeer::TABLE_NAME, $con, afGuardUserPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
 			// instances get re-added by the select statement contained therein).
@@ -658,7 +689,10 @@ abstract class BaseafGuardUserPeer {
 			// use transaction because $criteria could contain info
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
-			$affectedRows += afGuardUserPeer::doOnDeleteCascade($criteria, $con);
+			
+			// cloning the Criteria in case it's modified by doSelect() or doSelectStmt()
+			$c = clone $criteria;
+			$affectedRows += afGuardUserPeer::doOnDeleteCascade($c, $con);
 			
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
@@ -723,6 +757,12 @@ abstract class BaseafGuardUserPeer {
 			
 			$criteria->add(afGuardRememberKeyPeer::USER_ID, $obj->getId());
 			$affectedRows += afGuardRememberKeyPeer::doDelete($criteria, $con);
+
+			// delete related UserProfile objects
+			$criteria = new Criteria(UserProfilePeer::DATABASE_NAME);
+			
+			$criteria->add(UserProfilePeer::USER_ID, $obj->getId());
+			$affectedRows += UserProfilePeer::doDelete($criteria, $con);
 		}
 		return $affectedRows;
 	}

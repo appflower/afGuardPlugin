@@ -1,11 +1,12 @@
 <?php
 
+
 /**
  * Base static class for performing query and update operations on the 'af_guard_user_group' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
 abstract class BaseafGuardUserGroupPeer {
 
@@ -62,6 +63,7 @@ abstract class BaseafGuardUserGroupPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId', 'GroupId', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId', 'groupId', ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID, self::GROUP_ID, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID', 'GROUP_ID', ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id', 'group_id', ),
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
@@ -76,6 +78,7 @@ abstract class BaseafGuardUserGroupPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId' => 0, 'GroupId' => 1, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId' => 0, 'groupId' => 1, ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID => 0, self::GROUP_ID => 1, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID' => 0, 'GROUP_ID' => 1, ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id' => 0, 'group_id' => 1, ),
 		BasePeer::TYPE_NUM => array (0, 1, )
 	);
@@ -141,14 +144,20 @@ abstract class BaseafGuardUserGroupPeer {
 	 * XML schema will not be added to the select list and only loaded
 	 * on demand.
 	 *
-	 * @param      criteria object containing the columns to add.
+	 * @param      Criteria $criteria object containing the columns to add.
+	 * @param      string   $alias    optional table alias
 	 * @throws     PropelException Any exceptions caught during processing will be
 	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function addSelectColumns(Criteria $criteria)
+	public static function addSelectColumns(Criteria $criteria, $alias = null)
 	{
-		$criteria->addSelectColumn(afGuardUserGroupPeer::USER_ID);
-		$criteria->addSelectColumn(afGuardUserGroupPeer::GROUP_ID);
+		if (null === $alias) {
+			$criteria->addSelectColumn(afGuardUserGroupPeer::USER_ID);
+			$criteria->addSelectColumn(afGuardUserGroupPeer::GROUP_ID);
+		} else {
+			$criteria->addSelectColumn($alias . '.USER_ID');
+			$criteria->addSelectColumn($alias . '.GROUP_ID');
+		}
 	}
 
 	/**
@@ -375,6 +384,20 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
+	 * Retrieves the primary key from the DB resultset row 
+	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
+	 * a multi-column primary key, an array of the primary key columns will be returned.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @return     mixed The primary key of the row
+	 */
+	public static function getPrimaryKeyFromRow($row, $startcol = 0)
+	{
+		return array((int) $row[$startcol], (int) $row[$startcol + 1]);
+	}
+	
+	/**
 	 * The returned array will contain objects of the default type or
 	 * objects that inherit from the default.
 	 *
@@ -392,7 +415,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool($key))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
@@ -404,6 +427,31 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 		$stmt->closeCursor();
 		return $results;
+	}
+	/**
+	 * Populates an object of the default type or an object that inherit from the default.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
+	 * @return     array (afGuardUserGroup object, last column rank)
+	 */
+	public static function populateObject($row, $startcol = 0)
+	{
+		$key = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, $startcol);
+		if (null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool($key))) {
+			// We no longer rehydrate the object, since this can cause data loss.
+			// See http://www.propelorm.org/ticket/509
+			// $obj->hydrate($row, $startcol, true); // rehydrate
+			$col = $startcol + afGuardUserGroupPeer::NUM_COLUMNS;
+		} else {
+			$cls = afGuardUserGroupPeer::OM_CLASS;
+			$obj = new $cls();
+			$col = $obj->hydrate($row, $startcol);
+			afGuardUserGroupPeer::addInstanceToPool($obj, $key);
+		}
+		return array($obj, $col);
 	}
 
 	/**
@@ -555,7 +603,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key1 = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserGroupPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 
@@ -577,7 +625,7 @@ abstract class BaseafGuardUserGroupPeer {
 					$obj2->hydrate($row, $startcol);
 					afGuardUserPeer::addInstanceToPool($obj2, $key2);
 				} // if obj2 already loaded
-				
+
 				// Add the $obj1 (afGuardUserGroup) to $obj2 (afGuardUser)
 				$obj2->addafGuardUserGroup($obj1);
 
@@ -627,7 +675,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key1 = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserGroupPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 
@@ -649,7 +697,7 @@ abstract class BaseafGuardUserGroupPeer {
 					$obj2->hydrate($row, $startcol);
 					afGuardGroupPeer::addInstanceToPool($obj2, $key2);
 				} // if obj2 already loaded
-				
+
 				// Add the $obj1 (afGuardUserGroup) to $obj2 (afGuardGroup)
 				$obj2->addafGuardUserGroup($obj1);
 
@@ -764,7 +812,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key1 = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserGroupPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserGroupPeer::getOMClass(false);
@@ -972,7 +1020,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key1 = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserGroupPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserGroupPeer::getOMClass(false);
@@ -1051,7 +1099,7 @@ abstract class BaseafGuardUserGroupPeer {
 			$key1 = afGuardUserGroupPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardUserGroupPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardUserGroupPeer::getOMClass(false);
@@ -1118,7 +1166,7 @@ abstract class BaseafGuardUserGroupPeer {
 	 * relative to a location on the PHP include_path.
 	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
 	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
+	 * @param      boolean $withPrefix Whether or not to return the path with the class name
 	 * @return     string path.to.ClassName
 	 */
 	public static function getOMClass($withPrefix = true)
@@ -1137,15 +1185,6 @@ abstract class BaseafGuardUserGroupPeer {
 	 */
 	public static function doInsert($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserGroupPeer:doInsert:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserGroupPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserGroupPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -1171,12 +1210,6 @@ abstract class BaseafGuardUserGroupPeer {
 			throw $e;
 		}
 
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserGroupPeer:doInsert:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserGroupPeer', $values, $con, $pk);
-    }
-
 		return $pk;
 	}
 
@@ -1191,15 +1224,6 @@ abstract class BaseafGuardUserGroupPeer {
 	 */
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserGroupPeer:doUpdate:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardUserGroupPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserGroupPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -1210,10 +1234,20 @@ abstract class BaseafGuardUserGroupPeer {
 			$criteria = clone $values; // rename for clarity
 
 			$comparison = $criteria->getComparison(afGuardUserGroupPeer::USER_ID);
-			$selectCriteria->add(afGuardUserGroupPeer::USER_ID, $criteria->remove(afGuardUserGroupPeer::USER_ID), $comparison);
+			$value = $criteria->remove(afGuardUserGroupPeer::USER_ID);
+			if ($value) {
+				$selectCriteria->add(afGuardUserGroupPeer::USER_ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardUserGroupPeer::TABLE_NAME);
+			}
 
 			$comparison = $criteria->getComparison(afGuardUserGroupPeer::GROUP_ID);
-			$selectCriteria->add(afGuardUserGroupPeer::GROUP_ID, $criteria->remove(afGuardUserGroupPeer::GROUP_ID), $comparison);
+			$value = $criteria->remove(afGuardUserGroupPeer::GROUP_ID);
+			if ($value) {
+				$selectCriteria->add(afGuardUserGroupPeer::GROUP_ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardUserGroupPeer::TABLE_NAME);
+			}
 
 		} else { // $values is afGuardUserGroup object
 			$criteria = $values->buildCriteria(); // gets full criteria
@@ -1223,15 +1257,7 @@ abstract class BaseafGuardUserGroupPeer {
 		// set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
-		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
-
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardUserGroupPeer:doUpdate:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardUserGroupPeer', $values, $con, $ret);
-    }
-
-    return $ret;
+		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
 	/**
@@ -1249,7 +1275,7 @@ abstract class BaseafGuardUserGroupPeer {
 			// use transaction because $criteria could contain info
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
-			$affectedRows += BasePeer::doDeleteAll(afGuardUserGroupPeer::TABLE_NAME, $con);
+			$affectedRows += BasePeer::doDeleteAll(afGuardUserGroupPeer::TABLE_NAME, $con, afGuardUserGroupPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
 			// instances get re-added by the select statement contained therein).
@@ -1374,8 +1400,8 @@ abstract class BaseafGuardUserGroupPeer {
 	 * @return     afGuardUserGroup
 	 */
 	public static function retrieveByPK($user_id, $group_id, PropelPDO $con = null) {
-		$key = serialize(array((string) $user_id, (string) $group_id));
- 		if (null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool($key))) {
+		$_instancePoolKey = serialize(array((string) $user_id, (string) $group_id));
+ 		if (null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool($_instancePoolKey))) {
  			return $obj;
 		}
 

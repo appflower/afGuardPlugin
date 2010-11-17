@@ -1,14 +1,20 @@
 <?php
 
+
 /**
  * Base class that represents a row from the 'af_guard_user' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
-abstract class BaseafGuardUser extends BaseObject  implements Persistent {
+abstract class BaseafGuardUser extends BaseObject  implements Persistent
+{
 
+	/**
+	 * Peer class name
+	 */
+	const PEER = 'afGuardUserPeer';
 
 	/**
 	 * The Peer class.
@@ -81,19 +87,9 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	protected $collafGuardUserPermissions;
 
 	/**
-	 * @var        Criteria The criteria used to select the current contents of collafGuardUserPermissions.
-	 */
-	private $lastafGuardUserPermissionCriteria = null;
-
-	/**
 	 * @var        array afGuardUserGroup[] Collection to store aggregation of afGuardUserGroup objects.
 	 */
 	protected $collafGuardUserGroups;
-
-	/**
-	 * @var        Criteria The criteria used to select the current contents of collafGuardUserGroups.
-	 */
-	private $lastafGuardUserGroupCriteria = null;
 
 	/**
 	 * @var        array afGuardRememberKey[] Collection to store aggregation of afGuardRememberKey objects.
@@ -101,9 +97,19 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	protected $collafGuardRememberKeys;
 
 	/**
-	 * @var        Criteria The criteria used to select the current contents of collafGuardRememberKeys.
+	 * @var        UserProfile one-to-one related UserProfile object
 	 */
-	private $lastafGuardRememberKeyCriteria = null;
+	protected $singleUserProfile;
+
+	/**
+	 * @var        array CompanyFavorite[] Collection to store aggregation of CompanyFavorite objects.
+	 */
+	protected $collCompanyFavorites;
+
+	/**
+	 * @var        array CompanyHistory[] Collection to store aggregation of CompanyHistory objects.
+	 */
+	protected $collCompanyHistorys;
 
 	/**
 	 * Flag to prevent endless save loop, if this object is referenced
@@ -118,10 +124,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 * @var        boolean
 	 */
 	protected $alreadyInValidation = false;
-
-	// symfony behavior
-	
-	const PEER = 'afGuardUserPeer';
 
 	/**
 	 * Applies default values to this object.
@@ -591,7 +593,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 				$this->ensureConsistency();
 			}
 
-			// FIXME - using NUM_COLUMNS may be clearer.
 			return $startcol + 9; // 9 = afGuardUserPeer::NUM_COLUMNS - afGuardUserPeer::NUM_LAZY_LOAD_COLUMNS).
 
 		} catch (Exception $e) {
@@ -655,13 +656,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($deep) {  // also de-associate any related objects?
 
 			$this->collafGuardUserPermissions = null;
-			$this->lastafGuardUserPermissionCriteria = null;
 
 			$this->collafGuardUserGroups = null;
-			$this->lastafGuardUserGroupCriteria = null;
 
 			$this->collafGuardRememberKeys = null;
-			$this->lastafGuardRememberKeyCriteria = null;
+
+			$this->singleUserProfile = null;
+
+			$this->collCompanyFavorites = null;
+
+			$this->collCompanyHistorys = null;
 
 		} // if (deep)
 	}
@@ -684,7 +688,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
-		
+
 		$con->beginTransaction();
 		try {
 			$ret = $this->preDelete($con);
@@ -694,13 +698,14 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 			  if (call_user_func($callable, $this, $con))
 			  {
 			    $con->commit();
-			
 			    return;
 			  }
 			}
 
 			if ($ret) {
-				afGuardUserPeer::doDelete($this, $con);
+				afGuardUserQuery::create()
+					->filterByPrimaryKey($this->getPrimaryKey())
+					->delete($con);
 				$this->postDelete($con);
 				// symfony_behaviors behavior
 				foreach (sfMixer::getCallables('BaseafGuardUser:delete:post') as $callable)
@@ -708,8 +713,8 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 				  call_user_func($callable, $this, $con);
 				}
 
-				$this->setDeleted(true);
 				$con->commit();
+				$this->setDeleted(true);
 			} else {
 				$con->commit();
 			}
@@ -741,7 +746,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
-		
+
 		$con->beginTransaction();
 		$isInsert = $this->isNew();
 		try {
@@ -751,8 +756,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 			{
 			  if (is_integer($affectedRows = call_user_func($callable, $this, $con)))
 			  {
-			    $con->commit();
-			
+			  	$con->commit();
 			    return $affectedRows;
 			  }
 			}
@@ -820,16 +824,17 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 			// If this object has been modified, then save it to the database.
 			if ($this->isModified()) {
 				if ($this->isNew()) {
-					$pk = afGuardUserPeer::doInsert($this, $con);
-					$affectedRows += 1; // we are assuming that there is only 1 row per doInsert() which
-										 // should always be true here (even though technically
-										 // BasePeer::doInsert() can insert multiple rows).
+					$criteria = $this->buildCriteria();
+					if ($criteria->keyContainsValue(afGuardUserPeer::ID) ) {
+						throw new PropelException('Cannot insert a value for auto-increment primary key ('.afGuardUserPeer::ID.')');
+					}
 
+					$pk = BasePeer::doInsert($criteria, $con);
+					$affectedRows = 1;
 					$this->setId($pk);  //[IMV] update autoincrement primary key
-
 					$this->setNew(false);
 				} else {
-					$affectedRows += afGuardUserPeer::doUpdate($this, $con);
+					$affectedRows = afGuardUserPeer::doUpdate($this, $con);
 				}
 
 				$this->resetModified(); // [HL] After being saved an object is no longer 'modified'
@@ -853,6 +858,28 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 
 			if ($this->collafGuardRememberKeys !== null) {
 				foreach ($this->collafGuardRememberKeys as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->singleUserProfile !== null) {
+				if (!$this->singleUserProfile->isDeleted()) {
+						$affectedRows += $this->singleUserProfile->save($con);
+				}
+			}
+
+			if ($this->collCompanyFavorites !== null) {
+				foreach ($this->collCompanyFavorites as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->collCompanyHistorys !== null) {
+				foreach ($this->collCompanyHistorys as $referrerFK) {
 					if (!$referrerFK->isDeleted()) {
 						$affectedRows += $referrerFK->save($con);
 					}
@@ -954,6 +981,28 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 					}
 				}
 
+				if ($this->singleUserProfile !== null) {
+					if (!$this->singleUserProfile->validate($columns)) {
+						$failureMap = array_merge($failureMap, $this->singleUserProfile->getValidationFailures());
+					}
+				}
+
+				if ($this->collCompanyFavorites !== null) {
+					foreach ($this->collCompanyFavorites as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
+				if ($this->collCompanyHistorys !== null) {
+					foreach ($this->collCompanyHistorys as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
 
 			$this->alreadyInValidation = false;
 		}
@@ -1026,10 +1075,12 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 * You can specify the key type of the array by passing one of the class
 	 * type constants.
 	 *
-	 * @param      string $keyType (optional) One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME
-	 *                        BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. Defaults to BasePeer::TYPE_PHPNAME.
-	 * @param      boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns.  Defaults to TRUE.
-	 * @return     an associative array containing the field names (as keys) and field values
+	 * @param     string  $keyType (optional) One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME,
+	 *                    BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM.
+	 *                    Defaults to BasePeer::TYPE_PHPNAME.
+	 * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
+	 *
+	 * @return    array an associative array containing the field names (as keys) and field values
 	 */
 	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
 	{
@@ -1170,7 +1221,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	public function buildPkeyCriteria()
 	{
 		$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-
 		$criteria->add(afGuardUserPeer::ID, $this->id);
 
 		return $criteria;
@@ -1197,6 +1247,15 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	}
 
 	/**
+	 * Returns true if the primary key for this object is null.
+	 * @return     boolean
+	 */
+	public function isPrimaryKeyNull()
+	{
+		return null === $this->getId();
+	}
+
+	/**
 	 * Sets contents of passed object to values from current object.
 	 *
 	 * If desired, this method can also make copies of all associated (fkey referrers)
@@ -1208,23 +1267,14 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function copyInto($copyObj, $deepCopy = false)
 	{
-
 		$copyObj->setUsername($this->username);
-
 		$copyObj->setAlgorithm($this->algorithm);
-
 		$copyObj->setSalt($this->salt);
-
 		$copyObj->setPassword($this->password);
-
 		$copyObj->setCreatedAt($this->created_at);
-
 		$copyObj->setLastLogin($this->last_login);
-
 		$copyObj->setIsActive($this->is_active);
-
 		$copyObj->setIsSuperAdmin($this->is_super_admin);
-
 
 		if ($deepCopy) {
 			// important: temporarily setNew(false) because this affects the behavior of
@@ -1249,13 +1299,28 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 				}
 			}
 
+			$relObj = $this->getUserProfile();
+			if ($relObj) {
+				$copyObj->setUserProfile($relObj->copy($deepCopy));
+			}
+
+			foreach ($this->getCompanyFavorites() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addCompanyFavorite($relObj->copy($deepCopy));
+				}
+			}
+
+			foreach ($this->getCompanyHistorys() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addCompanyHistory($relObj->copy($deepCopy));
+				}
+			}
+
 		} // if ($deepCopy)
 
 
 		$copyObj->setNew(true);
-
 		$copyObj->setId(NULL); // this is a auto-increment column, so set to default value
-
 	}
 
 	/**
@@ -1297,7 +1362,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	}
 
 	/**
-	 * Clears out the collafGuardUserPermissions collection (array).
+	 * Clears out the collafGuardUserPermissions collection
 	 *
 	 * This does not modify the database; however, it will remove any associated objects, causing
 	 * them to be refetched by subsequent calls to accessor method.
@@ -1311,7 +1376,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	}
 
 	/**
-	 * Initializes the collafGuardUserPermissions collection (array).
+	 * Initializes the collafGuardUserPermissions collection.
 	 *
 	 * By default this just sets the collafGuardUserPermissions collection to an empty array (like clearcollafGuardUserPermissions());
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
@@ -1321,59 +1386,40 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function initafGuardUserPermissions()
 	{
-		$this->collafGuardUserPermissions = array();
+		$this->collafGuardUserPermissions = new PropelObjectCollection();
+		$this->collafGuardUserPermissions->setModel('afGuardUserPermission');
 	}
 
 	/**
 	 * Gets an array of afGuardUserPermission objects which contain a foreign key that references this object.
 	 *
-	 * If this collection has already been initialized with an identical Criteria, it returns the collection.
-	 * Otherwise if this afGuardUser has previously been saved, it will retrieve
-	 * related afGuardUserPermissions from storage. If this afGuardUser is new, it will return
-	 * an empty collection or the current collection, the criteria is ignored on a new object.
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
 	 *
-	 * @param      PropelPDO $con
-	 * @param      Criteria $criteria
-	 * @return     array afGuardUserPermission[]
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array afGuardUserPermission[] List of afGuardUserPermission objects
 	 * @throws     PropelException
 	 */
 	public function getafGuardUserPermissions($criteria = null, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		}
-		elseif ($criteria instanceof Criteria)
-		{
-			$criteria = clone $criteria;
-		}
-
-		if ($this->collafGuardUserPermissions === null) {
-			if ($this->isNew()) {
-			   $this->collafGuardUserPermissions = array();
+		if(null === $this->collafGuardUserPermissions || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardUserPermissions) {
+				// return empty collection
+				$this->initafGuardUserPermissions();
 			} else {
-
-				$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-				afGuardUserPermissionPeer::addSelectColumns($criteria);
-				$this->collafGuardUserPermissions = afGuardUserPermissionPeer::doSelect($criteria, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return the collection.
-
-
-				$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-				afGuardUserPermissionPeer::addSelectColumns($criteria);
-				if (!isset($this->lastafGuardUserPermissionCriteria) || !$this->lastafGuardUserPermissionCriteria->equals($criteria)) {
-					$this->collafGuardUserPermissions = afGuardUserPermissionPeer::doSelect($criteria, $con);
+				$collafGuardUserPermissions = afGuardUserPermissionQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collafGuardUserPermissions;
 				}
+				$this->collafGuardUserPermissions = $collafGuardUserPermissions;
 			}
 		}
-		$this->lastafGuardUserPermissionCriteria = $criteria;
 		return $this->collafGuardUserPermissions;
 	}
 
@@ -1388,47 +1434,21 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function countafGuardUserPermissions(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		} else {
-			$criteria = clone $criteria;
-		}
-
-		if ($distinct) {
-			$criteria->setDistinct();
-		}
-
-		$count = null;
-
-		if ($this->collafGuardUserPermissions === null) {
-			if ($this->isNew()) {
-				$count = 0;
+		if(null === $this->collafGuardUserPermissions || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardUserPermissions) {
+				return 0;
 			} else {
-
-				$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-				$count = afGuardUserPermissionPeer::doCount($criteria, false, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return count of the collection.
-
-
-				$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-				if (!isset($this->lastafGuardUserPermissionCriteria) || !$this->lastafGuardUserPermissionCriteria->equals($criteria)) {
-					$count = afGuardUserPermissionPeer::doCount($criteria, false, $con);
-				} else {
-					$count = count($this->collafGuardUserPermissions);
+				$query = afGuardUserPermissionQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
 				}
-			} else {
-				$count = count($this->collafGuardUserPermissions);
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
 			}
+		} else {
+			return count($this->collafGuardUserPermissions);
 		}
-		return $count;
 	}
 
 	/**
@@ -1444,8 +1464,8 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($this->collafGuardUserPermissions === null) {
 			$this->initafGuardUserPermissions();
 		}
-		if (!in_array($l, $this->collafGuardUserPermissions, true)) { // only add it if the **same** object is not already associated
-			array_push($this->collafGuardUserPermissions, $l);
+		if (!$this->collafGuardUserPermissions->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collafGuardUserPermissions[]= $l;
 			$l->setafGuardUser($this);
 		}
 	}
@@ -1461,44 +1481,22 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 * This method is protected by default in order to keep the public
 	 * api reasonable.  You can provide public methods for those you
 	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afGuardUserPermission[] List of afGuardUserPermission objects
 	 */
 	public function getafGuardUserPermissionsJoinafGuardPermission($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		}
-		elseif ($criteria instanceof Criteria)
-		{
-			$criteria = clone $criteria;
-		}
+		$query = afGuardUserPermissionQuery::create(null, $criteria);
+		$query->joinWith('afGuardPermission', $join_behavior);
 
-		if ($this->collafGuardUserPermissions === null) {
-			if ($this->isNew()) {
-				$this->collafGuardUserPermissions = array();
-			} else {
-
-				$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-				$this->collafGuardUserPermissions = afGuardUserPermissionPeer::doSelectJoinafGuardPermission($criteria, $con, $join_behavior);
-			}
-		} else {
-			// the following code is to determine if a new query is
-			// called for.  If the criteria is the same as the last
-			// one, just return the collection.
-
-			$criteria->add(afGuardUserPermissionPeer::USER_ID, $this->id);
-
-			if (!isset($this->lastafGuardUserPermissionCriteria) || !$this->lastafGuardUserPermissionCriteria->equals($criteria)) {
-				$this->collafGuardUserPermissions = afGuardUserPermissionPeer::doSelectJoinafGuardPermission($criteria, $con, $join_behavior);
-			}
-		}
-		$this->lastafGuardUserPermissionCriteria = $criteria;
-
-		return $this->collafGuardUserPermissions;
+		return $this->getafGuardUserPermissions($query, $con);
 	}
 
 	/**
-	 * Clears out the collafGuardUserGroups collection (array).
+	 * Clears out the collafGuardUserGroups collection
 	 *
 	 * This does not modify the database; however, it will remove any associated objects, causing
 	 * them to be refetched by subsequent calls to accessor method.
@@ -1512,7 +1510,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	}
 
 	/**
-	 * Initializes the collafGuardUserGroups collection (array).
+	 * Initializes the collafGuardUserGroups collection.
 	 *
 	 * By default this just sets the collafGuardUserGroups collection to an empty array (like clearcollafGuardUserGroups());
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
@@ -1522,59 +1520,40 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function initafGuardUserGroups()
 	{
-		$this->collafGuardUserGroups = array();
+		$this->collafGuardUserGroups = new PropelObjectCollection();
+		$this->collafGuardUserGroups->setModel('afGuardUserGroup');
 	}
 
 	/**
 	 * Gets an array of afGuardUserGroup objects which contain a foreign key that references this object.
 	 *
-	 * If this collection has already been initialized with an identical Criteria, it returns the collection.
-	 * Otherwise if this afGuardUser has previously been saved, it will retrieve
-	 * related afGuardUserGroups from storage. If this afGuardUser is new, it will return
-	 * an empty collection or the current collection, the criteria is ignored on a new object.
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
 	 *
-	 * @param      PropelPDO $con
-	 * @param      Criteria $criteria
-	 * @return     array afGuardUserGroup[]
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array afGuardUserGroup[] List of afGuardUserGroup objects
 	 * @throws     PropelException
 	 */
 	public function getafGuardUserGroups($criteria = null, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		}
-		elseif ($criteria instanceof Criteria)
-		{
-			$criteria = clone $criteria;
-		}
-
-		if ($this->collafGuardUserGroups === null) {
-			if ($this->isNew()) {
-			   $this->collafGuardUserGroups = array();
+		if(null === $this->collafGuardUserGroups || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardUserGroups) {
+				// return empty collection
+				$this->initafGuardUserGroups();
 			} else {
-
-				$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-				afGuardUserGroupPeer::addSelectColumns($criteria);
-				$this->collafGuardUserGroups = afGuardUserGroupPeer::doSelect($criteria, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return the collection.
-
-
-				$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-				afGuardUserGroupPeer::addSelectColumns($criteria);
-				if (!isset($this->lastafGuardUserGroupCriteria) || !$this->lastafGuardUserGroupCriteria->equals($criteria)) {
-					$this->collafGuardUserGroups = afGuardUserGroupPeer::doSelect($criteria, $con);
+				$collafGuardUserGroups = afGuardUserGroupQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collafGuardUserGroups;
 				}
+				$this->collafGuardUserGroups = $collafGuardUserGroups;
 			}
 		}
-		$this->lastafGuardUserGroupCriteria = $criteria;
 		return $this->collafGuardUserGroups;
 	}
 
@@ -1589,47 +1568,21 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function countafGuardUserGroups(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		} else {
-			$criteria = clone $criteria;
-		}
-
-		if ($distinct) {
-			$criteria->setDistinct();
-		}
-
-		$count = null;
-
-		if ($this->collafGuardUserGroups === null) {
-			if ($this->isNew()) {
-				$count = 0;
+		if(null === $this->collafGuardUserGroups || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardUserGroups) {
+				return 0;
 			} else {
-
-				$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-				$count = afGuardUserGroupPeer::doCount($criteria, false, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return count of the collection.
-
-
-				$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-				if (!isset($this->lastafGuardUserGroupCriteria) || !$this->lastafGuardUserGroupCriteria->equals($criteria)) {
-					$count = afGuardUserGroupPeer::doCount($criteria, false, $con);
-				} else {
-					$count = count($this->collafGuardUserGroups);
+				$query = afGuardUserGroupQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
 				}
-			} else {
-				$count = count($this->collafGuardUserGroups);
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
 			}
+		} else {
+			return count($this->collafGuardUserGroups);
 		}
-		return $count;
 	}
 
 	/**
@@ -1645,8 +1598,8 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($this->collafGuardUserGroups === null) {
 			$this->initafGuardUserGroups();
 		}
-		if (!in_array($l, $this->collafGuardUserGroups, true)) { // only add it if the **same** object is not already associated
-			array_push($this->collafGuardUserGroups, $l);
+		if (!$this->collafGuardUserGroups->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collafGuardUserGroups[]= $l;
 			$l->setafGuardUser($this);
 		}
 	}
@@ -1662,44 +1615,22 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 * This method is protected by default in order to keep the public
 	 * api reasonable.  You can provide public methods for those you
 	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afGuardUserGroup[] List of afGuardUserGroup objects
 	 */
 	public function getafGuardUserGroupsJoinafGuardGroup($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		}
-		elseif ($criteria instanceof Criteria)
-		{
-			$criteria = clone $criteria;
-		}
+		$query = afGuardUserGroupQuery::create(null, $criteria);
+		$query->joinWith('afGuardGroup', $join_behavior);
 
-		if ($this->collafGuardUserGroups === null) {
-			if ($this->isNew()) {
-				$this->collafGuardUserGroups = array();
-			} else {
-
-				$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-				$this->collafGuardUserGroups = afGuardUserGroupPeer::doSelectJoinafGuardGroup($criteria, $con, $join_behavior);
-			}
-		} else {
-			// the following code is to determine if a new query is
-			// called for.  If the criteria is the same as the last
-			// one, just return the collection.
-
-			$criteria->add(afGuardUserGroupPeer::USER_ID, $this->id);
-
-			if (!isset($this->lastafGuardUserGroupCriteria) || !$this->lastafGuardUserGroupCriteria->equals($criteria)) {
-				$this->collafGuardUserGroups = afGuardUserGroupPeer::doSelectJoinafGuardGroup($criteria, $con, $join_behavior);
-			}
-		}
-		$this->lastafGuardUserGroupCriteria = $criteria;
-
-		return $this->collafGuardUserGroups;
+		return $this->getafGuardUserGroups($query, $con);
 	}
 
 	/**
-	 * Clears out the collafGuardRememberKeys collection (array).
+	 * Clears out the collafGuardRememberKeys collection
 	 *
 	 * This does not modify the database; however, it will remove any associated objects, causing
 	 * them to be refetched by subsequent calls to accessor method.
@@ -1713,7 +1644,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	}
 
 	/**
-	 * Initializes the collafGuardRememberKeys collection (array).
+	 * Initializes the collafGuardRememberKeys collection.
 	 *
 	 * By default this just sets the collafGuardRememberKeys collection to an empty array (like clearcollafGuardRememberKeys());
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
@@ -1723,59 +1654,40 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function initafGuardRememberKeys()
 	{
-		$this->collafGuardRememberKeys = array();
+		$this->collafGuardRememberKeys = new PropelObjectCollection();
+		$this->collafGuardRememberKeys->setModel('afGuardRememberKey');
 	}
 
 	/**
 	 * Gets an array of afGuardRememberKey objects which contain a foreign key that references this object.
 	 *
-	 * If this collection has already been initialized with an identical Criteria, it returns the collection.
-	 * Otherwise if this afGuardUser has previously been saved, it will retrieve
-	 * related afGuardRememberKeys from storage. If this afGuardUser is new, it will return
-	 * an empty collection or the current collection, the criteria is ignored on a new object.
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
 	 *
-	 * @param      PropelPDO $con
-	 * @param      Criteria $criteria
-	 * @return     array afGuardRememberKey[]
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array afGuardRememberKey[] List of afGuardRememberKey objects
 	 * @throws     PropelException
 	 */
 	public function getafGuardRememberKeys($criteria = null, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		}
-		elseif ($criteria instanceof Criteria)
-		{
-			$criteria = clone $criteria;
-		}
-
-		if ($this->collafGuardRememberKeys === null) {
-			if ($this->isNew()) {
-			   $this->collafGuardRememberKeys = array();
+		if(null === $this->collafGuardRememberKeys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardRememberKeys) {
+				// return empty collection
+				$this->initafGuardRememberKeys();
 			} else {
-
-				$criteria->add(afGuardRememberKeyPeer::USER_ID, $this->id);
-
-				afGuardRememberKeyPeer::addSelectColumns($criteria);
-				$this->collafGuardRememberKeys = afGuardRememberKeyPeer::doSelect($criteria, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return the collection.
-
-
-				$criteria->add(afGuardRememberKeyPeer::USER_ID, $this->id);
-
-				afGuardRememberKeyPeer::addSelectColumns($criteria);
-				if (!isset($this->lastafGuardRememberKeyCriteria) || !$this->lastafGuardRememberKeyCriteria->equals($criteria)) {
-					$this->collafGuardRememberKeys = afGuardRememberKeyPeer::doSelect($criteria, $con);
+				$collafGuardRememberKeys = afGuardRememberKeyQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collafGuardRememberKeys;
 				}
+				$this->collafGuardRememberKeys = $collafGuardRememberKeys;
 			}
 		}
-		$this->lastafGuardRememberKeyCriteria = $criteria;
 		return $this->collafGuardRememberKeys;
 	}
 
@@ -1790,47 +1702,21 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 	 */
 	public function countafGuardRememberKeys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
 	{
-		if ($criteria === null) {
-			$criteria = new Criteria(afGuardUserPeer::DATABASE_NAME);
-		} else {
-			$criteria = clone $criteria;
-		}
-
-		if ($distinct) {
-			$criteria->setDistinct();
-		}
-
-		$count = null;
-
-		if ($this->collafGuardRememberKeys === null) {
-			if ($this->isNew()) {
-				$count = 0;
+		if(null === $this->collafGuardRememberKeys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafGuardRememberKeys) {
+				return 0;
 			} else {
-
-				$criteria->add(afGuardRememberKeyPeer::USER_ID, $this->id);
-
-				$count = afGuardRememberKeyPeer::doCount($criteria, false, $con);
-			}
-		} else {
-			// criteria has no effect for a new object
-			if (!$this->isNew()) {
-				// the following code is to determine if a new query is
-				// called for.  If the criteria is the same as the last
-				// one, just return count of the collection.
-
-
-				$criteria->add(afGuardRememberKeyPeer::USER_ID, $this->id);
-
-				if (!isset($this->lastafGuardRememberKeyCriteria) || !$this->lastafGuardRememberKeyCriteria->equals($criteria)) {
-					$count = afGuardRememberKeyPeer::doCount($criteria, false, $con);
-				} else {
-					$count = count($this->collafGuardRememberKeys);
+				$query = afGuardRememberKeyQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
 				}
-			} else {
-				$count = count($this->collafGuardRememberKeys);
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
 			}
+		} else {
+			return count($this->collafGuardRememberKeys);
 		}
-		return $count;
 	}
 
 	/**
@@ -1846,10 +1732,337 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 		if ($this->collafGuardRememberKeys === null) {
 			$this->initafGuardRememberKeys();
 		}
-		if (!in_array($l, $this->collafGuardRememberKeys, true)) { // only add it if the **same** object is not already associated
-			array_push($this->collafGuardRememberKeys, $l);
+		if (!$this->collafGuardRememberKeys->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collafGuardRememberKeys[]= $l;
 			$l->setafGuardUser($this);
 		}
+	}
+
+	/**
+	 * Gets a single UserProfile object, which is related to this object by a one-to-one relationship.
+	 *
+	 * @param      PropelPDO $con optional connection object
+	 * @return     UserProfile
+	 * @throws     PropelException
+	 */
+	public function getUserProfile(PropelPDO $con = null)
+	{
+
+		if ($this->singleUserProfile === null && !$this->isNew()) {
+			$this->singleUserProfile = UserProfileQuery::create()->findPk($this->getPrimaryKey(), $con);
+		}
+
+		return $this->singleUserProfile;
+	}
+
+	/**
+	 * Sets a single UserProfile object as related to this object by a one-to-one relationship.
+	 *
+	 * @param      UserProfile $v UserProfile
+	 * @return     afGuardUser The current object (for fluent API support)
+	 * @throws     PropelException
+	 */
+	public function setUserProfile(UserProfile $v = null)
+	{
+		$this->singleUserProfile = $v;
+
+		// Make sure that that the passed-in UserProfile isn't already associated with this object
+		if ($v !== null && $v->getafGuardUser() === null) {
+			$v->setafGuardUser($this);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Clears out the collCompanyFavorites collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addCompanyFavorites()
+	 */
+	public function clearCompanyFavorites()
+	{
+		$this->collCompanyFavorites = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collCompanyFavorites collection.
+	 *
+	 * By default this just sets the collCompanyFavorites collection to an empty array (like clearcollCompanyFavorites());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @return     void
+	 */
+	public function initCompanyFavorites()
+	{
+		$this->collCompanyFavorites = new PropelObjectCollection();
+		$this->collCompanyFavorites->setModel('CompanyFavorite');
+	}
+
+	/**
+	 * Gets an array of CompanyFavorite objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array CompanyFavorite[] List of CompanyFavorite objects
+	 * @throws     PropelException
+	 */
+	public function getCompanyFavorites($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collCompanyFavorites || null !== $criteria) {
+			if ($this->isNew() && null === $this->collCompanyFavorites) {
+				// return empty collection
+				$this->initCompanyFavorites();
+			} else {
+				$collCompanyFavorites = CompanyFavoriteQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collCompanyFavorites;
+				}
+				$this->collCompanyFavorites = $collCompanyFavorites;
+			}
+		}
+		return $this->collCompanyFavorites;
+	}
+
+	/**
+	 * Returns the number of related CompanyFavorite objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related CompanyFavorite objects.
+	 * @throws     PropelException
+	 */
+	public function countCompanyFavorites(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collCompanyFavorites || null !== $criteria) {
+			if ($this->isNew() && null === $this->collCompanyFavorites) {
+				return 0;
+			} else {
+				$query = CompanyFavoriteQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collCompanyFavorites);
+		}
+	}
+
+	/**
+	 * Method called to associate a CompanyFavorite object to this object
+	 * through the CompanyFavorite foreign key attribute.
+	 *
+	 * @param      CompanyFavorite $l CompanyFavorite
+	 * @return     void
+	 * @throws     PropelException
+	 */
+	public function addCompanyFavorite(CompanyFavorite $l)
+	{
+		if ($this->collCompanyFavorites === null) {
+			$this->initCompanyFavorites();
+		}
+		if (!$this->collCompanyFavorites->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collCompanyFavorites[]= $l;
+			$l->setafGuardUser($this);
+		}
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related CompanyFavorites from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array CompanyFavorite[] List of CompanyFavorite objects
+	 */
+	public function getCompanyFavoritesJoinCompany($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = CompanyFavoriteQuery::create(null, $criteria);
+		$query->joinWith('Company', $join_behavior);
+
+		return $this->getCompanyFavorites($query, $con);
+	}
+
+	/**
+	 * Clears out the collCompanyHistorys collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addCompanyHistorys()
+	 */
+	public function clearCompanyHistorys()
+	{
+		$this->collCompanyHistorys = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collCompanyHistorys collection.
+	 *
+	 * By default this just sets the collCompanyHistorys collection to an empty array (like clearcollCompanyHistorys());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @return     void
+	 */
+	public function initCompanyHistorys()
+	{
+		$this->collCompanyHistorys = new PropelObjectCollection();
+		$this->collCompanyHistorys->setModel('CompanyHistory');
+	}
+
+	/**
+	 * Gets an array of CompanyHistory objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array CompanyHistory[] List of CompanyHistory objects
+	 * @throws     PropelException
+	 */
+	public function getCompanyHistorys($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collCompanyHistorys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collCompanyHistorys) {
+				// return empty collection
+				$this->initCompanyHistorys();
+			} else {
+				$collCompanyHistorys = CompanyHistoryQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collCompanyHistorys;
+				}
+				$this->collCompanyHistorys = $collCompanyHistorys;
+			}
+		}
+		return $this->collCompanyHistorys;
+	}
+
+	/**
+	 * Returns the number of related CompanyHistory objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related CompanyHistory objects.
+	 * @throws     PropelException
+	 */
+	public function countCompanyHistorys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collCompanyHistorys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collCompanyHistorys) {
+				return 0;
+			} else {
+				$query = CompanyHistoryQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collCompanyHistorys);
+		}
+	}
+
+	/**
+	 * Method called to associate a CompanyHistory object to this object
+	 * through the CompanyHistory foreign key attribute.
+	 *
+	 * @param      CompanyHistory $l CompanyHistory
+	 * @return     void
+	 * @throws     PropelException
+	 */
+	public function addCompanyHistory(CompanyHistory $l)
+	{
+		if ($this->collCompanyHistorys === null) {
+			$this->initCompanyHistorys();
+		}
+		if (!$this->collCompanyHistorys->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collCompanyHistorys[]= $l;
+			$l->setafGuardUser($this);
+		}
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related CompanyHistorys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array CompanyHistory[] List of CompanyHistory objects
+	 */
+	public function getCompanyHistorysJoinCompany($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = CompanyHistoryQuery::create(null, $criteria);
+		$query->joinWith('Company', $join_behavior);
+
+		return $this->getCompanyHistorys($query, $con);
+	}
+
+	/**
+	 * Clears the current object and sets all attributes to their default values
+	 */
+	public function clear()
+	{
+		$this->id = null;
+		$this->username = null;
+		$this->algorithm = null;
+		$this->salt = null;
+		$this->password = null;
+		$this->created_at = null;
+		$this->last_login = null;
+		$this->is_active = null;
+		$this->is_super_admin = null;
+		$this->alreadyInSave = false;
+		$this->alreadyInValidation = false;
+		$this->clearAllReferences();
+		$this->applyDefaultValues();
+		$this->resetModified();
+		$this->setNew(true);
+		$this->setDeleted(false);
 	}
 
 	/**
@@ -1879,28 +2092,53 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent {
 					$o->clearAllReferences($deep);
 				}
 			}
+			if ($this->singleUserProfile) {
+				$this->singleUserProfile->clearAllReferences($deep);
+			}
+			if ($this->collCompanyFavorites) {
+				foreach ((array) $this->collCompanyFavorites as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
+			if ($this->collCompanyHistorys) {
+				foreach ((array) $this->collCompanyHistorys as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
 		} // if ($deep)
 
 		$this->collafGuardUserPermissions = null;
 		$this->collafGuardUserGroups = null;
 		$this->collafGuardRememberKeys = null;
+		$this->singleUserProfile = null;
+		$this->collCompanyFavorites = null;
+		$this->collCompanyHistorys = null;
 	}
 
-	// symfony_behaviors behavior
-	
 	/**
-	 * Calls methods defined via {@link sfMixer}.
+	 * Catches calls to virtual methods
 	 */
-	public function __call($method, $arguments)
+	public function __call($name, $params)
 	{
-	  if (!$callable = sfMixer::getCallable('BaseafGuardUser:'.$method))
-	  {
-	    throw new sfException(sprintf('Call to undefined method BaseafGuardUser::%s', $method));
-	  }
-	
-	  array_unshift($arguments, $this);
-	
-	  return call_user_func_array($callable, $arguments);
+		// symfony_behaviors behavior
+		if ($callable = sfMixer::getCallable('BaseafGuardUser:' . $name))
+		{
+		  array_unshift($params, $this);
+		  return call_user_func_array($callable, $params);
+		}
+
+		if (preg_match('/get(\w+)/', $name, $matches)) {
+			$virtualColumn = $matches[1];
+			if ($this->hasVirtualColumn($virtualColumn)) {
+				return $this->getVirtualColumn($virtualColumn);
+			}
+			// no lcfirst in php<5.3...
+			$virtualColumn[0] = strtolower($virtualColumn[0]);
+			if ($this->hasVirtualColumn($virtualColumn)) {
+				return $this->getVirtualColumn($virtualColumn);
+			}
+		}
+		return parent::__call($name, $params);
 	}
 
 } // BaseafGuardUser

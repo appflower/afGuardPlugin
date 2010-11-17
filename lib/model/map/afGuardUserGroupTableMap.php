@@ -1,6 +1,7 @@
 <?php
 
 
+
 /**
  * This class defines the structure of the 'af_guard_user_group' table.
  *
@@ -11,7 +12,7 @@
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    plugins.afGuardPlugin.lib.model.map
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.map
  */
 class afGuardUserGroupTableMap extends TableMap {
 

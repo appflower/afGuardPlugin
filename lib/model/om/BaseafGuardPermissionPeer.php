@@ -1,11 +1,12 @@
 <?php
 
+
 /**
  * Base static class for performing query and update operations on the 'af_guard_permission' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
 abstract class BaseafGuardPermissionPeer {
 
@@ -65,6 +66,7 @@ abstract class BaseafGuardPermissionPeer {
 		BasePeer::TYPE_PHPNAME => array ('Id', 'Name', 'Description', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'name', 'description', ),
 		BasePeer::TYPE_COLNAME => array (self::ID, self::NAME, self::DESCRIPTION, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('ID', 'NAME', 'DESCRIPTION', ),
 		BasePeer::TYPE_FIELDNAME => array ('id', 'name', 'description', ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, )
 	);
@@ -79,6 +81,7 @@ abstract class BaseafGuardPermissionPeer {
 		BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Name' => 1, 'Description' => 2, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'name' => 1, 'description' => 2, ),
 		BasePeer::TYPE_COLNAME => array (self::ID => 0, self::NAME => 1, self::DESCRIPTION => 2, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'NAME' => 1, 'DESCRIPTION' => 2, ),
 		BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'name' => 1, 'description' => 2, ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, )
 	);
@@ -144,15 +147,22 @@ abstract class BaseafGuardPermissionPeer {
 	 * XML schema will not be added to the select list and only loaded
 	 * on demand.
 	 *
-	 * @param      criteria object containing the columns to add.
+	 * @param      Criteria $criteria object containing the columns to add.
+	 * @param      string   $alias    optional table alias
 	 * @throws     PropelException Any exceptions caught during processing will be
 	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function addSelectColumns(Criteria $criteria)
+	public static function addSelectColumns(Criteria $criteria, $alias = null)
 	{
-		$criteria->addSelectColumn(afGuardPermissionPeer::ID);
-		$criteria->addSelectColumn(afGuardPermissionPeer::NAME);
-		$criteria->addSelectColumn(afGuardPermissionPeer::DESCRIPTION);
+		if (null === $alias) {
+			$criteria->addSelectColumn(afGuardPermissionPeer::ID);
+			$criteria->addSelectColumn(afGuardPermissionPeer::NAME);
+			$criteria->addSelectColumn(afGuardPermissionPeer::DESCRIPTION);
+		} else {
+			$criteria->addSelectColumn($alias . '.ID');
+			$criteria->addSelectColumn($alias . '.NAME');
+			$criteria->addSelectColumn($alias . '.DESCRIPTION');
+		}
 	}
 
 	/**
@@ -357,12 +367,12 @@ abstract class BaseafGuardPermissionPeer {
 	 */
 	public static function clearRelatedInstancePool()
 	{
-		// invalidate objects in afGuardGroupPermissionPeer instance pool, since one or more of them may be deleted by ON DELETE CASCADE rule.
+		// Invalidate objects in afGuardGroupPermissionPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardGroupPermissionPeer::clearInstancePool();
-
-		// invalidate objects in afGuardUserPermissionPeer instance pool, since one or more of them may be deleted by ON DELETE CASCADE rule.
+		// Invalidate objects in afGuardUserPermissionPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserPermissionPeer::clearInstancePool();
-
 	}
 
 	/**
@@ -385,6 +395,20 @@ abstract class BaseafGuardPermissionPeer {
 	}
 
 	/**
+	 * Retrieves the primary key from the DB resultset row 
+	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
+	 * a multi-column primary key, an array of the primary key columns will be returned.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @return     mixed The primary key of the row
+	 */
+	public static function getPrimaryKeyFromRow($row, $startcol = 0)
+	{
+		return (int) $row[$startcol];
+	}
+	
+	/**
 	 * The returned array will contain objects of the default type or
 	 * objects that inherit from the default.
 	 *
@@ -402,7 +426,7 @@ abstract class BaseafGuardPermissionPeer {
 			$key = afGuardPermissionPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = afGuardPermissionPeer::getInstanceFromPool($key))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
@@ -414,6 +438,31 @@ abstract class BaseafGuardPermissionPeer {
 		}
 		$stmt->closeCursor();
 		return $results;
+	}
+	/**
+	 * Populates an object of the default type or an object that inherit from the default.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
+	 * @return     array (afGuardPermission object, last column rank)
+	 */
+	public static function populateObject($row, $startcol = 0)
+	{
+		$key = afGuardPermissionPeer::getPrimaryKeyHashFromRow($row, $startcol);
+		if (null !== ($obj = afGuardPermissionPeer::getInstanceFromPool($key))) {
+			// We no longer rehydrate the object, since this can cause data loss.
+			// See http://www.propelorm.org/ticket/509
+			// $obj->hydrate($row, $startcol, true); // rehydrate
+			$col = $startcol + afGuardPermissionPeer::NUM_COLUMNS;
+		} else {
+			$cls = afGuardPermissionPeer::OM_CLASS;
+			$obj = new $cls();
+			$col = $obj->hydrate($row, $startcol);
+			afGuardPermissionPeer::addInstanceToPool($obj, $key);
+		}
+		return array($obj, $col);
 	}
 	/**
 	 * Returns the TableMap related to this peer.
@@ -447,7 +496,7 @@ abstract class BaseafGuardPermissionPeer {
 	 * relative to a location on the PHP include_path.
 	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
 	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
+	 * @param      boolean $withPrefix Whether or not to return the path with the class name
 	 * @return     string path.to.ClassName
 	 */
 	public static function getOMClass($withPrefix = true)
@@ -466,15 +515,6 @@ abstract class BaseafGuardPermissionPeer {
 	 */
 	public static function doInsert($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardPermissionPeer:doInsert:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardPermissionPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardPermissionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -504,12 +544,6 @@ abstract class BaseafGuardPermissionPeer {
 			throw $e;
 		}
 
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardPermissionPeer:doInsert:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardPermissionPeer', $values, $con, $pk);
-    }
-
 		return $pk;
 	}
 
@@ -524,15 +558,6 @@ abstract class BaseafGuardPermissionPeer {
 	 */
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardPermissionPeer:doUpdate:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardPermissionPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardPermissionPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -543,7 +568,12 @@ abstract class BaseafGuardPermissionPeer {
 			$criteria = clone $values; // rename for clarity
 
 			$comparison = $criteria->getComparison(afGuardPermissionPeer::ID);
-			$selectCriteria->add(afGuardPermissionPeer::ID, $criteria->remove(afGuardPermissionPeer::ID), $comparison);
+			$value = $criteria->remove(afGuardPermissionPeer::ID);
+			if ($value) {
+				$selectCriteria->add(afGuardPermissionPeer::ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardPermissionPeer::TABLE_NAME);
+			}
 
 		} else { // $values is afGuardPermission object
 			$criteria = $values->buildCriteria(); // gets full criteria
@@ -553,15 +583,7 @@ abstract class BaseafGuardPermissionPeer {
 		// set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
-		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
-
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardPermissionPeer:doUpdate:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardPermissionPeer', $values, $con, $ret);
-    }
-
-    return $ret;
+		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
 	/**
@@ -580,7 +602,7 @@ abstract class BaseafGuardPermissionPeer {
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
 			$affectedRows += afGuardPermissionPeer::doOnDeleteCascade(new Criteria(afGuardPermissionPeer::DATABASE_NAME), $con);
-			$affectedRows += BasePeer::doDeleteAll(afGuardPermissionPeer::TABLE_NAME, $con);
+			$affectedRows += BasePeer::doDeleteAll(afGuardPermissionPeer::TABLE_NAME, $con, afGuardPermissionPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
 			// instances get re-added by the select statement contained therein).
@@ -631,7 +653,10 @@ abstract class BaseafGuardPermissionPeer {
 			// use transaction because $criteria could contain info
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
-			$affectedRows += afGuardPermissionPeer::doOnDeleteCascade($criteria, $con);
+			
+			// cloning the Criteria in case it's modified by doSelect() or doSelectStmt()
+			$c = clone $criteria;
+			$affectedRows += afGuardPermissionPeer::doOnDeleteCascade($c, $con);
 			
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since

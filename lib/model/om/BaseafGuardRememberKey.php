@@ -1,14 +1,20 @@
 <?php
 
+
 /**
  * Base class that represents a row from the 'af_guard_remember_key' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
-abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent {
+abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent
+{
 
+	/**
+	 * Peer class name
+	 */
+	const PEER = 'afGuardRememberKeyPeer';
 
 	/**
 	 * The Peer class.
@@ -60,10 +66,6 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	 * @var        boolean
 	 */
 	protected $alreadyInValidation = false;
-
-	// symfony behavior
-	
-	const PEER = 'afGuardRememberKeyPeer';
 
 	/**
 	 * Get the [user_id] column value.
@@ -290,7 +292,6 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 				$this->ensureConsistency();
 			}
 
-			// FIXME - using NUM_COLUMNS may be clearer.
 			return $startcol + 4; // 4 = afGuardRememberKeyPeer::NUM_COLUMNS - afGuardRememberKeyPeer::NUM_LAZY_LOAD_COLUMNS).
 
 		} catch (Exception $e) {
@@ -378,7 +379,7 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardRememberKeyPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
-		
+
 		$con->beginTransaction();
 		try {
 			$ret = $this->preDelete($con);
@@ -388,13 +389,14 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 			  if (call_user_func($callable, $this, $con))
 			  {
 			    $con->commit();
-			
 			    return;
 			  }
 			}
 
 			if ($ret) {
-				afGuardRememberKeyPeer::doDelete($this, $con);
+				afGuardRememberKeyQuery::create()
+					->filterByPrimaryKey($this->getPrimaryKey())
+					->delete($con);
 				$this->postDelete($con);
 				// symfony_behaviors behavior
 				foreach (sfMixer::getCallables('BaseafGuardRememberKey:delete:post') as $callable)
@@ -402,8 +404,8 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 				  call_user_func($callable, $this, $con);
 				}
 
-				$this->setDeleted(true);
 				$con->commit();
+				$this->setDeleted(true);
 			} else {
 				$con->commit();
 			}
@@ -435,7 +437,7 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardRememberKeyPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
-		
+
 		$con->beginTransaction();
 		$isInsert = $this->isNew();
 		try {
@@ -445,8 +447,7 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 			{
 			  if (is_integer($affectedRows = call_user_func($callable, $this, $con)))
 			  {
-			    $con->commit();
-			
+			  	$con->commit();
 			    return $affectedRows;
 			  }
 			}
@@ -523,11 +524,9 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 			// If this object has been modified, then save it to the database.
 			if ($this->isModified()) {
 				if ($this->isNew()) {
-					$pk = afGuardRememberKeyPeer::doInsert($this, $con);
-					$affectedRows += 1; // we are assuming that there is only 1 row per doInsert() which
-										 // should always be true here (even though technically
-										 // BasePeer::doInsert() can insert multiple rows).
-
+					$criteria = $this->buildCriteria();
+					$pk = BasePeer::doInsert($criteria, $con);
+					$affectedRows += 1;
 					$this->setNew(false);
 				} else {
 					$affectedRows += afGuardRememberKeyPeer::doUpdate($this, $con);
@@ -676,12 +675,15 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	 * You can specify the key type of the array by passing one of the class
 	 * type constants.
 	 *
-	 * @param      string $keyType (optional) One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME
-	 *                        BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. Defaults to BasePeer::TYPE_PHPNAME.
-	 * @param      boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns.  Defaults to TRUE.
-	 * @return     an associative array containing the field names (as keys) and field values
+	 * @param     string  $keyType (optional) One of the class type constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME,
+	 *                    BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM.
+	 *                    Defaults to BasePeer::TYPE_PHPNAME.
+	 * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
+	 * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
+	 *
+	 * @return    array an associative array containing the field names (as keys) and field values
 	 */
-	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
+	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $includeForeignObjects = false)
 	{
 		$keys = afGuardRememberKeyPeer::getFieldNames($keyType);
 		$result = array(
@@ -690,6 +692,11 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 			$keys[2] => $this->getIpAddress(),
 			$keys[3] => $this->getCreatedAt(),
 		);
+		if ($includeForeignObjects) {
+			if (null !== $this->aafGuardUser) {
+				$result['afGuardUser'] = $this->aafGuardUser->toArray($keyType, $includeLazyLoadColumns, true);
+			}
+		}
 		return $result;
 	}
 
@@ -790,7 +797,6 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	public function buildPkeyCriteria()
 	{
 		$criteria = new Criteria(afGuardRememberKeyPeer::DATABASE_NAME);
-
 		$criteria->add(afGuardRememberKeyPeer::USER_ID, $this->user_id);
 		$criteria->add(afGuardRememberKeyPeer::IP_ADDRESS, $this->ip_address);
 
@@ -805,9 +811,7 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	public function getPrimaryKey()
 	{
 		$pks = array();
-
 		$pks[0] = $this->getUserId();
-
 		$pks[1] = $this->getIpAddress();
 
 		return $pks;
@@ -821,11 +825,17 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	 */
 	public function setPrimaryKey($keys)
 	{
-
 		$this->setUserId($keys[0]);
-
 		$this->setIpAddress($keys[1]);
+	}
 
+	/**
+	 * Returns true if the primary key for this object is null.
+	 * @return     boolean
+	 */
+	public function isPrimaryKeyNull()
+	{
+		return (null === $this->getUserId()) && (null === $this->getIpAddress());
 	}
 
 	/**
@@ -840,18 +850,12 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	 */
 	public function copyInto($copyObj, $deepCopy = false)
 	{
-
 		$copyObj->setUserId($this->user_id);
-
 		$copyObj->setRememberKey($this->remember_key);
-
 		$copyObj->setIpAddress($this->ip_address);
-
 		$copyObj->setCreatedAt($this->created_at);
 
-
 		$copyObj->setNew(true);
-
 	}
 
 	/**
@@ -929,16 +933,33 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 	public function getafGuardUser(PropelPDO $con = null)
 	{
 		if ($this->aafGuardUser === null && ($this->user_id !== null)) {
-			$this->aafGuardUser = afGuardUserPeer::retrieveByPk($this->user_id);
+			$this->aafGuardUser = afGuardUserQuery::create()->findPk($this->user_id, $con);
 			/* The following can be used additionally to
-			   guarantee the related object contains a reference
-			   to this object.  This level of coupling may, however, be
-			   undesirable since it could result in an only partially populated collection
-			   in the referenced object.
-			   $this->aafGuardUser->addafGuardRememberKeys($this);
+				 guarantee the related object contains a reference
+				 to this object.  This level of coupling may, however, be
+				 undesirable since it could result in an only partially populated collection
+				 in the referenced object.
+				 $this->aafGuardUser->addafGuardRememberKeys($this);
 			 */
 		}
 		return $this->aafGuardUser;
+	}
+
+	/**
+	 * Clears the current object and sets all attributes to their default values
+	 */
+	public function clear()
+	{
+		$this->user_id = null;
+		$this->remember_key = null;
+		$this->ip_address = null;
+		$this->created_at = null;
+		$this->alreadyInSave = false;
+		$this->alreadyInValidation = false;
+		$this->clearAllReferences();
+		$this->resetModified();
+		$this->setNew(true);
+		$this->setDeleted(false);
 	}
 
 	/**
@@ -955,24 +976,33 @@ abstract class BaseafGuardRememberKey extends BaseObject  implements Persistent 
 		if ($deep) {
 		} // if ($deep)
 
-			$this->aafGuardUser = null;
+		$this->aafGuardUser = null;
 	}
 
-	// symfony_behaviors behavior
-	
 	/**
-	 * Calls methods defined via {@link sfMixer}.
+	 * Catches calls to virtual methods
 	 */
-	public function __call($method, $arguments)
+	public function __call($name, $params)
 	{
-	  if (!$callable = sfMixer::getCallable('BaseafGuardRememberKey:'.$method))
-	  {
-	    throw new sfException(sprintf('Call to undefined method BaseafGuardRememberKey::%s', $method));
-	  }
-	
-	  array_unshift($arguments, $this);
-	
-	  return call_user_func_array($callable, $arguments);
+		// symfony_behaviors behavior
+		if ($callable = sfMixer::getCallable('BaseafGuardRememberKey:' . $name))
+		{
+		  array_unshift($params, $this);
+		  return call_user_func_array($callable, $params);
+		}
+
+		if (preg_match('/get(\w+)/', $name, $matches)) {
+			$virtualColumn = $matches[1];
+			if ($this->hasVirtualColumn($virtualColumn)) {
+				return $this->getVirtualColumn($virtualColumn);
+			}
+			// no lcfirst in php<5.3...
+			$virtualColumn[0] = strtolower($virtualColumn[0]);
+			if ($this->hasVirtualColumn($virtualColumn)) {
+				return $this->getVirtualColumn($virtualColumn);
+			}
+		}
+		return parent::__call($name, $params);
 	}
 
 } // BaseafGuardRememberKey

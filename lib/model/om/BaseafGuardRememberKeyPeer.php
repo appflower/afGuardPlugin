@@ -1,11 +1,12 @@
 <?php
 
+
 /**
  * Base static class for performing query and update operations on the 'af_guard_remember_key' table.
  *
  * 
  *
- * @package    plugins.afGuardPlugin.lib.model.om
+ * @package    propel.generator.plugins.afGuardPlugin.lib.model.om
  */
 abstract class BaseafGuardRememberKeyPeer {
 
@@ -68,6 +69,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId', 'RememberKey', 'IpAddress', 'CreatedAt', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId', 'rememberKey', 'ipAddress', 'createdAt', ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID, self::REMEMBER_KEY, self::IP_ADDRESS, self::CREATED_AT, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID', 'REMEMBER_KEY', 'IP_ADDRESS', 'CREATED_AT', ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id', 'remember_key', 'ip_address', 'created_at', ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, 3, )
 	);
@@ -82,6 +84,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		BasePeer::TYPE_PHPNAME => array ('UserId' => 0, 'RememberKey' => 1, 'IpAddress' => 2, 'CreatedAt' => 3, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId' => 0, 'rememberKey' => 1, 'ipAddress' => 2, 'createdAt' => 3, ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID => 0, self::REMEMBER_KEY => 1, self::IP_ADDRESS => 2, self::CREATED_AT => 3, ),
+		BasePeer::TYPE_RAW_COLNAME => array ('USER_ID' => 0, 'REMEMBER_KEY' => 1, 'IP_ADDRESS' => 2, 'CREATED_AT' => 3, ),
 		BasePeer::TYPE_FIELDNAME => array ('user_id' => 0, 'remember_key' => 1, 'ip_address' => 2, 'created_at' => 3, ),
 		BasePeer::TYPE_NUM => array (0, 1, 2, 3, )
 	);
@@ -147,16 +150,24 @@ abstract class BaseafGuardRememberKeyPeer {
 	 * XML schema will not be added to the select list and only loaded
 	 * on demand.
 	 *
-	 * @param      criteria object containing the columns to add.
+	 * @param      Criteria $criteria object containing the columns to add.
+	 * @param      string   $alias    optional table alias
 	 * @throws     PropelException Any exceptions caught during processing will be
 	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function addSelectColumns(Criteria $criteria)
+	public static function addSelectColumns(Criteria $criteria, $alias = null)
 	{
-		$criteria->addSelectColumn(afGuardRememberKeyPeer::USER_ID);
-		$criteria->addSelectColumn(afGuardRememberKeyPeer::REMEMBER_KEY);
-		$criteria->addSelectColumn(afGuardRememberKeyPeer::IP_ADDRESS);
-		$criteria->addSelectColumn(afGuardRememberKeyPeer::CREATED_AT);
+		if (null === $alias) {
+			$criteria->addSelectColumn(afGuardRememberKeyPeer::USER_ID);
+			$criteria->addSelectColumn(afGuardRememberKeyPeer::REMEMBER_KEY);
+			$criteria->addSelectColumn(afGuardRememberKeyPeer::IP_ADDRESS);
+			$criteria->addSelectColumn(afGuardRememberKeyPeer::CREATED_AT);
+		} else {
+			$criteria->addSelectColumn($alias . '.USER_ID');
+			$criteria->addSelectColumn($alias . '.REMEMBER_KEY');
+			$criteria->addSelectColumn($alias . '.IP_ADDRESS');
+			$criteria->addSelectColumn($alias . '.CREATED_AT');
+		}
 	}
 
 	/**
@@ -383,6 +394,20 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
+	 * Retrieves the primary key from the DB resultset row 
+	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
+	 * a multi-column primary key, an array of the primary key columns will be returned.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @return     mixed The primary key of the row
+	 */
+	public static function getPrimaryKeyFromRow($row, $startcol = 0)
+	{
+		return array((int) $row[$startcol], (string) $row[$startcol + 2]);
+	}
+	
+	/**
 	 * The returned array will contain objects of the default type or
 	 * objects that inherit from the default.
 	 *
@@ -400,7 +425,7 @@ abstract class BaseafGuardRememberKeyPeer {
 			$key = afGuardRememberKeyPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj = afGuardRememberKeyPeer::getInstanceFromPool($key))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
@@ -412,6 +437,31 @@ abstract class BaseafGuardRememberKeyPeer {
 		}
 		$stmt->closeCursor();
 		return $results;
+	}
+	/**
+	 * Populates an object of the default type or an object that inherit from the default.
+	 *
+	 * @param      array $row PropelPDO resultset row.
+	 * @param      int $startcol The 0-based offset for reading from the resultset row.
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
+	 * @return     array (afGuardRememberKey object, last column rank)
+	 */
+	public static function populateObject($row, $startcol = 0)
+	{
+		$key = afGuardRememberKeyPeer::getPrimaryKeyHashFromRow($row, $startcol);
+		if (null !== ($obj = afGuardRememberKeyPeer::getInstanceFromPool($key))) {
+			// We no longer rehydrate the object, since this can cause data loss.
+			// See http://www.propelorm.org/ticket/509
+			// $obj->hydrate($row, $startcol, true); // rehydrate
+			$col = $startcol + afGuardRememberKeyPeer::NUM_COLUMNS;
+		} else {
+			$cls = afGuardRememberKeyPeer::OM_CLASS;
+			$obj = new $cls();
+			$col = $obj->hydrate($row, $startcol);
+			afGuardRememberKeyPeer::addInstanceToPool($obj, $key);
+		}
+		return array($obj, $col);
 	}
 
 	/**
@@ -507,7 +557,7 @@ abstract class BaseafGuardRememberKeyPeer {
 			$key1 = afGuardRememberKeyPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardRememberKeyPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 
@@ -529,7 +579,7 @@ abstract class BaseafGuardRememberKeyPeer {
 					$obj2->hydrate($row, $startcol);
 					afGuardUserPeer::addInstanceToPool($obj2, $key2);
 				} // if obj2 already loaded
-				
+
 				// Add the $obj1 (afGuardRememberKey) to $obj2 (afGuardUser)
 				$obj2->addafGuardRememberKey($obj1);
 
@@ -637,7 +687,7 @@ abstract class BaseafGuardRememberKeyPeer {
 			$key1 = afGuardRememberKeyPeer::getPrimaryKeyHashFromRow($row, 0);
 			if (null !== ($obj1 = afGuardRememberKeyPeer::getInstanceFromPool($key1))) {
 				// We no longer rehydrate the object, since this can cause data loss.
-				// See http://propel.phpdb.org/trac/ticket/509
+				// See http://www.propelorm.org/ticket/509
 				// $obj1->hydrate($row, 0, true); // rehydrate
 			} else {
 				$cls = afGuardRememberKeyPeer::getOMClass(false);
@@ -703,7 +753,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	 * relative to a location on the PHP include_path.
 	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
 	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
+	 * @param      boolean $withPrefix Whether or not to return the path with the class name
 	 * @return     string path.to.ClassName
 	 */
 	public static function getOMClass($withPrefix = true)
@@ -722,15 +772,6 @@ abstract class BaseafGuardRememberKeyPeer {
 	 */
 	public static function doInsert($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardRememberKeyPeer:doInsert:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardRememberKeyPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardRememberKeyPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -756,12 +797,6 @@ abstract class BaseafGuardRememberKeyPeer {
 			throw $e;
 		}
 
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardRememberKeyPeer:doInsert:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardRememberKeyPeer', $values, $con, $pk);
-    }
-
 		return $pk;
 	}
 
@@ -776,15 +811,6 @@ abstract class BaseafGuardRememberKeyPeer {
 	 */
 	public static function doUpdate($values, PropelPDO $con = null)
 	{
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardRememberKeyPeer:doUpdate:pre') as $sf_hook)
-    {
-      if (false !== $sf_hook_retval = call_user_func($sf_hook, 'BaseafGuardRememberKeyPeer', $values, $con))
-      {
-        return $sf_hook_retval;
-      }
-    }
-
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardRememberKeyPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
 		}
@@ -795,10 +821,20 @@ abstract class BaseafGuardRememberKeyPeer {
 			$criteria = clone $values; // rename for clarity
 
 			$comparison = $criteria->getComparison(afGuardRememberKeyPeer::USER_ID);
-			$selectCriteria->add(afGuardRememberKeyPeer::USER_ID, $criteria->remove(afGuardRememberKeyPeer::USER_ID), $comparison);
+			$value = $criteria->remove(afGuardRememberKeyPeer::USER_ID);
+			if ($value) {
+				$selectCriteria->add(afGuardRememberKeyPeer::USER_ID, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardRememberKeyPeer::TABLE_NAME);
+			}
 
 			$comparison = $criteria->getComparison(afGuardRememberKeyPeer::IP_ADDRESS);
-			$selectCriteria->add(afGuardRememberKeyPeer::IP_ADDRESS, $criteria->remove(afGuardRememberKeyPeer::IP_ADDRESS), $comparison);
+			$value = $criteria->remove(afGuardRememberKeyPeer::IP_ADDRESS);
+			if ($value) {
+				$selectCriteria->add(afGuardRememberKeyPeer::IP_ADDRESS, $value, $comparison);
+			} else {
+				$selectCriteria->setPrimaryTableName(afGuardRememberKeyPeer::TABLE_NAME);
+			}
 
 		} else { // $values is afGuardRememberKey object
 			$criteria = $values->buildCriteria(); // gets full criteria
@@ -808,15 +844,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		// set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
-		$ret = BasePeer::doUpdate($selectCriteria, $criteria, $con);
-
-    // symfony_behaviors behavior
-    foreach (sfMixer::getCallables('BaseafGuardRememberKeyPeer:doUpdate:post') as $sf_hook)
-    {
-      call_user_func($sf_hook, 'BaseafGuardRememberKeyPeer', $values, $con, $ret);
-    }
-
-    return $ret;
+		return BasePeer::doUpdate($selectCriteria, $criteria, $con);
 	}
 
 	/**
@@ -834,7 +862,7 @@ abstract class BaseafGuardRememberKeyPeer {
 			// use transaction because $criteria could contain info
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
-			$affectedRows += BasePeer::doDeleteAll(afGuardRememberKeyPeer::TABLE_NAME, $con);
+			$affectedRows += BasePeer::doDeleteAll(afGuardRememberKeyPeer::TABLE_NAME, $con, afGuardRememberKeyPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
 			// instances get re-added by the select statement contained therein).
@@ -959,8 +987,8 @@ abstract class BaseafGuardRememberKeyPeer {
 	 * @return     afGuardRememberKey
 	 */
 	public static function retrieveByPK($user_id, $ip_address, PropelPDO $con = null) {
-		$key = serialize(array((string) $user_id, (string) $ip_address));
- 		if (null !== ($obj = afGuardRememberKeyPeer::getInstanceFromPool($key))) {
+		$_instancePoolKey = serialize(array((string) $user_id, (string) $ip_address));
+ 		if (null !== ($obj = afGuardRememberKeyPeer::getInstanceFromPool($_instancePoolKey))) {
  			return $obj;
 		}
 
