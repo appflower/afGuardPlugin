@@ -1,12 +1,6 @@
 <?php
 class BaseafGuardUserActions extends sfActions
 {
-//	public function executeRegenerate() {
-//
-//		return sfView::NONE;
-//
-//	}
-//
 //	public function executeStatus()
 //	{
 //		$c = new Criteria();
@@ -26,7 +20,7 @@ class BaseafGuardUserActions extends sfActions
 //
 //		$sf_guard_user->save();
 //
-//		return $this->redirect('afGuardUser/listUser');
+//		return $this->redirect('afGuardUser/list');
 //	}
 //
 //
@@ -77,9 +71,8 @@ class BaseafGuardUserActions extends sfActions
 			$af_guard_user->setIsActive(isset($formData['is_active']) && $formData['is_active'] ? 1 : 0);
 			$af_guard_user->save();
 
-			$result = array('success' => true, 'message' => 'Successfully saved your information! ');
-			$result = json_encode($result);
-			return $this->renderText($result);
+			$result = array('success' => true, 'message' => 'Successfully saved your information!', 'user' => $af_guard_user);
+            return $result;
 		}
 
 
@@ -87,98 +80,95 @@ class BaseafGuardUserActions extends sfActions
 		return XmlParser::layoutExt($this);
 	}
 
-//	public function executeListActionsRemoveUser(){
-//		//If no additional operations is to be performed use this block #################
-//		/*if($this->getRequest()->getMethod() == sfRequest::POST)
-//		{
-//			$post = $this->getRequest()->getParameterHolder()->getAll();
-//			return $this->renderText(Util::listActionsRemove("NetRoutePeer",$post,"/appliance_system/listNetworkStaticRoute"));
-//		}*/
-//		// ##############################################################################
-//		if($this->getRequest()->getMethod() == sfRequest::POST)
-//		{
-//			$post = $this->getRequest()->getParameterHolder()->getAll();
-//			if(isset($post['all'])){
-//				//Additional action to perfom: delete runtime route...............................
-//				$c = new Criteria();
-//				$c->addJoin(afGuardUserPeer::ID, afGuardUserProfilePeer::USER_ID);
-//
-//				$sf_guard_users = afGuardUserPeer::doSelect($c);
-//				foreach($sf_guard_users as $sf_guard_user){
-//					if($sf_guard_user->getUsername() != "admin"){
-//						// Delete the user from db.
-//						$sf_guard_user->delete();
-//					}
-//				}
-//
-//				$msg = "All data removed successfully";
-//			}else{
-//				$items = json_decode($post["selections"],true);
-//				if(!count($items)){
-//					$result = array('success' => false,'message'=>'No items selected..');
-//					$result = json_encode($result);
-//					return $this->renderText($result);
-//				}
-//				foreach ($items as $item){
-//					// Delete individual
-//					preg_match("/id=([0-9]+)/",$item['action1'],$matches);
-//					$id = preg_replace("/id=([0-9]+)/","$1",$matches[0]);
-//					$c = new Criteria();
-//					$c->add(afGuardUserPeer::ID,$id);
-//					$c->addJoin(afGuardUserPeer::ID, afGuardUserProfilePeer::USER_ID);
-//
-//					$sf_guard_user = afGuardUserPeer::doSelectOne($c);
-//
-//					$this->forward404Unless($sf_guard_user);
-//
-//					// Delete the user from db.
-//					$sf_guard_user->delete();
-//				}
-//				$msg = "Selected data removed successfully";
-//			}
-//
-//			$result = array('success' => true, 'message' => $msg, 'redirect' => "/afGuardUser/listUser");
-//			$result = json_encode($result);
-//			return $this->renderText($result);
-//
-//		}
-//	}
-//	public function executeListActionsUserStatus(){
-//		if($this->getRequest()->getMethod() == sfRequest::POST)
-//		{
-//			$post = $this->getRequest()->getParameterHolder()->getAll();
-//			$items = json_decode($post["selections"],true);
-//			if(!count($items)){
-//				$result = array('success' => true,'message'=>'No items selected..');
-//				$result = json_encode($result);
-//				return $this->renderText($result);
-//			}
-//			foreach ($items as $item){
-//				preg_match("/id=([0-9]+)/",$item['action1'],$matches);
-//				$id = preg_replace("/id=([0-9]+)/","$1",$matches[0]);
-//				$c = new Criteria();
-//				$c->add(afGuardUserPeer::ID,$id);
-//				$user = afGuardUserPeer::doSelectOne($c);
-//				$user_old = clone $user;
-//				if(isset($post['activate'])){
-//					$what = "activated";
-//					$user->setIsActive(true);
-//				}
-//				if(isset($post['deactivate'])){
-//					$what = "deactivated";
-//					$user->setIsActive(false);
-//				}
-//
-//				$user->save();
-//				// audit log
-//				myLogger::logUpdateObject($user_old, $user, '/afGuardUser/editUser?id='.$user->getId(), $user->getUsername(), $this->getUser()->getGuardUser());
-//			}
-//
-//			$result = array('success' => true, 'message' => 'The selected users(s) are '.$what.' successfully.', 'redirect' => "/afGuardUser/listUser");
-//			$result = json_encode($result);
-//			return $this->renderText($result);
-//		}
-//	}
+	public function executeListActionsRemoveUser(){
+		//If no additional operations is to be performed use this block #################
+		/*if($this->getRequest()->getMethod() == sfRequest::POST)
+		{
+			$post = $this->getRequest()->getParameterHolder()->getAll();
+			return $this->renderText(Util::listActionsRemove("NetRoutePeer",$post,"/appliance_system/listNetworkStaticRoute"));
+		}*/
+		// ##############################################################################
+		if($this->getRequest()->getMethod() == sfRequest::POST)
+		{
+			$post = $this->getRequest()->getParameterHolder()->getAll();
+			if(isset($post['all'])){
+				//Additional action to perfom: delete runtime route...............................
+				$c = new Criteria();
+
+				$sf_guard_users = afGuardUserPeer::doSelect($c);
+				foreach($sf_guard_users as $sf_guard_user){
+					if($sf_guard_user->getUsername() != "admin"){
+						// Delete the user from db.
+						$sf_guard_user->delete();
+					}
+				}
+
+				$msg = "All data removed successfully";
+			}else{
+				$items = json_decode($post["selections"],true);
+				if(!count($items)){
+					$result = array('success' => false,'message'=>'No items selected..');
+					$result = json_encode($result);
+					return $this->renderText($result);
+				}
+				foreach ($items as $item){
+					// Delete individual
+					preg_match("/id=([0-9]+)/",$item['action1'],$matches);
+					$id = preg_replace("/id=([0-9]+)/","$1",$matches[0]);
+					$c = new Criteria();
+					$c->add(afGuardUserPeer::ID,$id);
+
+					$sf_guard_user = afGuardUserPeer::doSelectOne($c);
+
+					$this->forward404Unless($sf_guard_user);
+
+					// Delete the user from db.
+					$sf_guard_user->delete();
+				}
+				$msg = "Selected data removed successfully";
+			}
+
+			$result = array('success' => true, 'message' => $msg, 'redirect' => "/afGuardUser/list");
+			$result = json_encode($result);
+			return $this->renderText($result);
+
+		}
+	}
+
+	public function executeListActionsUserStatus(){
+		if($this->getRequest()->getMethod() == sfRequest::POST)
+		{
+			$post = $this->getRequest()->getParameterHolder()->getAll();
+			$items = json_decode($post["selections"],true);
+			if(!count($items)){
+				$result = array('success' => true,'message'=>'No items selected..');
+				$result = json_encode($result);
+				return $this->renderText($result);
+			}
+			foreach ($items as $item){
+				preg_match("/id=([0-9]+)/",$item['action1'],$matches);
+				$id = preg_replace("/id=([0-9]+)/","$1",$matches[0]);
+				$c = new Criteria();
+				$c->add(afGuardUserPeer::ID,$id);
+				$user = afGuardUserPeer::doSelectOne($c);
+				if(isset($post['activate'])){
+					$what = "activated";
+					$user->setIsActive(true);
+				}
+				if(isset($post['deactivate'])){
+					$what = "deactivated";
+					$user->setIsActive(false);
+				}
+
+				$user->save();
+			}
+
+			$result = array('success' => true, 'message' => 'The selected users(s) are '.$what.' successfully.', 'redirect' => "/afGuardUser/list");
+			$result = json_encode($result);
+			return $this->renderText($result);
+		}
+	}
+
 	public function executeDelete(sfWebRequest $request)
 	{
 		$c = new Criteria();

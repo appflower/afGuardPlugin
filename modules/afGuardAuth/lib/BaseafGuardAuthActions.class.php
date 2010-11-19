@@ -114,63 +114,60 @@ class BaseafGuardAuthActions extends sfActions
 		}
 	}
 
-//	/**
-//	 * Execute Password Request action
-//	 *
-//	 */
-//	public function executePasswordRequest()
-//	{
-//		if ($this->getRequest()->getMethod() != sfRequest::POST)
-//		{
-//			// display the form
-//			return sfView::SUCCESS;
-//		}
-//
-//		// handle the form submission
-//		$c = new Criteria();
-//		$c->add(sfGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
-//		$user = sfGuardUserPeer::doSelectOne($c);
-//
-//		// email exists?
-//		if ($user)
-//		{
-//			//audit log
-//			$user_old=clone $user;
-//
-//			// set new random password
-//			$password = substr(md5(rand(100000, 999999)), 0, 6);
-//			$user->setPassword($password);
-//			$user->save(); // save new password
-//
-//
-//                        if ($user->getUsername()) {
-//                            $parameters = array(
-//                                'userObj'  => $user,
-//                                'password' => $password,
-//                                'email'    => $user->getUsername(),
-//                                'subject'  => 'seedControl password recovery',
-//                                'from'     => 'Seedcontrol'
-//                            );
-//
-//                            afAutomailer::saveMail('mail', 'sendPasswordRequest', $parameters);
-//                        }
-//
-//
-//			//audit log
-//			myLogger::logUpdateObject($user_old,$user, '/sfGuardUser/editUser?id='.$user->getId(), $user->getUsername(), $user);
-//
-//			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag"));
-//			$result = array('success' => true,'message'=>'Your login information was sent to '.$this->getRequestParameter('email').'. <br>You should receive it shortly, so you can proceed to the '.link_to('login page', '@login').'.');
-//
-//		}
-//		else
-//		{
-//			$result = array('success' => false,'message'=>'There is no user with this email address. Please try again!');
-//		}
-//
-//		$result = json_encode($result);
-//		return $this->renderText($result);
-//	}
+	/**
+	 * Execute Password Request action
+	 *
+	 */
+	public function executePasswordRequest()
+	{
+		if ($this->getRequest()->getMethod() != sfRequest::POST)
+		{
+			// display the form
+			return sfView::SUCCESS;
+		}
+
+		// handle the form submission
+		$c = new Criteria();
+		$c->add(sfGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
+		$user = sfGuardUserPeer::doSelectOne($c);
+
+		// email exists?
+		if ($user)
+		{
+			//audit log
+			$user_old=clone $user;
+
+			// set new random password
+			$password = substr(md5(rand(100000, 999999)), 0, 6);
+			$user->setPassword($password);
+			$user->save(); // save new password
+
+
+                        if ($user->getUsername()) {
+                            $parameters = array(
+                                'userObj'  => $user,
+                                'password' => $password,
+                                'email'    => $user->getUsername(),
+                                'subject'  => 'seedControl password recovery',
+                                'from'     => 'Seedcontrol'
+                            );
+
+                            afAutomailer::saveMail('mail', 'sendPasswordRequest', $parameters);
+                        }
+
+
+			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag"));
+			$result = array('success' => true,'message'=>'Your login information was sent to '.$this->getRequestParameter('email').'. <br>You should receive it shortly, so you can proceed to the '.link_to('login page', '@login').'.');
+
+		}
+		else
+		{
+			$result = array('success' => false,'message'=>'There is no user with this email address. Please try again!');
+		}
+
+		$result = json_encode($result);
+		return $this->renderText($result);
+	}
 
 //	public function executeRemoteLogin($request) {
 //		$user = $this->getUser();

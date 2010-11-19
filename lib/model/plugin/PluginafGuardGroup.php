@@ -1,6 +1,10 @@
 <?php
 class PluginafGuardGroup extends BaseafGuardGroup
 {
+    public function  __toString() {
+        return $this->getName();
+    }
+
 	public function getHtmlName()
     {
         return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardGroup/edit?id='.$this->getId(), true).'"> '.$this->getName().' </a>';

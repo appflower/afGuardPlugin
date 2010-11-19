@@ -59,12 +59,9 @@ class BaseafGuardGroupActions extends sfActions
 				
 			$result['message']= 'The permission group has been '.(($this->id) ? 'modified' : 'created!');
 			$result['success']= true;
-			$result = json_encode($result);
-			return $this->renderText($result);
-				
+            $result['group'] = $af_guard_group;
+            return $result;
 		}
-
-		return XmlParser::layoutExt($this);
 	}
 
 
@@ -75,6 +72,10 @@ class BaseafGuardGroupActions extends sfActions
 
 		$af_guard_group->delete();
 
-		return $this->redirect("/afGuardGroup/list");
+        $result['message']= 'The group has been deleted';
+        $result['success']= true;
+        $result['redirect']='afGuardGroup/list';
+        $result['group'] = $af_guard_group;
+        return $result;
 	}
 }
