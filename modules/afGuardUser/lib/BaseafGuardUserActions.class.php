@@ -194,9 +194,8 @@ class BaseafGuardUserActions extends sfActions
 		// Delete the user from db.
 		$af_guard_user->delete();
 
-		$result = array('success' => true, 'message' => 'The selected user deleted successfully.', 'redirect' => "/afGuardUser/list");
-		$result = json_encode($result);
-		return $this->renderText($result);
+		$result = array('success' => true, 'message' => 'The selected user deleted successfully.', 'redirect' => '/afGuardUser/list', 'user' => $af_guard_user);
+		return $result;
 	}
 
 
