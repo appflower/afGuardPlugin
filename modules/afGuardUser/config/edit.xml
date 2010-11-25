@@ -32,7 +32,7 @@
 			<i:value type="orm">
 				<i:source name="getUsername" />
 			</i:value>
-
+			<i:help>Username</i:help>
 			<i:validator name="immValidatorUnique">
 				<i:param name="class">afGuardUser</i:param>
 				<i:param name="column">username</i:param>
@@ -46,6 +46,15 @@
 			<i:tooltip>Password</i:tooltip>
 			<i:help>Password</i:help>
 		</i:field>
+		
+		<i:field name="time_allocated_weekly" label="Time allocated per week" type="input" style="css">
+            <i:value type="orm">          
+                <i:source name="getAllocatedTimeWeekly" /> 
+            </i:value>
+            <i:tooltip>Time allocated per week.</i:tooltip>
+            <i:help>Time allocated per week.</i:help>
+            <i:validator name="immValidatorNumber" />
+        </i:field>
 
 	</i:fields>
 

@@ -70,6 +70,15 @@ class BaseafGuardUserActions extends sfActions
 
 			$af_guard_user->setIsActive(isset($formData['is_active']) && $formData['is_active'] ? 1 : 0);
 			$af_guard_user->save();
+			
+			if($new_user) {
+				$user_profile = new UserProfile();
+				$user_profile->setUserId($af_guard_user->getId());
+			}else{
+				$user_profile = UserProfilePeer::retrieveByPK($this->getRequestParameter("id"));
+			}
+			$user_profile->setAllocatedTimePerWeek($formData['time_allocated_weekly']);
+			$user_profile->save();
 
 			$result = array('success' => true, 'message' => 'Successfully saved your information!', 'user' => $af_guard_user);
             return $result;

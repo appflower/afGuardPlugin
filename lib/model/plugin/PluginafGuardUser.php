@@ -86,7 +86,7 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
       return $this->profile;
     }
 
-    $profileClass = sfConfig::get('app_af_guard_plugin_profile_class', 'afGuardUserProfile');
+    $profileClass = sfConfig::get('app_af_guard_plugin_profile_class', 'UserProfile');
     if (!class_exists($profileClass))
     {
       throw new sfException(sprintf('The user profile class "%s" does not exist.', $profileClass));
@@ -335,4 +335,9 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
             return 'Never logged in';
         }
     }
+    
+    public function getAllocatedTimeWeekly() {
+    	return $this->getUserProfile()->getAllocatedTimePerWeek();
+    }
+    
 }
