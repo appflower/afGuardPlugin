@@ -5,11 +5,12 @@ $layout=new ImmExtjsSfGuardLayout();
  * EXTJS SIGN IN FORM
  */
 
-$form=new ImmExtjsForm(array('action'=>'/login'/*,'fileUpload'=>true*/));
+$form=new ImmExtjsForm(array('action'=>'/login',"columnWidth"=>".88"/*,'fileUpload'=>true*/));
 
-$fieldset=$form->startFieldset(array('legend'=>'Login'));
+$fieldset=$form->startFieldset(array('legend'=>'Login','collapsible'=>'false'));
 $columns = $fieldset->startColumns(array("columnWidth"=>1));
 $col = $columns->startColumn(array("columnWidth"=>1));
+
 $username=new ImmExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'comment'=>'write your username','width'=>'150'));
 
 $password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'comment'=>'write your password','width'=>'150'));
@@ -30,7 +31,16 @@ new ImmExtjsLinkButton($form,array('url'=>url_for('@af_guard_password'),'load'=>
 
 $form->end();
 
+$layout->addItem('center',
+	array(
+		"columnWidth"=>".12",
+		"frame"=>false,
+		"height"=>167,
+		"html"=>"<img src='images/vertical_logo.png' />"
+	)
+);
 $layout->addItem('center',$form);
+//$layout->addItem('west',array('title'=>'xxxxx','width'=>'51'));
 
 $tools=new ImmExtjsTools();
 //$tools->addItem(array('id'=>'gear','handler'=>array('source'=>"Ext.Msg.alert('Message', 'The Settings tool was clicked.');")));
