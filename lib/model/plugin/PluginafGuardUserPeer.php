@@ -1,6 +1,14 @@
 <?php
 class PluginafGuardUserPeer extends BaseafGuardUserPeer implements AppFlowerUserQuery
 {
+    public static function retrieveByUsername($username, $isActive = true)
+    {
+        $c = new Criteria();
+        $c->add(self::USERNAME, $username);
+        $c->add(self::IS_ACTIVE, $isActive);
+
+        return self::doSelectOne($c);
+    }
     public function findOneByUsername($username) {
         $c = new Criteria;
         $c->add(self::USERNAME, $username);
