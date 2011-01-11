@@ -36,7 +36,7 @@ $layout->addItem('center',
 		"columnWidth"=>".12",
 		"frame"=>false,
 		"height"=>167,
-		"html"=>"<img src='appFlowerStudioPlugin/images/vertical_logo.png' />"
+		"html"=>"<img src='/appFlowerPlugin/images/vertical_logo.png' />"
 	)
 );
 $layout->addItem('center',$form);
