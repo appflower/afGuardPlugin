@@ -11,9 +11,9 @@ $fieldset=$form->startFieldset(array('legend'=>'Login','collapsible'=>'false'));
 $columns = $fieldset->startColumns(array("columnWidth"=>1));
 $col = $columns->startColumn(array("columnWidth"=>1));
 
-$username=new ImmExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'comment'=>'write your username','width'=>'150'));
+$username=new ImmExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'emptyText'=>'write your username','width'=>'150'));
 
-$password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'comment'=>'write your password','width'=>'150'));
+$password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'emptyText'=>'write your password','width'=>'150'));
 
 $captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
 if($captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())){
@@ -36,7 +36,7 @@ $layout->addItem('center',
 		"columnWidth"=>".12",
 		"frame"=>false,
 		"height"=>167,
-		"html"=>"<a href='http://www.appflower.com'><img src='/appFlowerPlugin/images/vertical_logo.png' /></a>"
+		"html"=>"<a href='http://www.appflower.com'><img src='/appFlowerPlugin/images/vertical_logo.png'></a>"
 	)
 );
 $layout->addItem('center',$form);
