@@ -13,7 +13,7 @@ $col = $columns->startColumn(array("columnWidth"=>1));
 
 $username=new ImmExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'emptyText'=>'write your username','width'=>'150'));
 
-$password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'emptyText'=>'write your password','width'=>'150'));
+$password=new ImmExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'comment'=>'write your password','width'=>'150'));
 
 $captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
 if($captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())){
