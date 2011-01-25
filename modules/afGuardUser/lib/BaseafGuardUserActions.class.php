@@ -99,6 +99,11 @@ class BaseafGuardUserActions extends sfActions
 			if($new_user) {
 				$user_profile = new UserProfile();
 				$user_profile->setUserId($af_guard_user->getId());
+				
+				$user_profile->setEnAssignedTo(1);
+				$user_profile->setEnReporter(1);
+				$user_profile->setEnTicketUpdated(1);
+				$user_profile->setEnDontSend(0);
 			}else{
 				$user_profile = UserProfilePeer::retrieveByPK($formData['id']);
 			}
