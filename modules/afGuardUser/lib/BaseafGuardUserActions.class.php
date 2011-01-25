@@ -30,10 +30,35 @@ class BaseafGuardUserActions extends sfActions
 
 	public function executeEdit(sfWebRequest $request)
 	{
-		if($this->getRequestParameter("id")) {
+		if($this->hasRequestParameter("id")) {
 			$tmp = afGuardUserPeer::retrieveByPK($this->getRequestParameter("id"));
+			$this->tid = $tmp->getProfile()->getTimezonesId();
+			$this->customer_id = $tmp->getProfile()->getCustomerId();
+			$this->job_title = $tmp->getProfile()->getJobTitle();
+			$this->phone_mobile = $tmp->getProfile()->getPhoneMobile();
+			$this->phone_office = $tmp->getProfile()->getPhoneOffice();
+			$this->personal_body = $tmp->getProfile()->getPersonalBody();
+			$this->picture = $tmp->getProfile()->getPicture();
+			$this->beanstalk_user = $tmp->getProfile()->getBeanstalkUser();
+		}else {
+			$this->tid = "";
+			$this->customer_id = "";
+			$this->job_title = "";
+			$this->phone_mobile = "";
+			$this->phone_office = "";
+			$this->personal_body = "";
+			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag","Thumbnail"));
+			$this->picture = thumbnail_tag("images/anonymous.jpeg", 100, 100);;
+			$this->beanstalk_user = "";
 		}
+		
+		$this->id = $this->getRequestParameter('id','');
 
+		return XmlParser::layoutExt($this);
+	}
+	
+	public function executeUpdate(sfWebRequest $request)
+	{
 		if($this->getRequest()->getMethod() === sfRequest::POST)
 		{
 			$new_user = false;
@@ -75,18 +100,50 @@ class BaseafGuardUserActions extends sfActions
 				$user_profile = new UserProfile();
 				$user_profile->setUserId($af_guard_user->getId());
 			}else{
-				$user_profile = UserProfilePeer::retrieveByPK($this->getRequestParameter("id"));
+				$user_profile = UserProfilePeer::retrieveByPK($formData['id']);
 			}
 			$user_profile->setAllocatedTimePerWeek($formData['time_allocated_weekly']);
+			$user_profile->setFirstName($formData['first_name']);
+			$user_profile->setLastName($formData['last_name']);
+			$user_profile->setJobTitle($formData['job_title']);
+			$user_profile->setPhoneMobile($formData['phone_mobile']);
+			$user_profile->setPhoneOffice($formData['phone_office']);
+			$user_profile->setPersonalBody($formData['personal_body']);
+			$user_profile->setCustomerId($formData['customer_id_value']);
+			$user_profile->setBeanstalkUser($formData['beanstalk_user']);
+			
+			// Setting the time zone, defaults to GMT.
+			if(!isset($formData['time_zones_id_value']) || $formData['time_zones_id_value'] < 1) {
+				$user_profile->setTimeZonesId($gmt->getId());
+			} else {
+				$user_profile->setTimeZonesId($formData['time_zones_id_value']);
+			}
+			
+			//profile picture
+			if(isset($formData['delete_image']) && $formData['delete_image'] == 'on')
+			{
+				$user_profile->setProfilePicture('');
+	        } else {
+				$folder = $af_guard_user->getUploadDir();
+				$filename=time().'_'.$_FILES["edit"]["name"]["0"]["profile_picture"];
+				$path = $folder.'/'.$filename;
+				$path2 = str_replace(sfConfig::get('sf_root_dir')."/web/",'',$path);
+				$file = $_FILES["edit"]["tmp_name"]["0"]["profile_picture"];
+	            $conf = frontendConfiguration::getActive();
+	            if ($conf->isStorageSpaceAvailable()) {
+	                if( move_uploaded_file($file, $path) ){
+	                    $user_profile->setProfilePicture($path2);
+	                }
+	            } else {
+	                $messageAddition = 'You can\'t upload files right now. Disk space limit exceeded.';
+	            }
+			}
+			
 			$user_profile->save();
 
 			$result = array('success' => true, 'message' => 'Successfully saved your information!', 'user' => $af_guard_user);
             return $result;
 		}
-
-
-		$this->id = $this->getRequestParameter('id','');
-		return XmlParser::layoutExt($this);
 	}
 
 	public function executeListActionsRemoveUser(){
