@@ -409,6 +409,12 @@ abstract class BaseafGuardUserPeer {
 		// Invalidate objects in UserProfilePeer instance pool, 
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		UserProfilePeer::clearInstancePool();
+		// Invalidate objects in ProjectUserPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		ProjectUserPeer::clearInstancePool();
+		// Invalidate objects in ProjectPermissionPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		ProjectPermissionPeer::clearInstancePool();
 	}
 
 	/**
@@ -763,6 +769,18 @@ abstract class BaseafGuardUserPeer {
 			
 			$criteria->add(UserProfilePeer::USER_ID, $obj->getId());
 			$affectedRows += UserProfilePeer::doDelete($criteria, $con);
+
+			// delete related ProjectUser objects
+			$criteria = new Criteria(ProjectUserPeer::DATABASE_NAME);
+			
+			$criteria->add(ProjectUserPeer::USER_ID, $obj->getId());
+			$affectedRows += ProjectUserPeer::doDelete($criteria, $con);
+
+			// delete related ProjectPermission objects
+			$criteria = new Criteria(ProjectPermissionPeer::DATABASE_NAME);
+			
+			$criteria->add(ProjectPermissionPeer::USER_ID, $obj->getId());
+			$affectedRows += ProjectPermissionPeer::doDelete($criteria, $con);
 		}
 		return $affectedRows;
 	}

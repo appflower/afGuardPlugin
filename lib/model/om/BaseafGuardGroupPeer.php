@@ -373,6 +373,9 @@ abstract class BaseafGuardGroupPeer {
 		// Invalidate objects in afGuardUserGroupPeer instance pool, 
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserGroupPeer::clearInstancePool();
+		// Invalidate objects in ProjectUserPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		ProjectUserPeer::clearInstancePool();
 	}
 
 	/**
@@ -602,6 +605,7 @@ abstract class BaseafGuardGroupPeer {
 			// for more than one table or we could emulating ON DELETE CASCADE, etc.
 			$con->beginTransaction();
 			$affectedRows += afGuardGroupPeer::doOnDeleteCascade(new Criteria(afGuardGroupPeer::DATABASE_NAME), $con);
+			afGuardGroupPeer::doOnDeleteSetNull(new Criteria(afGuardGroupPeer::DATABASE_NAME), $con);
 			$affectedRows += BasePeer::doDeleteAll(afGuardGroupPeer::TABLE_NAME, $con, afGuardGroupPeer::DATABASE_NAME);
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
@@ -657,6 +661,10 @@ abstract class BaseafGuardGroupPeer {
 			// cloning the Criteria in case it's modified by doSelect() or doSelectStmt()
 			$c = clone $criteria;
 			$affectedRows += afGuardGroupPeer::doOnDeleteCascade($c, $con);
+			
+			// cloning the Criteria in case it's modified by doSelect() or doSelectStmt()
+			$c = clone $criteria;
+			afGuardGroupPeer::doOnDeleteSetNull($c, $con);
 			
 			// Because this db requires some delete cascade/set null emulation, we have to
 			// clear the cached instance *after* the emulation has happened (since
@@ -717,6 +725,37 @@ abstract class BaseafGuardGroupPeer {
 			$affectedRows += afGuardUserGroupPeer::doDelete($criteria, $con);
 		}
 		return $affectedRows;
+	}
+
+	/**
+	 * This is a method for emulating ON DELETE SET NULL DBs that don't support this
+	 * feature (like MySQL or SQLite).
+	 *
+	 * This method is not very speedy because it must perform a query first to get
+	 * the implicated records and then perform the deletes by calling those Peer classes.
+	 *
+	 * This method should be used within a transaction if possible.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      PropelPDO $con
+	 * @return     void
+	 */
+	protected static function doOnDeleteSetNull(Criteria $criteria, PropelPDO $con)
+	{
+
+		// first find the objects that are implicated by the $criteria
+		$objects = afGuardGroupPeer::doSelect($criteria, $con);
+		foreach ($objects as $obj) {
+
+			// set fkey col in related ProjectUser rows to NULL
+			$selectCriteria = new Criteria(afGuardGroupPeer::DATABASE_NAME);
+			$updateValues = new Criteria(afGuardGroupPeer::DATABASE_NAME);
+			$selectCriteria->add(ProjectUserPeer::GROUP_ID, $obj->getId());
+			$updateValues->add(ProjectUserPeer::GROUP_ID, null);
+
+			BasePeer::doUpdate($selectCriteria, $updateValues, $con); // use BasePeer because generated Peer doUpdate() methods only update using pkey
+
+		}
 	}
 
 	/**

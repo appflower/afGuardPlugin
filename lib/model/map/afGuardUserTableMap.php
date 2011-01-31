@@ -57,9 +57,17 @@ class afGuardUserTableMap extends TableMap {
     $this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
     $this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
     $this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
+    $this->addRelation('Component', 'Component', RelationMap::ONE_TO_MANY, array('id' => 'owner_id', ), null, null);
     $this->addRelation('UserProfile', 'UserProfile', RelationMap::ONE_TO_ONE, array('id' => 'user_id', ), 'CASCADE', null);
-    $this->addRelation('CompanyFavorite', 'CompanyFavorite', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
-    $this->addRelation('CompanyHistory', 'CompanyHistory', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('TicketRelatedByUserId', 'Ticket', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('TicketRelatedByOwnerId', 'Ticket', RelationMap::ONE_TO_MANY, array('id' => 'owner_id', ), null, null);
+    $this->addRelation('TicketComment', 'TicketComment', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('Changelog', 'Changelog', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('ProjectUser', 'ProjectUser', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
+    $this->addRelation('Timetrack', 'Timetrack', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('FilterHistory', 'FilterHistory', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
+    $this->addRelation('ProjectPermission', 'ProjectPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
+    $this->addRelation('FavoriteTicket', 'FavoriteTicket', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null);
 	} // buildRelations()
 
 	/**

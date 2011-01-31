@@ -42,7 +42,7 @@ class BaseafGuardAuthActions extends sfActions
 				{
 					// password is ok?
 					//Now the user is valid
-					if ($user->checkPassword($signin['password']))
+					if ($user->checkPassword($signin['password']) && $user->getIsActive())
 					{
 						//success
 

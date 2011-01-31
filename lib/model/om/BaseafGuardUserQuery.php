@@ -42,17 +42,49 @@
  * @method     afGuardUserQuery rightJoinafGuardRememberKey($relationAlias = null) Adds a RIGHT JOIN clause to the query using the afGuardRememberKey relation
  * @method     afGuardUserQuery innerJoinafGuardRememberKey($relationAlias = null) Adds a INNER JOIN clause to the query using the afGuardRememberKey relation
  *
+ * @method     afGuardUserQuery leftJoinComponent($relationAlias = null) Adds a LEFT JOIN clause to the query using the Component relation
+ * @method     afGuardUserQuery rightJoinComponent($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Component relation
+ * @method     afGuardUserQuery innerJoinComponent($relationAlias = null) Adds a INNER JOIN clause to the query using the Component relation
+ *
  * @method     afGuardUserQuery leftJoinUserProfile($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserProfile relation
  * @method     afGuardUserQuery rightJoinUserProfile($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserProfile relation
  * @method     afGuardUserQuery innerJoinUserProfile($relationAlias = null) Adds a INNER JOIN clause to the query using the UserProfile relation
  *
- * @method     afGuardUserQuery leftJoinCompanyFavorite($relationAlias = null) Adds a LEFT JOIN clause to the query using the CompanyFavorite relation
- * @method     afGuardUserQuery rightJoinCompanyFavorite($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CompanyFavorite relation
- * @method     afGuardUserQuery innerJoinCompanyFavorite($relationAlias = null) Adds a INNER JOIN clause to the query using the CompanyFavorite relation
+ * @method     afGuardUserQuery leftJoinTicketRelatedByUserId($relationAlias = null) Adds a LEFT JOIN clause to the query using the TicketRelatedByUserId relation
+ * @method     afGuardUserQuery rightJoinTicketRelatedByUserId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the TicketRelatedByUserId relation
+ * @method     afGuardUserQuery innerJoinTicketRelatedByUserId($relationAlias = null) Adds a INNER JOIN clause to the query using the TicketRelatedByUserId relation
  *
- * @method     afGuardUserQuery leftJoinCompanyHistory($relationAlias = null) Adds a LEFT JOIN clause to the query using the CompanyHistory relation
- * @method     afGuardUserQuery rightJoinCompanyHistory($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CompanyHistory relation
- * @method     afGuardUserQuery innerJoinCompanyHistory($relationAlias = null) Adds a INNER JOIN clause to the query using the CompanyHistory relation
+ * @method     afGuardUserQuery leftJoinTicketRelatedByOwnerId($relationAlias = null) Adds a LEFT JOIN clause to the query using the TicketRelatedByOwnerId relation
+ * @method     afGuardUserQuery rightJoinTicketRelatedByOwnerId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the TicketRelatedByOwnerId relation
+ * @method     afGuardUserQuery innerJoinTicketRelatedByOwnerId($relationAlias = null) Adds a INNER JOIN clause to the query using the TicketRelatedByOwnerId relation
+ *
+ * @method     afGuardUserQuery leftJoinTicketComment($relationAlias = null) Adds a LEFT JOIN clause to the query using the TicketComment relation
+ * @method     afGuardUserQuery rightJoinTicketComment($relationAlias = null) Adds a RIGHT JOIN clause to the query using the TicketComment relation
+ * @method     afGuardUserQuery innerJoinTicketComment($relationAlias = null) Adds a INNER JOIN clause to the query using the TicketComment relation
+ *
+ * @method     afGuardUserQuery leftJoinChangelog($relationAlias = null) Adds a LEFT JOIN clause to the query using the Changelog relation
+ * @method     afGuardUserQuery rightJoinChangelog($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Changelog relation
+ * @method     afGuardUserQuery innerJoinChangelog($relationAlias = null) Adds a INNER JOIN clause to the query using the Changelog relation
+ *
+ * @method     afGuardUserQuery leftJoinProjectUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the ProjectUser relation
+ * @method     afGuardUserQuery rightJoinProjectUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ProjectUser relation
+ * @method     afGuardUserQuery innerJoinProjectUser($relationAlias = null) Adds a INNER JOIN clause to the query using the ProjectUser relation
+ *
+ * @method     afGuardUserQuery leftJoinTimetrack($relationAlias = null) Adds a LEFT JOIN clause to the query using the Timetrack relation
+ * @method     afGuardUserQuery rightJoinTimetrack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Timetrack relation
+ * @method     afGuardUserQuery innerJoinTimetrack($relationAlias = null) Adds a INNER JOIN clause to the query using the Timetrack relation
+ *
+ * @method     afGuardUserQuery leftJoinFilterHistory($relationAlias = null) Adds a LEFT JOIN clause to the query using the FilterHistory relation
+ * @method     afGuardUserQuery rightJoinFilterHistory($relationAlias = null) Adds a RIGHT JOIN clause to the query using the FilterHistory relation
+ * @method     afGuardUserQuery innerJoinFilterHistory($relationAlias = null) Adds a INNER JOIN clause to the query using the FilterHistory relation
+ *
+ * @method     afGuardUserQuery leftJoinProjectPermission($relationAlias = null) Adds a LEFT JOIN clause to the query using the ProjectPermission relation
+ * @method     afGuardUserQuery rightJoinProjectPermission($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ProjectPermission relation
+ * @method     afGuardUserQuery innerJoinProjectPermission($relationAlias = null) Adds a INNER JOIN clause to the query using the ProjectPermission relation
+ *
+ * @method     afGuardUserQuery leftJoinFavoriteTicket($relationAlias = null) Adds a LEFT JOIN clause to the query using the FavoriteTicket relation
+ * @method     afGuardUserQuery rightJoinFavoriteTicket($relationAlias = null) Adds a RIGHT JOIN clause to the query using the FavoriteTicket relation
+ * @method     afGuardUserQuery innerJoinFavoriteTicket($relationAlias = null) Adds a INNER JOIN clause to the query using the FavoriteTicket relation
  *
  * @method     afGuardUser findOne(PropelPDO $con = null) Return the first afGuardUser matching the query
  * @method     afGuardUser findOneOrCreate(PropelPDO $con = null) Return the first afGuardUser matching the query, or a new afGuardUser object populated from the query conditions when no match is found
@@ -579,6 +611,70 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 	}
 
 	/**
+	 * Filter the query by a related Component object
+	 *
+	 * @param     Component $component  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByComponent($component, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $component->getOwnerId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the Component relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinComponent($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('Component');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'Component');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the Component relation Component object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    ComponentQuery A secondary query class using the current class as primary query
+	 */
+	public function useComponentQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		return $this
+			->joinComponent($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'Component', 'ComponentQuery');
+	}
+
+	/**
 	 * Filter the query by a related UserProfile object
 	 *
 	 * @param     UserProfile $userProfile  the related object to use as filter
@@ -643,31 +739,31 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 	}
 
 	/**
-	 * Filter the query by a related CompanyFavorite object
+	 * Filter the query by a related Ticket object
 	 *
-	 * @param     CompanyFavorite $companyFavorite  the related object to use as filter
+	 * @param     Ticket $ticket  the related object to use as filter
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserQuery The current query, for fluid interface
 	 */
-	public function filterByCompanyFavorite($companyFavorite, $comparison = null)
+	public function filterByTicketRelatedByUserId($ticket, $comparison = null)
 	{
 		return $this
-			->addUsingAlias(afGuardUserPeer::ID, $companyFavorite->getUserId(), $comparison);
+			->addUsingAlias(afGuardUserPeer::ID, $ticket->getUserId(), $comparison);
 	}
 
 	/**
-	 * Adds a JOIN clause to the query using the CompanyFavorite relation
+	 * Adds a JOIN clause to the query using the TicketRelatedByUserId relation
 	 * 
 	 * @param     string $relationAlias optional alias for the relation
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
 	 * @return    afGuardUserQuery The current query, for fluid interface
 	 */
-	public function joinCompanyFavorite($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	public function joinTicketRelatedByUserId($relationAlias = null, $joinType = Criteria::INNER_JOIN)
 	{
 		$tableMap = $this->getTableMap();
-		$relationMap = $tableMap->getRelation('CompanyFavorite');
+		$relationMap = $tableMap->getRelation('TicketRelatedByUserId');
 		
 		// create a ModelJoin object for this join
 		$join = new ModelJoin();
@@ -682,14 +778,14 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
 			$this->addJoinObject($join, $relationAlias);
 		} else {
-			$this->addJoinObject($join, 'CompanyFavorite');
+			$this->addJoinObject($join, 'TicketRelatedByUserId');
 		}
 		
 		return $this;
 	}
 
 	/**
-	 * Use the CompanyFavorite relation CompanyFavorite object
+	 * Use the TicketRelatedByUserId relation Ticket object
 	 *
 	 * @see       useQuery()
 	 * 
@@ -697,41 +793,41 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 	 *                                   to be used as main alias in the secondary query
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
-	 * @return    CompanyFavoriteQuery A secondary query class using the current class as primary query
+	 * @return    TicketQuery A secondary query class using the current class as primary query
 	 */
-	public function useCompanyFavoriteQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	public function useTicketRelatedByUserIdQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
 	{
 		return $this
-			->joinCompanyFavorite($relationAlias, $joinType)
-			->useQuery($relationAlias ? $relationAlias : 'CompanyFavorite', 'CompanyFavoriteQuery');
+			->joinTicketRelatedByUserId($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'TicketRelatedByUserId', 'TicketQuery');
 	}
 
 	/**
-	 * Filter the query by a related CompanyHistory object
+	 * Filter the query by a related Ticket object
 	 *
-	 * @param     CompanyHistory $companyHistory  the related object to use as filter
+	 * @param     Ticket $ticket  the related object to use as filter
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserQuery The current query, for fluid interface
 	 */
-	public function filterByCompanyHistory($companyHistory, $comparison = null)
+	public function filterByTicketRelatedByOwnerId($ticket, $comparison = null)
 	{
 		return $this
-			->addUsingAlias(afGuardUserPeer::ID, $companyHistory->getUserId(), $comparison);
+			->addUsingAlias(afGuardUserPeer::ID, $ticket->getOwnerId(), $comparison);
 	}
 
 	/**
-	 * Adds a JOIN clause to the query using the CompanyHistory relation
+	 * Adds a JOIN clause to the query using the TicketRelatedByOwnerId relation
 	 * 
 	 * @param     string $relationAlias optional alias for the relation
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
 	 * @return    afGuardUserQuery The current query, for fluid interface
 	 */
-	public function joinCompanyHistory($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	public function joinTicketRelatedByOwnerId($relationAlias = null, $joinType = Criteria::INNER_JOIN)
 	{
 		$tableMap = $this->getTableMap();
-		$relationMap = $tableMap->getRelation('CompanyHistory');
+		$relationMap = $tableMap->getRelation('TicketRelatedByOwnerId');
 		
 		// create a ModelJoin object for this join
 		$join = new ModelJoin();
@@ -746,14 +842,14 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
 			$this->addJoinObject($join, $relationAlias);
 		} else {
-			$this->addJoinObject($join, 'CompanyHistory');
+			$this->addJoinObject($join, 'TicketRelatedByOwnerId');
 		}
 		
 		return $this;
 	}
 
 	/**
-	 * Use the CompanyHistory relation CompanyHistory object
+	 * Use the TicketRelatedByOwnerId relation Ticket object
 	 *
 	 * @see       useQuery()
 	 * 
@@ -761,13 +857,461 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 	 *                                   to be used as main alias in the secondary query
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
-	 * @return    CompanyHistoryQuery A secondary query class using the current class as primary query
+	 * @return    TicketQuery A secondary query class using the current class as primary query
 	 */
-	public function useCompanyHistoryQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	public function useTicketRelatedByOwnerIdQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
 	{
 		return $this
-			->joinCompanyHistory($relationAlias, $joinType)
-			->useQuery($relationAlias ? $relationAlias : 'CompanyHistory', 'CompanyHistoryQuery');
+			->joinTicketRelatedByOwnerId($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'TicketRelatedByOwnerId', 'TicketQuery');
+	}
+
+	/**
+	 * Filter the query by a related TicketComment object
+	 *
+	 * @param     TicketComment $ticketComment  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByTicketComment($ticketComment, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $ticketComment->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the TicketComment relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinTicketComment($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('TicketComment');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'TicketComment');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the TicketComment relation TicketComment object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    TicketCommentQuery A secondary query class using the current class as primary query
+	 */
+	public function useTicketCommentQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinTicketComment($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'TicketComment', 'TicketCommentQuery');
+	}
+
+	/**
+	 * Filter the query by a related Changelog object
+	 *
+	 * @param     Changelog $changelog  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByChangelog($changelog, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $changelog->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the Changelog relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinChangelog($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('Changelog');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'Changelog');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the Changelog relation Changelog object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    ChangelogQuery A secondary query class using the current class as primary query
+	 */
+	public function useChangelogQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinChangelog($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'Changelog', 'ChangelogQuery');
+	}
+
+	/**
+	 * Filter the query by a related ProjectUser object
+	 *
+	 * @param     ProjectUser $projectUser  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByProjectUser($projectUser, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $projectUser->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the ProjectUser relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinProjectUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('ProjectUser');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'ProjectUser');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the ProjectUser relation ProjectUser object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    ProjectUserQuery A secondary query class using the current class as primary query
+	 */
+	public function useProjectUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinProjectUser($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'ProjectUser', 'ProjectUserQuery');
+	}
+
+	/**
+	 * Filter the query by a related Timetrack object
+	 *
+	 * @param     Timetrack $timetrack  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByTimetrack($timetrack, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $timetrack->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the Timetrack relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinTimetrack($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('Timetrack');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'Timetrack');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the Timetrack relation Timetrack object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    TimetrackQuery A secondary query class using the current class as primary query
+	 */
+	public function useTimetrackQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		return $this
+			->joinTimetrack($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'Timetrack', 'TimetrackQuery');
+	}
+
+	/**
+	 * Filter the query by a related FilterHistory object
+	 *
+	 * @param     FilterHistory $filterHistory  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByFilterHistory($filterHistory, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $filterHistory->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the FilterHistory relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinFilterHistory($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('FilterHistory');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'FilterHistory');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the FilterHistory relation FilterHistory object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    FilterHistoryQuery A secondary query class using the current class as primary query
+	 */
+	public function useFilterHistoryQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		return $this
+			->joinFilterHistory($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'FilterHistory', 'FilterHistoryQuery');
+	}
+
+	/**
+	 * Filter the query by a related ProjectPermission object
+	 *
+	 * @param     ProjectPermission $projectPermission  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByProjectPermission($projectPermission, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $projectPermission->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the ProjectPermission relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinProjectPermission($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('ProjectPermission');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'ProjectPermission');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the ProjectPermission relation ProjectPermission object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    ProjectPermissionQuery A secondary query class using the current class as primary query
+	 */
+	public function useProjectPermissionQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+	{
+		return $this
+			->joinProjectPermission($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'ProjectPermission', 'ProjectPermissionQuery');
+	}
+
+	/**
+	 * Filter the query by a related FavoriteTicket object
+	 *
+	 * @param     FavoriteTicket $favoriteTicket  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByFavoriteTicket($favoriteTicket, $comparison = null)
+	{
+		return $this
+			->addUsingAlias(afGuardUserPeer::ID, $favoriteTicket->getUserId(), $comparison);
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the FavoriteTicket relation
+	 * 
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinFavoriteTicket($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('FavoriteTicket');
+		
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+		
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'FavoriteTicket');
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * Use the FavoriteTicket relation FavoriteTicket object
+	 *
+	 * @see       useQuery()
+	 * 
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    FavoriteTicketQuery A secondary query class using the current class as primary query
+	 */
+	public function useFavoriteTicketQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinFavoriteTicket($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'FavoriteTicket', 'FavoriteTicketQuery');
 	}
 
 	/**
