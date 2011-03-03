@@ -150,7 +150,7 @@
 			<i:ref to="picture" />
 			<i:ref to="delete_image" />
 		</i:set>
-		<i:set title="SVN Integration" tabtitle="SVN Integration">
+		<i:set title="Version Control System Integration" tabtitle="Version Control System Integration">
 			<i:ref to="beanstalk_user" />
 			<i:ref to="github_user" />
 		</i:set>
