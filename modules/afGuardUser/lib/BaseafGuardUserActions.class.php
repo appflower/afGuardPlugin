@@ -40,6 +40,7 @@ class BaseafGuardUserActions extends sfActions
 			$this->personal_body = $tmp->getProfile()->getPersonalBody();
 			$this->picture = $tmp->getProfile()->getPicture();
 			$this->beanstalk_user = $tmp->getProfile()->getBeanstalkUser();
+			$this->github_user = $tmp->getProfile()->getGithubUser();
 		}else {
 			$this->tid = "";
 			$this->customer_id = "";
@@ -116,6 +117,7 @@ class BaseafGuardUserActions extends sfActions
 			$user_profile->setPersonalBody($formData['personal_body']);
 			$user_profile->setCustomerId($formData['customer_id_value']);
 			$user_profile->setBeanstalkUser($formData['beanstalk_user']);
+			$user_profile->setGithubUser($formData['github_user']);
 			
 			// Setting the time zone, defaults to GMT.
 			if(!isset($formData['time_zones_id_value']) || $formData['time_zones_id_value'] < 1) {

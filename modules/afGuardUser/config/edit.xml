@@ -118,6 +118,11 @@
 			style="css" value="{beanstalk_user}">
 			<i:help>Please type your SVN user, if not already automatically introduced by seedControl</i:help>
 		</i:field>
+		
+		<i:field name="github_user" label="Github username" state="editable"
+			style="css" value="{github_user}">
+			<i:help>Please type your Github username</i:help>
+		</i:field>
 
 	</i:fields>
 
@@ -147,6 +152,7 @@
 		</i:set>
 		<i:set title="SVN Integration" tabtitle="SVN Integration">
 			<i:ref to="beanstalk_user" />
+			<i:ref to="github_user" />
 		</i:set>
 	</i:grouping>
 </i:view>
