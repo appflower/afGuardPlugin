@@ -51,6 +51,7 @@ class BaseafGuardUserActions extends sfActions
 			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag","Thumbnail"));
 			$this->picture = thumbnail_tag("images/anonymous.jpeg", 100, 100);;
 			$this->beanstalk_user = "";
+			$this->github_user = "";
 		}
 		
 		$this->id = $this->getRequestParameter('id','');
