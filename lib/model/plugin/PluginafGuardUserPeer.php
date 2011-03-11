@@ -1,4 +1,7 @@
 <?php
+
+//require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerPlugin/lib/interface/AppFlowerUserQuery.interface.php');
+
 class PluginafGuardUserPeer extends BaseafGuardUserPeer implements AppFlowerUserQuery
 {
     public static function retrieveByUsername($username, $isActive = true)
