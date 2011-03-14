@@ -341,8 +341,4 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
         }
     }
     
-    public function getAllocatedTimeWeekly() {
-    	return $this->getUserProfile()->getAllocatedTimePerWeek();
-    }
-    
 }
