@@ -36,22 +36,4 @@ class PluginafGuardUserPeer extends BaseafGuardUserPeer implements AppFlowerUser
         return true;
     }
     
-	public static function getUsersWithoutTickets() {
-		$c = new Criteria();
-		$c->add(self::IS_ACTIVE, 1);
-		$users = array();
-		foreach(self::doSelect($c) as $obj){
-			$c = new Criteria();
-			$c->add(TicketPeer::USER_ID, $obj->getId());
-			TicketPeer::getActiveTickets($c);
-			if(TicketPeer::doCount($c)==0){
-				$users[] = $obj->getId();
-			}
-		}
-		
-		$c = new Criteria();
-		$c->add(self::ID,$users, Criteria::IN);
-		$c->addJoin(self::ID,UserProfilePeer::USER_ID);
-		return $c;
-	}
 }
