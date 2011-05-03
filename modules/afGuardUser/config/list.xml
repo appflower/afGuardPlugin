@@ -31,7 +31,7 @@ xmlns:i="http://www.appflower.com/schema/" type="list">
 		
 		<i:rowactions>		    
     		<i:action name="delete" iconCls="icon-minus" url="afGuardUser/delete" tooltip="Delete User" condition="afGuardUserPeer,IsEditable"/>
-    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Delete User" condition="afGuardUserPeer,IsEditable"/>
+    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Edit User" condition="afGuardUserPeer,IsEditable"/>
     	</i:rowactions>
     	
     	<i:actions>
