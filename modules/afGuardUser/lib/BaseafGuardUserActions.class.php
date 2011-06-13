@@ -148,6 +148,10 @@ class BaseafGuardUserActions extends sfActions
 			}
 			
 			$user_profile->save();
+			
+            if($new_user) {
+                afGuardUserPeer::sendWelcomeEmail($af_guard_user->getId(), $formData['guard_password']);
+            }
 
 			$result = array('success' => true, 'message' => 'Successfully saved your information!', 'user' => $af_guard_user);
             return $result;
