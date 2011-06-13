@@ -13,7 +13,7 @@ class afGuardRouting
     // preprend our routes
     $r->prependRoute('af_guard_signin', new sfRoute('/login', array('module' => 'afGuardAuth', 'action' => 'signin')));
     $r->prependRoute('af_guard_signout', new sfRoute('/logout', array('module' => 'afGuardAuth', 'action' => 'signout')));
-    $r->prependRoute('af_guard_password', new sfRoute('/request_password', array('module' => 'afGuardAuth', 'action' => 'password')));
+    $r->prependRoute('af_guard_password', new sfRoute('/request_password', array('module' => 'afGuardAuth', 'action' => 'passwordRequest')));
   }
 
   static public function addRouteForAdminUser(sfEvent $event)

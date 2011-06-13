@@ -128,8 +128,8 @@ class BaseafGuardAuthActions extends sfActions
 
 		// handle the form submission
 		$c = new Criteria();
-		$c->add(sfGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
-		$user = sfGuardUserPeer::doSelectOne($c);
+		$c->add(afGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
+		$user = afGuardUserPeer::doSelectOne($c);
 
 		// email exists?
 		if ($user)
