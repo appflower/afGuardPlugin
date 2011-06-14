@@ -134,9 +134,6 @@ class BaseafGuardAuthActions extends sfActions
 		// email exists?
 		if ($user)
 		{
-			//audit log
-			$user_old=clone $user;
-
 			// set new random password
 			$password = substr(md5(rand(100000, 999999)), 0, 6);
 			$user->setPassword($password);
@@ -152,7 +149,7 @@ class BaseafGuardAuthActions extends sfActions
                                 'from'     => 'Seedcontrol'
                             );
 
-                            afAutomailer::saveMail('mail', 'sendPasswordRequest', $parameters);
+                            afAutomailer::saveMail('afGuardAuth', 'sendPasswordRequest', $parameters);
                         }
 
 
@@ -169,23 +166,4 @@ class BaseafGuardAuthActions extends sfActions
 		return $this->renderText($result);
 	}
 
-//	public function executeRemoteLogin($request) {
-//		$user = $this->getUser();
-//		if ($user->isAuthenticated())
-//		{
-//			return $this->redirect('@homepage');
-//		}
-//
-//		$uid = $request->getParameter('uid');
-//		$hash = $request->getParameter('hash');
-//
-//		$user = sfGuardUserPeer::retrieveByPK($uid);
-//		if($user && $hash == md5($user->getUsername() . $user->getPassword() . $user->getLastLogin()) ) { //checks hash code
-//			$this->getUser()->signin($user, false);
-//
-//			return $this->redirect('@homepage');
-//		}else {
-//			return $this->redirect('@login');
-//		}
-//	}
 }
