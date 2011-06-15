@@ -11,22 +11,17 @@ class BaseafGuardUserActions extends sfActions
 		if($this->hasRequestParameter("id")) {
 			$tmp = afGuardUserPeer::retrieveByPK($this->getRequestParameter("id"));
 			$this->tid = $tmp->getProfile()->getTimezonesId();
-			$this->job_title = $tmp->getProfile()->getJobTitle();
 			$this->phone_mobile = $tmp->getProfile()->getPhoneMobile();
 			$this->phone_office = $tmp->getProfile()->getPhoneOffice();
 			$this->personal_body = $tmp->getProfile()->getPersonalBody();
 			$this->picture = $tmp->getProfile()->getPicture();
 		}else {
 			$this->tid = "";
-			$this->customer_id = "";
-			$this->job_title = "";
 			$this->phone_mobile = "";
 			$this->phone_office = "";
 			$this->personal_body = "";
 			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag","Thumbnail"));
 			$this->picture = thumbnail_tag("images/anonymous.jpeg", 100, 100);;
-			$this->beanstalk_user = "";
-			$this->github_user = "";
 		}
 		
 		$this->id = $this->getRequestParameter('id','');
@@ -72,7 +67,6 @@ class BaseafGuardUserActions extends sfActions
 			}
 			$user_profile->setFirstName($formData['first_name']);
 			$user_profile->setLastName($formData['last_name']);
-			$user_profile->setJobTitle($formData['job_title']);
 			$user_profile->setPhoneMobile($formData['phone_mobile']);
 			$user_profile->setPhoneOffice($formData['phone_office']);
 			$user_profile->setPersonalBody($formData['personal_body']);
@@ -94,7 +88,7 @@ class BaseafGuardUserActions extends sfActions
 				$path = $folder.'/'.$filename;
 				$path2 = str_replace(sfConfig::get('sf_root_dir')."/web/",'',$path);
 				$file = $_FILES["edit"]["tmp_name"]["0"]["profile_picture"];
-	            $conf = frontendConfiguration::getActive();
+	            $conf = sfProjectConfiguration::getActive();
 	            if ($conf->isStorageSpaceAvailable()) {
 	                if( move_uploaded_file($file, $path) ){
 	                    $user_profile->setProfilePicture($path2);
