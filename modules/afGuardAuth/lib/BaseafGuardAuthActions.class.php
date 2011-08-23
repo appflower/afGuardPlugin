@@ -53,8 +53,8 @@ class BaseafGuardAuthActions extends sfActions
 						 *
 						 * @author radu
 						 */
-						$signinUrl=$this->getRequest()->getReferer();
-						$signinUrl=($signinUrl!=null)?$signinUrl:url_for('@homepage');
+						$signinUrl = sfConfig::get('app_af_guard_plugin_success_signin_url', $request->getReferer());
+						$signinUrl = ($signinUrl != null) ? $signinUrl : url_for('@homepage');
 
 						$result = array('success' => true/*,'message'=>'You have logged in succesfuly ! You\'ll be redirected now...'*/,'redirect'=>$signinUrl,'load'=>'page');
 						$result = json_encode($result);
