@@ -1,29 +1,7 @@
 <?php
 class BaseafGuardUserActions extends sfActions
 {
-//	public function executeStatus()
-//	{
-//		$c = new Criteria();
-//		$c->addJoin(afGuardUserPeer::ID, afGuardUserProfilePeer::USER_ID);
-//		$c->add(afGuardUserProfilePeer::HASH, $this->getRequestParameter('hash'));
-//		$sf_guard_user = afGuardUserPeer::doSelectOne($c);
-//
-//		$this->forward404Unless($sf_guard_user);
-//
-//		if($sf_guard_user->getIsActive())
-//		{
-//			$sf_guard_user->setIsActive(0);
-//		}
-//		else {
-//			$sf_guard_user->setIsActive(1);
-//		}
-//
-//		$sf_guard_user->save();
-//
-//		return $this->redirect('afGuardUser/list');
-//	}
-//
-//
+	
 	public function executeList($request)
 	{
     }
@@ -33,25 +11,17 @@ class BaseafGuardUserActions extends sfActions
 		if($this->hasRequestParameter("id")) {
 			$tmp = afGuardUserPeer::retrieveByPK($this->getRequestParameter("id"));
 			$this->tid = $tmp->getProfile()->getTimezonesId();
-			$this->customer_id = $tmp->getProfile()->getCustomerId();
-			$this->job_title = $tmp->getProfile()->getJobTitle();
 			$this->phone_mobile = $tmp->getProfile()->getPhoneMobile();
 			$this->phone_office = $tmp->getProfile()->getPhoneOffice();
 			$this->personal_body = $tmp->getProfile()->getPersonalBody();
 			$this->picture = $tmp->getProfile()->getPicture();
-			$this->beanstalk_user = $tmp->getProfile()->getBeanstalkUser();
-			$this->github_user = $tmp->getProfile()->getGithubUser();
 		}else {
 			$this->tid = "";
-			$this->customer_id = "";
-			$this->job_title = "";
 			$this->phone_mobile = "";
 			$this->phone_office = "";
 			$this->personal_body = "";
 			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag","Thumbnail"));
 			$this->picture = thumbnail_tag("images/anonymous.jpeg", 100, 100);;
-			$this->beanstalk_user = "";
-			$this->github_user = "";
 		}
 		
 		$this->id = $this->getRequestParameter('id','');
@@ -69,9 +39,6 @@ class BaseafGuardUserActions extends sfActions
             $formData = $formData[0];
 			if (!isset($formData['id']) || $formData['id'] < 1)
 			{
-                if (!afGuardUserPeer::isNewUserAllowed()) {
-                    throw new Exception('New user could not be created.');
-                }
 				$af_guard_user = new afGuardUser();
 				$new_user = true;
 			}
@@ -79,12 +46,6 @@ class BaseafGuardUserActions extends sfActions
 			{
 				$af_guard_user = afGuardUserPeer::retrieveByPK($formData['id']);
 				$this->forward404Unless($af_guard_user);
-			}
-
-			//audit log
-			if(!$new_user)
-			{
-				$af_guard_user_old = clone $af_guard_user;
 			}
 
 			$af_guard_user->setUsername($formData['username']);
@@ -101,24 +62,14 @@ class BaseafGuardUserActions extends sfActions
 			if($new_user) {
 				$user_profile = new UserProfile();
 				$user_profile->setUserId($af_guard_user->getId());
-				
-				$user_profile->setEnAssignedTo(1);
-				$user_profile->setEnReporter(1);
-				$user_profile->setEnTicketUpdated(1);
-				$user_profile->setEnDontSend(0);
 			}else{
 				$user_profile = UserProfilePeer::retrieveByPK($formData['id']);
 			}
-			$user_profile->setAllocatedTimePerWeek($formData['time_allocated_weekly']);
 			$user_profile->setFirstName($formData['first_name']);
 			$user_profile->setLastName($formData['last_name']);
-			$user_profile->setJobTitle($formData['job_title']);
 			$user_profile->setPhoneMobile($formData['phone_mobile']);
 			$user_profile->setPhoneOffice($formData['phone_office']);
 			$user_profile->setPersonalBody($formData['personal_body']);
-			$user_profile->setCustomerId($formData['customer_id_value']);
-			$user_profile->setBeanstalkUser($formData['beanstalk_user']);
-			$user_profile->setGithubUser($formData['github_user']);
 			
 			// Setting the time zone, defaults to GMT.
 			if(!isset($formData['time_zones_id_value']) || $formData['time_zones_id_value'] < 1) {
@@ -137,7 +88,7 @@ class BaseafGuardUserActions extends sfActions
 				$path = $folder.'/'.$filename;
 				$path2 = str_replace(sfConfig::get('sf_root_dir')."/web/",'',$path);
 				$file = $_FILES["edit"]["tmp_name"]["0"]["profile_picture"];
-	            $conf = frontendConfiguration::getActive();
+	            $conf = sfProjectConfiguration::getActive();
 	            if ($conf->isStorageSpaceAvailable()) {
 	                if( move_uploaded_file($file, $path) ){
 	                    $user_profile->setProfilePicture($path2);
@@ -148,20 +99,13 @@ class BaseafGuardUserActions extends sfActions
 			}
 			
 			$user_profile->save();
-
+			
 			$result = array('success' => true, 'message' => 'Successfully saved your information!', 'user' => $af_guard_user);
             return $result;
 		}
 	}
 
 	public function executeListActionsRemoveUser(){
-		//If no additional operations is to be performed use this block #################
-		/*if($this->getRequest()->getMethod() == sfRequest::POST)
-		{
-			$post = $this->getRequest()->getParameterHolder()->getAll();
-			return $this->renderText(Util::listActionsRemove("NetRoutePeer",$post,"/appliance_system/listNetworkStaticRoute"));
-		}*/
-		// ##############################################################################
 		if($this->getRequest()->getMethod() == sfRequest::POST)
 		{
 			$post = $this->getRequest()->getParameterHolder()->getAll();

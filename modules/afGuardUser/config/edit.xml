@@ -40,68 +40,48 @@
 			</i:validator>
 		</i:field>
 
-		<i:field name="guard_password" label="Password*" type="password"
-			state="editable" style="css">
+		<i:field name="guard_password" label="Password*" type="password" state="editable" style="css">
 			<i:tooltip>Password</i:tooltip>
 			<i:help>Password</i:help>
+			<i:validator name="immValidatorRequired" />
 		</i:field>
 		
-		<i:field name="time_allocated_weekly" label="Time allocated per week" type="input" style="css">
-            <i:value type="orm">          
-                <i:source name="getAllocatedTimeWeekly" /> 
-            </i:value>
-            <i:tooltip>Time allocated per week.</i:tooltip>
-            <i:help>Time allocated per week.</i:help>
-            <i:validator name="immValidatorNumber" />
-        </i:field>
-
-
-<!--this is new-->
-
-		<i:field name="first_name" label="First Name"
-			state="editable" style="css">
+		<i:field name="first_name" label="First Name" state="editable" style="css">
 			<i:value type="orm">
 				<i:source name="getFirstName" />
 			</i:value>
+			<i:validator name="immValidatorRequired" />
 		</i:field>
-		<i:field name="last_name" label="Last Name"
-			state="editable" style="css">
+		<i:field name="last_name" label="Last Name" state="editable" style="css">
 			<i:value type="orm">
 				<i:source name="getLastName" />
 			</i:value>
+			<i:validator name="immValidatorRequired" />
 		</i:field>
 		
-        <i:field name="customer_id" label="Customer" type="combo" state="editable" selected="{customer_id}" style="css">
-			<i:value type="orm">
-				<i:class>CustomerPeer</i:class>
-				<i:method name="getAll">
-				</i:method>
-			</i:value>
-			<i:help>The customer name</i:help>
-			<i:tooltip>Select from the list the Customer.</i:tooltip>
-		</i:field>
 		<i:field name="job_title" label="Job Title" state="editable" style="css" value="{job_title}">
 		</i:field>
-		<i:field name="phone_mobile" label="Phone Mobile" state="editable"
-			style="css" value="{phone_mobile}">
+		
+		<i:field name="phone_mobile" label="Phone Mobile" state="editable" style="css" value="{phone_mobile}">
 			<i:help>Please fill it using numbers and plus; minus chars only,
 				for example: +3606-455-6789</i:help>
 		</i:field>
-		<i:field name="phone_office" label="Phone Office" state="editable"
-			style="css" value="{phone_office}">
+		
+		<i:field name="phone_office" label="Phone Office" state="editable" style="css" value="{phone_office}">
 			<i:help>Please fill it using numbers and plus; minus chars only,
 				for example: +3606-455-6789</i:help>
 
 		</i:field>
-		<i:field name="time_zones_id" type="combo" label="Timezone"
-			selected="{tid}">
+		
+		<i:field name="time_zones_id" type="combo" label="Timezone" selected="{tid}">
 			<i:value type="orm">
 				<i:class>TimeZonesPeer</i:class>
 				<i:method name="getAll" />
 			</i:value>
+			<i:validator name="immValidatorRequired" />
 		</i:field>
-		<i:field name="personal_body" label="About Me" type="textarea"
-			state="editable" style="css" value="{personal_body}">
+		
+		<i:field name="personal_body" label="About Me" type="textarea" state="editable" style="css" value="{personal_body}">
 		</i:field>
 
 		<i:field name="profile_picture" label="Profile picture" type="file">
@@ -110,18 +90,7 @@
 		<i:field name="picture" label="" type="static" value="{picture}">
 		</i:field>
 
-		<i:field name="delete_image" label="Delete Image" type="checkbox"
-			state="editable" style="css" checked="0">
-		</i:field>
-
-		<i:field name="beanstalk_user" label="Beanstalk SVN user" state="editable"
-			style="css" value="{beanstalk_user}">
-			<i:help>Please type your SVN user, if not already automatically introduced by seedControl</i:help>
-		</i:field>
-		
-		<i:field name="github_user" label="Github username" state="editable"
-			style="css" value="{github_user}">
-			<i:help>Please type your Github username</i:help>
+		<i:field name="delete_image" label="Delete Image" type="checkbox" state="editable" style="css" checked="0">
 		</i:field>
 
 	</i:fields>
@@ -138,7 +107,6 @@
 		<i:set title="My Profile" tabtitle="My Profile">
 			<i:ref to="first_name" />
 			<i:ref to="last_name" />
-			<i:ref to="customer_id" />
 			<i:ref to="job_title" />
 			<i:ref to="phone_mobile" />
 			<i:ref to="phone_office" />
@@ -149,10 +117,6 @@
 			<i:ref to="profile_picture" />
 			<i:ref to="picture" />
 			<i:ref to="delete_image" />
-		</i:set>
-		<i:set title="Version Control System Integration" tabtitle="Version Control System Integration">
-			<i:ref to="beanstalk_user" />
-			<i:ref to="github_user" />
 		</i:set>
 	</i:grouping>
 </i:view>

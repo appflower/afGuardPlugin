@@ -23,15 +23,14 @@ xmlns:i="http://www.appflower.com/schema/" type="list">
 		
 		<i:fields>
 			<i:column name="html_status" sortable="false" editable="false" resizable="false" style="css" label="Status"/>
-			<i:column name="html_name" sortable="false" editable="false" resizable="false" style="css" label="Name" filter="[type:string]" />
+			<i:column name="html_name" sortable="true" editable="false" resizable="false" style="css" label="Name" filter="[type:string]" sort="ASC" sortType="asText"/>
 			<i:column name="username" sortable="false" editable="false" resizable="false" style="css" label="Username" filter="[type:string]" />
-			<i:column name="allocated_time_weekly" sortable="false" editable="false" resizable="false" style="css" label="Allocated time per week" filter="[type:string]" />
 			<i:column name="login" sortable="false" editable="false" resizable="false" style="css" label="Last Login" filter="[type:date,dataIndex:timestamp]" />
 		</i:fields>
 		
 		<i:rowactions>		    
     		<i:action name="delete" iconCls="icon-minus" url="afGuardUser/delete" tooltip="Delete User" condition="afGuardUserPeer,IsEditable"/>
-    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Delete User" condition="afGuardUserPeer,IsEditable"/>
+    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Edit User" condition="afGuardUserPeer,IsEditable"/>
     	</i:rowactions>
     	
     	<i:actions>

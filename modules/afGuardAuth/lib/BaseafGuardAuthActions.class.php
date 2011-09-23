@@ -53,8 +53,8 @@ class BaseafGuardAuthActions extends sfActions
 						 *
 						 * @author radu
 						 */
-						$signinUrl=$this->getRequest()->getReferer();
-						$signinUrl=($signinUrl!=null)?$signinUrl:url_for('@homepage');
+						$signinUrl = sfConfig::get('app_af_guard_plugin_success_signin_url', $request->getReferer());
+						$signinUrl = ($signinUrl != null) ? $signinUrl : url_for('@homepage');
 
 						$result = array('success' => true/*,'message'=>'You have logged in succesfuly ! You\'ll be redirected now...'*/,'redirect'=>$signinUrl,'load'=>'page');
 						$result = json_encode($result);
@@ -128,15 +128,12 @@ class BaseafGuardAuthActions extends sfActions
 
 		// handle the form submission
 		$c = new Criteria();
-		$c->add(sfGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
-		$user = sfGuardUserPeer::doSelectOne($c);
+		$c->add(afGuardUserPeer::USERNAME, $this->getRequestParameter('email'));
+		$user = afGuardUserPeer::doSelectOne($c);
 
 		// email exists?
 		if ($user)
 		{
-			//audit log
-			$user_old=clone $user;
-
 			// set new random password
 			$password = substr(md5(rand(100000, 999999)), 0, 6);
 			$user->setPassword($password);
@@ -152,7 +149,7 @@ class BaseafGuardAuthActions extends sfActions
                                 'from'     => 'Seedcontrol'
                             );
 
-                            afAutomailer::saveMail('mail', 'sendPasswordRequest', $parameters);
+                            afAutomailer::saveMail('afGuardAuth', 'sendPasswordRequest', $parameters);
                         }
 
 
@@ -169,23 +166,4 @@ class BaseafGuardAuthActions extends sfActions
 		return $this->renderText($result);
 	}
 
-//	public function executeRemoteLogin($request) {
-//		$user = $this->getUser();
-//		if ($user->isAuthenticated())
-//		{
-//			return $this->redirect('@homepage');
-//		}
-//
-//		$uid = $request->getParameter('uid');
-//		$hash = $request->getParameter('hash');
-//
-//		$user = sfGuardUserPeer::retrieveByPK($uid);
-//		if($user && $hash == md5($user->getUsername() . $user->getPassword() . $user->getLastLogin()) ) { //checks hash code
-//			$this->getUser()->signin($user, false);
-//
-//			return $this->redirect('@homepage');
-//		}else {
-//			return $this->redirect('@login');
-//		}
-//	}
 }

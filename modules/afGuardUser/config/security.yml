@@ -1,19 +1,19 @@
 all:
   is_secure:   true
 
-listUser:
+list:
   is_secure:   true
   credentials: [[user_list_view,user_list_edit]]
 
-editUser:
+edit:
   is_secure:   true
   credentials: user_list_edit
       
-status:
+update:
   is_secure:   true
   credentials: user_list_edit
 
-deleteUser:
+delete:
   is_secure:   true
   credentials: user_list_edit
     
