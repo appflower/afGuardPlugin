@@ -5,7 +5,7 @@ $layout=new afExtjsSfGuardLayout();
  * EXTJS REQUEST PASSWORD FORM
  */
 
-$form=new afExtjsForm(array('action'=>url_for('@sf_guard_password')/*,'fileUpload'=>true*/));
+$form=new afExtjsForm(array('action'=>url_for('@af_guard_password')/*,'fileUpload'=>true*/));
 
 $fieldset=$form->startFieldset(array('legend'=>'Receive your login details by email'));
 $columns = $fieldset->startColumns(array("columnWidth"=>1));
