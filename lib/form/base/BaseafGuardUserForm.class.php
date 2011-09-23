@@ -23,12 +23,12 @@ abstract class BaseafGuardUserForm extends BaseFormPropel
       'last_login'                    => new sfWidgetFormDateTime(),
       'is_active'                     => new sfWidgetFormInputCheckbox(),
       'is_super_admin'                => new sfWidgetFormInputCheckbox(),
-      'af_guard_user_permission_list' => new sfWidgetFormPropelChoice(array('multiple' => true, 'model' => 'afGuardPermission')),
       'af_guard_user_group_list'      => new sfWidgetFormPropelChoice(array('multiple' => true, 'model' => 'afGuardGroup')),
+      'af_guard_user_permission_list' => new sfWidgetFormPropelChoice(array('multiple' => true, 'model' => 'afGuardPermission')),
     ));
 
     $this->setValidators(array(
-      'id'                            => new sfValidatorChoice(array('choices' => array($this->getObject()->getId()), 'empty_value' => $this->getObject()->getId(), 'required' => false)),
+      'id'                            => new sfValidatorPropelChoice(array('model' => 'afGuardUser', 'column' => 'id', 'required' => false)),
       'username'                      => new sfValidatorString(array('max_length' => 128)),
       'algorithm'                     => new sfValidatorString(array('max_length' => 128)),
       'salt'                          => new sfValidatorString(array('max_length' => 128)),
@@ -37,8 +37,8 @@ abstract class BaseafGuardUserForm extends BaseFormPropel
       'last_login'                    => new sfValidatorDateTime(array('required' => false)),
       'is_active'                     => new sfValidatorBoolean(),
       'is_super_admin'                => new sfValidatorBoolean(),
-      'af_guard_user_permission_list' => new sfValidatorPropelChoice(array('multiple' => true, 'model' => 'afGuardPermission', 'required' => false)),
       'af_guard_user_group_list'      => new sfValidatorPropelChoice(array('multiple' => true, 'model' => 'afGuardGroup', 'required' => false)),
+      'af_guard_user_permission_list' => new sfValidatorPropelChoice(array('multiple' => true, 'model' => 'afGuardPermission', 'required' => false)),
     ));
 
     $this->validatorSchema->setPostValidator(
@@ -62,17 +62,6 @@ abstract class BaseafGuardUserForm extends BaseFormPropel
   {
     parent::updateDefaultsFromObject();
 
-    if (isset($this->widgetSchema['af_guard_user_permission_list']))
-    {
-      $values = array();
-      foreach ($this->object->getafGuardUserPermissions() as $obj)
-      {
-        $values[] = $obj->getPermissionId();
-      }
-
-      $this->setDefault('af_guard_user_permission_list', $values);
-    }
-
     if (isset($this->widgetSchema['af_guard_user_group_list']))
     {
       $values = array();
@@ -84,49 +73,25 @@ abstract class BaseafGuardUserForm extends BaseFormPropel
       $this->setDefault('af_guard_user_group_list', $values);
     }
 
+    if (isset($this->widgetSchema['af_guard_user_permission_list']))
+    {
+      $values = array();
+      foreach ($this->object->getafGuardUserPermissions() as $obj)
+      {
+        $values[] = $obj->getPermissionId();
+      }
+
+      $this->setDefault('af_guard_user_permission_list', $values);
+    }
+
   }
 
   protected function doSave($con = null)
   {
     parent::doSave($con);
 
-    $this->saveafGuardUserPermissionList($con);
     $this->saveafGuardUserGroupList($con);
-  }
-
-  public function saveafGuardUserPermissionList($con = null)
-  {
-    if (!$this->isValid())
-    {
-      throw $this->getErrorSchema();
-    }
-
-    if (!isset($this->widgetSchema['af_guard_user_permission_list']))
-    {
-      // somebody has unset this widget
-      return;
-    }
-
-    if (null === $con)
-    {
-      $con = $this->getConnection();
-    }
-
-    $c = new Criteria();
-    $c->add(afGuardUserPermissionPeer::USER_ID, $this->object->getPrimaryKey());
-    afGuardUserPermissionPeer::doDelete($c, $con);
-
-    $values = $this->getValue('af_guard_user_permission_list');
-    if (is_array($values))
-    {
-      foreach ($values as $value)
-      {
-        $obj = new afGuardUserPermission();
-        $obj->setUserId($this->object->getPrimaryKey());
-        $obj->setPermissionId($value);
-        $obj->save();
-      }
-    }
+    $this->saveafGuardUserPermissionList($con);
   }
 
   public function saveafGuardUserGroupList($con = null)
@@ -159,6 +124,41 @@ abstract class BaseafGuardUserForm extends BaseFormPropel
         $obj = new afGuardUserGroup();
         $obj->setUserId($this->object->getPrimaryKey());
         $obj->setGroupId($value);
+        $obj->save();
+      }
+    }
+  }
+
+  public function saveafGuardUserPermissionList($con = null)
+  {
+    if (!$this->isValid())
+    {
+      throw $this->getErrorSchema();
+    }
+
+    if (!isset($this->widgetSchema['af_guard_user_permission_list']))
+    {
+      // somebody has unset this widget
+      return;
+    }
+
+    if (null === $con)
+    {
+      $con = $this->getConnection();
+    }
+
+    $c = new Criteria();
+    $c->add(afGuardUserPermissionPeer::USER_ID, $this->object->getPrimaryKey());
+    afGuardUserPermissionPeer::doDelete($c, $con);
+
+    $values = $this->getValue('af_guard_user_permission_list');
+    if (is_array($values))
+    {
+      foreach ($values as $value)
+      {
+        $obj = new afGuardUserPermission();
+        $obj->setUserId($this->object->getPrimaryKey());
+        $obj->setPermissionId($value);
         $obj->save();
       }
     }

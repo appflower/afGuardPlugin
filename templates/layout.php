@@ -7,10 +7,12 @@
 </head>
 
 <body>
-	<!-- Page Frame -->
-	<?php if (has_slot('content')): ?>
-		<?php include_slot('content') ?>
-	<?php endif; ?>
+
+<style>
+body {
+	background:#3d71b8 url(/appFlowerPlugin/extjs-3/plugins/desktop/wallpapers/desktop.jpg) no-repeat bottom right;
+}
+</style>
 
 	<?php echo $sf_data->getRaw('sf_content') ?>
 </body>

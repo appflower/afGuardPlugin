@@ -5,7 +5,7 @@ $layout=new afExtjsSfGuardLayout();
  * EXTJS SIGN IN FORM
  */
 
-$form=new afExtjsForm(array('action'=>'/login',"columnWidth"=>".88"/*,'fileUpload'=>true*/));
+$form=new afExtjsForm(array('action'=>url_for('@af_guard_signin'),"columnWidth"=>".88"/*,'fileUpload'=>true*/));
 
 $fieldset=$form->startFieldset(array('legend'=>'Login','collapsible'=>'false'));
 $columns = $fieldset->startColumns(array("columnWidth"=>1));
@@ -26,7 +26,7 @@ $columns->endColumn($col);
 $fieldset->endColumns($columns);
 $form->endFieldset($fieldset);
 
-new afExtjsSubmitButton($form,array('action'=>'/login'));
+new afExtjsSubmitButton($form,array('action'=>url_for('@af_guard_signin')));
 new afExtjsLinkButton($form,array('url'=>url_for('@af_guard_password'),'load'=>'page','label'=>'Forgot your password?','icon'=>'/images/famfamfam/email_go.png'));
 
 $form->end();
