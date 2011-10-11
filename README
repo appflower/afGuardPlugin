@@ -1,16 +1,14 @@
 afGuard plugin
 ==============
 
-This plugin is made from sfGuardPlugin.
-It is modified to be compatible for applications using AppFlowerPlugin
+This plugin was born from sfGuardPlugin.
+It is modified to be compatible for applications using AppFlowerPlugin.
 
-In original sfGuardPlugin modules for CRUD operations are auto generated and
-we should probably follow the same approach.
+What you need to use it ?
 
-What you need to use it.
 Your symfony application should have AppFlowerPlugin already installed.
 Next you should install afGuardPlugin in your project - you can just copy its
-files or create local reopistory from SVN or alter svn:externals property of plugins directory.
+files or clone git repository from github git://github.com/appflower/afGuardPlugin.git
 
 As always you should rebuild model and sql, running:
 ./symfony propel:build-model
@@ -33,25 +31,37 @@ all:
     login_action: signin
 
 
-Copy afGuardPlugin/templates/layoutAuth.php to apps/frontend/templates directory.
-
 Make sure that you ProjectConfiguration class implements AppFlowerApplication interface correctly.
-For example like that:
+If you use Propel 1.6 you can do it by adding following method to configuration class:
    function getAppFlowerUserQuery()
    {
-      return new afGuardUserPeer();
+      return afGuardUserQuery::create();
    }
 
-Change you apps/frontend/lib/myUser.class.php to extend afGuardSecurityUser and implement AppFlowerSecurityUser
+Change you apps/frontend/lib/myUser.class.php to extend afGuardSecurityUser instead of sfBasicSecurityUser
+
+You should also change implementation of AppFlowerSecurityUser interface. Since
+you have already installed AppFlowerPlugin before you probably have myUser::getAppflowerUser() method like below:
+
+    public function getAppFlowerUser()
+    {
+        return new AppFlowerAnonymousUser;
+    }
+
+You should change it to:
+
+    public function getAppFlowerUser()
+    {
+        return $this->getGuardUser();
+    }
 
 
-You can also enable more modules like: afGuardUser, afGuardGroup to manage users and groups through AF interface.
+You can also enable (in settings.yml) more modules like: afGuardUser, afGuardGroup to manage users and groups through AF interface.
 all:
   .settings:
     .enabled_modules: [defaul, ..., afGuardAuth, afGuardUser, afGuardGroup]
+
 After this you can access them using url: http://yourapp/#/afGuardUser/list
-
-
 
 
 Finally if you want to use "remember me" functionality change security filer in your apps/frontend/config/filters.yml:
