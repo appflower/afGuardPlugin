@@ -1,6 +1,12 @@
 <?php
 class BaseafGuardAuthActions extends sfActions
 {
+  public function executeInsufficientCredentials()
+  {  	
+    $this->title = "Insufficient Credentials";
+	$this->html = "<div style = 'padding:10px;text-align:center; font-weight:bold;height:100px; padding-top:30px;color:red'>You do not have sufficient credentials to view this page</div>";
+  }	
+  
 	public function executeSignout($request)
 	{
         $this->getUser()->signOut();

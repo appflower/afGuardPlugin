@@ -29,6 +29,8 @@ all:
   .actions:
     login_module: afGuardAuth
     login_action: signin
+    secure_module: afGuardAuth
+    secure_action: insufficientCredentials
 
 
 Make sure that you ProjectConfiguration class implements AppFlowerApplication interface correctly.
