@@ -307,38 +307,4 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
   function  isAnonymous() {
         return false;
   }
-  
-    public function getHtmlStatus() {
-        sfProjectConfiguration::getActive()->loadHelpers(array("Url", "Tag", "Asset"/*, "Javascript"*/));
-        if ($this->getIsActive()) {
-            return image_tag('famfamfam/user_green', array('title' => 'User is active'));
-        }
-        else
-        {
-            return image_tag('famfamfam/user_red', array('title' => 'User is inactive'));
-        }
-    }
-    public function getHtmlName() {
-        return '<a class="widgetLoad" href="' . sfContext::getInstance()->getController()->genUrl('/sfGuardUser/editUser?id=' . $this->getId(), true) . '" class="widgetLoad"> ' . self::getName() . ' </a>';
-    }
-    public function getName() {
-        return $this->getFirstName() . ' ' . $this->getLastName();
-    }
-    public function getFirstName() {
-//        return $this->getProfile()->getFirstName();
-    }
-
-    public function getLastName() {
-//        return $this->getProfile()->getLastName();
-    }
-    public function getLogin($format = 'Y-m-d H:i:s') {
-        if (!is_null($this->getLastLogin($format))) {
-            return $this->getLastLogin($format);
-        }
-        else
-        {
-            return 'Never logged in';
-        }
-    }
-    
 }

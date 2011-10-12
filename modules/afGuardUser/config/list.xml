@@ -8,8 +8,6 @@ xmlns:i="http://www.appflower.com/schema/" type="list">
 			<i:param name="maxperpage">20</i:param>
 		</i:params>
 		
-		<i:proxy url="parser/listjson" />
-		
 		<i:datasource type="orm">
 			<i:class>afGuardUserPeer</i:class>
 			<i:method name="getAllUsers">
@@ -17,35 +15,20 @@ xmlns:i="http://www.appflower.com/schema/" type="list">
 			</i:method>
 		</i:datasource>
 		
-		<i:display>
-			<i:visible>html_status,username,account,html_name,login</i:visible>
-		</i:display>
-		
 		<i:fields>
-			<i:column name="html_status" sortable="false" editable="false" resizable="false" style="css" label="Status"/>
-			<i:column name="html_name" sortable="true" editable="false" resizable="false" style="css" label="Name" filter="[type:string]" sort="ASC" sortType="asText"/>
 			<i:column name="username" sortable="false" editable="false" resizable="false" style="css" label="Username" filter="[type:string]" />
-			<i:column name="login" sortable="false" editable="false" resizable="false" style="css" label="Last Login" filter="[type:date,dataIndex:timestamp]" />
 		</i:fields>
 		
 		<i:rowactions>		    
-    		<i:action name="delete" iconCls="icon-minus" url="afGuardUser/delete" tooltip="Delete User" condition="afGuardUserPeer,IsEditable"/>
-    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Edit User" condition="afGuardUserPeer,IsEditable"/>
+    		<i:action name="delete" iconCls="icon-minus" url="afGuardUser/delete" tooltip="Delete User"/>
+    		<i:action name="edit" iconCls="icon-application-key" url="afGuardUser/edit" tooltip="Edit User"/>
     	</i:rowactions>
     	
     	<i:actions>
-    	    <i:action name="Add User" iconCls="icon-plus" url="afGuardUser/edit" condition="afGuardUserPeer,IsNewUserAllowed"/>
+    	    <i:action name="Add User" iconCls="icon-plus" url="/afGuardUser/edit"/>
     	    <i:action name="Manage roles" iconCls="icon-application-key" url="/afGuardGroup/list" />
     	</i:actions>
     	
-    	<i:moreactions>
-    		<i:action name="Activate Selected" confirmMsg="You are going to activate the selected users.\r\nAre you sure?"  post="true" icon="/images/famfamfam/accept.png" url="/afGuardUser/listActionsUserStatus/activate"></i:action>
-  			<i:action name="Deactivate Selected" confirmMsg="You are going to deactivate the selected users.\r\nAre you sure?"  post="true" icon="/images/famfamfam/delete.png" url="/afGuardUser/listActionsUserStatus/deactivate"></i:action>
-  			
-			<i:action name="Delete Selected" confirmMsg="Are you sure to delete selected users"  post="true" icon="/images/famfamfam/cross.png" url="/afGuardUser/listActionsRemoveUser"></i:action>
-			<i:action name="Delete All" forceSelection="false" confirmMsg="Are you sure to delete all users"  post="true" icon="/images/famfamfam/cross.png" url="/afGuardUser/listActionsRemoveUser/all"></i:action>
-		</i:moreactions>
-		
     	<i:description>
     		<![CDATA[This widget lists the basic information about all the users of the system. You can add, edit or delete the users of the system. ]]>
 		</i:description>
