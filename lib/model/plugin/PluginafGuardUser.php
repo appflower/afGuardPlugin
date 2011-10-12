@@ -307,4 +307,8 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
   function  isAnonymous() {
         return false;
   }
+  function getTimezoneOffset() {
+        return 0;
+  }
+
 }
