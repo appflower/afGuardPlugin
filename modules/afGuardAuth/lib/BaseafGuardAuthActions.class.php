@@ -160,7 +160,7 @@ class BaseafGuardAuthActions extends sfActions
 
 
 			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag"));
-			$result = array('success' => true,'message'=>'Your login information was sent to '.$this->getRequestParameter('email').'. <br>You should receive it shortly, so you can proceed to the '.link_to('login page', '@login').'.');
+			$result = array('success' => true,'message'=>'Your login information was sent to '.$this->getRequestParameter('email').'. <br>You should receive it shortly, so you can proceed to the '.link_to('login page', '@af_guard_signin').'.');
 
 		}
 		else
