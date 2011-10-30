@@ -397,6 +397,12 @@ abstract class BaseafGuardUserPeer {
 	 */
 	public static function clearRelatedInstancePool()
 	{
+		// Invalidate objects in afCrmOpportunityPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		afCrmOpportunityPeer::clearInstancePool();
+		// Invalidate objects in afCrmActivityPeer instance pool, 
+		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+		afCrmActivityPeer::clearInstancePool();
 		// Invalidate objects in afGuardUserPermissionPeer instance pool, 
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserPermissionPeer::clearInstancePool();
@@ -406,15 +412,6 @@ abstract class BaseafGuardUserPeer {
 		// Invalidate objects in afGuardRememberKeyPeer instance pool, 
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardRememberKeyPeer::clearInstancePool();
-		// Invalidate objects in UserProfilePeer instance pool, 
-		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-		UserProfilePeer::clearInstancePool();
-		// Invalidate objects in ProjectUserPeer instance pool, 
-		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-		ProjectUserPeer::clearInstancePool();
-		// Invalidate objects in ProjectPermissionPeer instance pool, 
-		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-		ProjectPermissionPeer::clearInstancePool();
 	}
 
 	/**
@@ -746,6 +743,18 @@ abstract class BaseafGuardUserPeer {
 		foreach ($objects as $obj) {
 
 
+			// delete related afCrmOpportunity objects
+			$criteria = new Criteria(afCrmOpportunityPeer::DATABASE_NAME);
+			
+			$criteria->add(afCrmOpportunityPeer::CREATED_BY, $obj->getId());
+			$affectedRows += afCrmOpportunityPeer::doDelete($criteria, $con);
+
+			// delete related afCrmActivity objects
+			$criteria = new Criteria(afCrmActivityPeer::DATABASE_NAME);
+			
+			$criteria->add(afCrmActivityPeer::CREATED_BY, $obj->getId());
+			$affectedRows += afCrmActivityPeer::doDelete($criteria, $con);
+
 			// delete related afGuardUserPermission objects
 			$criteria = new Criteria(afGuardUserPermissionPeer::DATABASE_NAME);
 			
@@ -763,24 +772,6 @@ abstract class BaseafGuardUserPeer {
 			
 			$criteria->add(afGuardRememberKeyPeer::USER_ID, $obj->getId());
 			$affectedRows += afGuardRememberKeyPeer::doDelete($criteria, $con);
-
-			// delete related UserProfile objects
-			$criteria = new Criteria(UserProfilePeer::DATABASE_NAME);
-			
-			$criteria->add(UserProfilePeer::USER_ID, $obj->getId());
-			$affectedRows += UserProfilePeer::doDelete($criteria, $con);
-
-			// delete related ProjectUser objects
-			$criteria = new Criteria(ProjectUserPeer::DATABASE_NAME);
-			
-			$criteria->add(ProjectUserPeer::USER_ID, $obj->getId());
-			$affectedRows += ProjectUserPeer::doDelete($criteria, $con);
-
-			// delete related ProjectPermission objects
-			$criteria = new Criteria(ProjectPermissionPeer::DATABASE_NAME);
-			
-			$criteria->add(ProjectPermissionPeer::USER_ID, $obj->getId());
-			$affectedRows += ProjectPermissionPeer::doDelete($criteria, $con);
 		}
 		return $affectedRows;
 	}

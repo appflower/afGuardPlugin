@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<i:view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.appflower.com /schema/appflower.xsd"
+	xmlns:i="http://www.appflower.com/schema/" type="edit">
+
+	<i:title>Edit User</i:title>
+	<i:datasource type="orm">
+		<i:class>afGuardUserPeer</i:class>
+		<i:method name="retrieveByPk">
+			<i:param name="id">{id}</i:param>
+		</i:method>
+	</i:datasource>
+
+	<i:fields url="/afGuardUser/update">
+		<i:field name="id" type="hidden">
+			<i:value type="orm">
+				<i:source name="getId" />
+			</i:value>
+		</i:field>
+
+		<i:field name="is_active" label="Is Active" type="checkbox"
+			state="editable" style="css">
+			<i:value type="orm">
+				<i:source name="getIsActive" />
+			</i:value>
+			<i:tooltip>User satus</i:tooltip>
+			<i:help>Current status of user</i:help>
+		</i:field>
+
+		<i:field name="username" label="Username" type="input" state="editable" style="css">
+			<i:value type="orm">
+				<i:source name="getUsername" />
+			</i:value>
+			<i:help>The username to be used to login</i:help>
+            <i:tooltip>The username has to be unuique.</i:tooltip>
+			<i:validator name="immValidatorUnique">
+				<i:param name="class">afGuardUser</i:param>
+				<i:param name="column">username</i:param>
+				<i:param name="unique_error">User with the username "%value%" already
+					exists. Please choose another one.</i:param>
+			</i:validator>
+		</i:field>
+
+		<i:field name="guard_password" label="Password*" type="password" state="editable" style="css">
+			<i:tooltip>A strong password contains letters, numbers a special symbol and is at least 8 characters long.</i:tooltip>
+			<i:help>The password to be used to login</i:help>
+			<i:validator name="immValidatorRequired" />
+		</i:field>
+
+		<i:field name="associated_af_guard_group" label="Roles" type="doublemulticombo" state="editable" style="">
+		<i:value type="orm">
+			<i:class>afGuardUserGroupPeer</i:class>
+			<i:method name="getGroupUsers">
+				<i:param name="id">{id}</i:param>
+			</i:method>
+		</i:value>
+		<i:tooltip>Select the roles you wish to assign to the user.</i:tooltip>
+		<i:help>The user will be assigned the selected roles.</i:help>
+		<i:validator name="immValidatorRequired" />
+		</i:field>
+
+
+	</i:fields>
+
+	<i:description>
+    		<![CDATA[You can add a new user or edit an existing one from this widget. ]]>
+	</i:description>
+	
+</i:view>

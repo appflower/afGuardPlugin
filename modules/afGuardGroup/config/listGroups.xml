@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="list" xsi:schemaLocation="http://www.appflower.com /schema/appflower.xsd">
+    <i:title><![CDATA[User Roles]]></i:title>
+    <i:params>
+        <i:param name="maxperpage">20</i:param>
+    </i:params>
+    <i:proxy url="parser/listjson"/>
+    <i:datasource type="orm">
+        <i:class>afGuardGroupPeer</i:class>
+        <i:method name="getAllGroups" type="static"/>
+    </i:datasource>
+    <i:display>
+        <i:visible>html_name,description</i:visible>
+    </i:display>
+    <i:fields>
+        <i:column editable="false" label="No." name="id" resizable="false" sortable="false" width="50"/>
+        <i:column editable="false" filter="[type:string]" label="Role" name="html_name" resizable="false" sortable="false" width="326"/>
+    </i:fields>
+    <i:rowactions>
+        <i:action condition="afGuardGroupPeer,IsEditable" iconCls="icon-edit" name="edit" tooltip="Edit Role" url="/afGuardGroup/editGroup"/>
+        <i:action condition="afGuardGroupPeer,IsEditable" iconCls="icon-minus" name="delete" post="true" tooltip="Delete Role" url="afGuardGroup/delete"/>
+    </i:rowactions>
+    <i:actions>
+        <i:action iconCls="icon-plus" name="New Role" url="afGuardGroup/editGroup"/>
+    </i:actions>
+    <i:moreactions>
+        <i:action confirmMsg="Are you sure to delete selected roles?" icon="/images/famfamfam/cross.png" name="Delete Selected" post="true" url="/afGuardGroup/massDelete"/>
+        <i:action confirmMsg="Are you sure to delete all roles?" forceSelection="false" icon="/images/famfamfam/cross.png" name="Delete All" post="true" url="/afGuardGroup/massDelete"/>
+    </i:moreactions>
+    <i:description><![CDATA[Permission groups can be created to control user previliges. A permission group can be assigned a selected number of site permissions. Each user can be assigned a set of permission groups and the user\'s access right is determined by the permission groups assigned.]]></i:description>
+</i:view>

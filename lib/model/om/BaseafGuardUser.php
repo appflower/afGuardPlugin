@@ -82,6 +82,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	protected $is_super_admin;
 
 	/**
+	 * @var        array afCrmOpportunity[] Collection to store aggregation of afCrmOpportunity objects.
+	 */
+	protected $collafCrmOpportunitys;
+
+	/**
+	 * @var        array afCrmActivity[] Collection to store aggregation of afCrmActivity objects.
+	 */
+	protected $collafCrmActivitys;
+
+	/**
 	 * @var        array afGuardUserPermission[] Collection to store aggregation of afGuardUserPermission objects.
 	 */
 	protected $collafGuardUserPermissions;
@@ -95,61 +105,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * @var        array afGuardRememberKey[] Collection to store aggregation of afGuardRememberKey objects.
 	 */
 	protected $collafGuardRememberKeys;
-
-	/**
-	 * @var        array Component[] Collection to store aggregation of Component objects.
-	 */
-	protected $collComponents;
-
-	/**
-	 * @var        UserProfile one-to-one related UserProfile object
-	 */
-	protected $singleUserProfile;
-
-	/**
-	 * @var        array Ticket[] Collection to store aggregation of Ticket objects.
-	 */
-	protected $collTicketsRelatedByUserId;
-
-	/**
-	 * @var        array Ticket[] Collection to store aggregation of Ticket objects.
-	 */
-	protected $collTicketsRelatedByOwnerId;
-
-	/**
-	 * @var        array TicketComment[] Collection to store aggregation of TicketComment objects.
-	 */
-	protected $collTicketComments;
-
-	/**
-	 * @var        array Changelog[] Collection to store aggregation of Changelog objects.
-	 */
-	protected $collChangelogs;
-
-	/**
-	 * @var        array ProjectUser[] Collection to store aggregation of ProjectUser objects.
-	 */
-	protected $collProjectUsers;
-
-	/**
-	 * @var        array Timetrack[] Collection to store aggregation of Timetrack objects.
-	 */
-	protected $collTimetracks;
-
-	/**
-	 * @var        array FilterHistory[] Collection to store aggregation of FilterHistory objects.
-	 */
-	protected $collFilterHistorys;
-
-	/**
-	 * @var        array ProjectPermission[] Collection to store aggregation of ProjectPermission objects.
-	 */
-	protected $collProjectPermissions;
-
-	/**
-	 * @var        array FavoriteTicket[] Collection to store aggregation of FavoriteTicket objects.
-	 */
-	protected $collFavoriteTickets;
 
 	/**
 	 * Flag to prevent endless save loop, if this object is referenced
@@ -695,33 +650,15 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 		if ($deep) {  // also de-associate any related objects?
 
+			$this->collafCrmOpportunitys = null;
+
+			$this->collafCrmActivitys = null;
+
 			$this->collafGuardUserPermissions = null;
 
 			$this->collafGuardUserGroups = null;
 
 			$this->collafGuardRememberKeys = null;
-
-			$this->collComponents = null;
-
-			$this->singleUserProfile = null;
-
-			$this->collTicketsRelatedByUserId = null;
-
-			$this->collTicketsRelatedByOwnerId = null;
-
-			$this->collTicketComments = null;
-
-			$this->collChangelogs = null;
-
-			$this->collProjectUsers = null;
-
-			$this->collTimetracks = null;
-
-			$this->collFilterHistorys = null;
-
-			$this->collProjectPermissions = null;
-
-			$this->collFavoriteTickets = null;
 
 		} // if (deep)
 	}
@@ -896,6 +833,22 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 				$this->resetModified(); // [HL] After being saved an object is no longer 'modified'
 			}
 
+			if ($this->collafCrmOpportunitys !== null) {
+				foreach ($this->collafCrmOpportunitys as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->collafCrmActivitys !== null) {
+				foreach ($this->collafCrmActivitys as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
 			if ($this->collafGuardUserPermissions !== null) {
 				foreach ($this->collafGuardUserPermissions as $referrerFK) {
 					if (!$referrerFK->isDeleted()) {
@@ -914,92 +867,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 			if ($this->collafGuardRememberKeys !== null) {
 				foreach ($this->collafGuardRememberKeys as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collComponents !== null) {
-				foreach ($this->collComponents as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->singleUserProfile !== null) {
-				if (!$this->singleUserProfile->isDeleted()) {
-						$affectedRows += $this->singleUserProfile->save($con);
-				}
-			}
-
-			if ($this->collTicketsRelatedByUserId !== null) {
-				foreach ($this->collTicketsRelatedByUserId as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collTicketsRelatedByOwnerId !== null) {
-				foreach ($this->collTicketsRelatedByOwnerId as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collTicketComments !== null) {
-				foreach ($this->collTicketComments as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collChangelogs !== null) {
-				foreach ($this->collChangelogs as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collProjectUsers !== null) {
-				foreach ($this->collProjectUsers as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collTimetracks !== null) {
-				foreach ($this->collTimetracks as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collFilterHistorys !== null) {
-				foreach ($this->collFilterHistorys as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collProjectPermissions !== null) {
-				foreach ($this->collProjectPermissions as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collFavoriteTickets !== null) {
-				foreach ($this->collFavoriteTickets as $referrerFK) {
 					if (!$referrerFK->isDeleted()) {
 						$affectedRows += $referrerFK->save($con);
 					}
@@ -1077,6 +944,22 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			}
 
 
+				if ($this->collafCrmOpportunitys !== null) {
+					foreach ($this->collafCrmOpportunitys as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
+				if ($this->collafCrmActivitys !== null) {
+					foreach ($this->collafCrmActivitys as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
 				if ($this->collafGuardUserPermissions !== null) {
 					foreach ($this->collafGuardUserPermissions as $referrerFK) {
 						if (!$referrerFK->validate($columns)) {
@@ -1095,92 +978,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 				if ($this->collafGuardRememberKeys !== null) {
 					foreach ($this->collafGuardRememberKeys as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collComponents !== null) {
-					foreach ($this->collComponents as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->singleUserProfile !== null) {
-					if (!$this->singleUserProfile->validate($columns)) {
-						$failureMap = array_merge($failureMap, $this->singleUserProfile->getValidationFailures());
-					}
-				}
-
-				if ($this->collTicketsRelatedByUserId !== null) {
-					foreach ($this->collTicketsRelatedByUserId as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collTicketsRelatedByOwnerId !== null) {
-					foreach ($this->collTicketsRelatedByOwnerId as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collTicketComments !== null) {
-					foreach ($this->collTicketComments as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collChangelogs !== null) {
-					foreach ($this->collChangelogs as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collProjectUsers !== null) {
-					foreach ($this->collProjectUsers as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collTimetracks !== null) {
-					foreach ($this->collTimetracks as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collFilterHistorys !== null) {
-					foreach ($this->collFilterHistorys as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collProjectPermissions !== null) {
-					foreach ($this->collProjectPermissions as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collFavoriteTickets !== null) {
-					foreach ($this->collFavoriteTickets as $referrerFK) {
 						if (!$referrerFK->validate($columns)) {
 							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
 						}
@@ -1465,6 +1262,18 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			// the getter/setter methods for fkey referrer objects.
 			$copyObj->setNew(false);
 
+			foreach ($this->getafCrmOpportunitys() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addafCrmOpportunity($relObj->copy($deepCopy));
+				}
+			}
+
+			foreach ($this->getafCrmActivitys() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addafCrmActivity($relObj->copy($deepCopy));
+				}
+			}
+
 			foreach ($this->getafGuardUserPermissions() as $relObj) {
 				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
 					$copyObj->addafGuardUserPermission($relObj->copy($deepCopy));
@@ -1480,71 +1289,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			foreach ($this->getafGuardRememberKeys() as $relObj) {
 				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
 					$copyObj->addafGuardRememberKey($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getComponents() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addComponent($relObj->copy($deepCopy));
-				}
-			}
-
-			$relObj = $this->getUserProfile();
-			if ($relObj) {
-				$copyObj->setUserProfile($relObj->copy($deepCopy));
-			}
-
-			foreach ($this->getTicketsRelatedByUserId() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addTicketRelatedByUserId($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getTicketsRelatedByOwnerId() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addTicketRelatedByOwnerId($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getTicketComments() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addTicketComment($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getChangelogs() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addChangelog($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getProjectUsers() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addProjectUser($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getTimetracks() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addTimetrack($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getFilterHistorys() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addFilterHistory($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getProjectPermissions() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addProjectPermission($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getFavoriteTickets() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addFavoriteTicket($relObj->copy($deepCopy));
 				}
 			}
 
@@ -1591,6 +1335,349 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			self::$peer = new afGuardUserPeer();
 		}
 		return self::$peer;
+	}
+
+	/**
+	 * Clears out the collafCrmOpportunitys collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addafCrmOpportunitys()
+	 */
+	public function clearafCrmOpportunitys()
+	{
+		$this->collafCrmOpportunitys = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collafCrmOpportunitys collection.
+	 *
+	 * By default this just sets the collafCrmOpportunitys collection to an empty array (like clearcollafCrmOpportunitys());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @return     void
+	 */
+	public function initafCrmOpportunitys()
+	{
+		$this->collafCrmOpportunitys = new PropelObjectCollection();
+		$this->collafCrmOpportunitys->setModel('afCrmOpportunity');
+	}
+
+	/**
+	 * Gets an array of afCrmOpportunity objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
+	 * @throws     PropelException
+	 */
+	public function getafCrmOpportunitys($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collafCrmOpportunitys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafCrmOpportunitys) {
+				// return empty collection
+				$this->initafCrmOpportunitys();
+			} else {
+				$collafCrmOpportunitys = afCrmOpportunityQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collafCrmOpportunitys;
+				}
+				$this->collafCrmOpportunitys = $collafCrmOpportunitys;
+			}
+		}
+		return $this->collafCrmOpportunitys;
+	}
+
+	/**
+	 * Returns the number of related afCrmOpportunity objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related afCrmOpportunity objects.
+	 * @throws     PropelException
+	 */
+	public function countafCrmOpportunitys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collafCrmOpportunitys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafCrmOpportunitys) {
+				return 0;
+			} else {
+				$query = afCrmOpportunityQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collafCrmOpportunitys);
+		}
+	}
+
+	/**
+	 * Method called to associate a afCrmOpportunity object to this object
+	 * through the afCrmOpportunity foreign key attribute.
+	 *
+	 * @param      afCrmOpportunity $l afCrmOpportunity
+	 * @return     void
+	 * @throws     PropelException
+	 */
+	public function addafCrmOpportunity(afCrmOpportunity $l)
+	{
+		if ($this->collafCrmOpportunitys === null) {
+			$this->initafCrmOpportunitys();
+		}
+		if (!$this->collafCrmOpportunitys->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collafCrmOpportunitys[]= $l;
+			$l->setafGuardUser($this);
+		}
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related afCrmOpportunitys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
+	 */
+	public function getafCrmOpportunitysJoinafCrmAccount($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = afCrmOpportunityQuery::create(null, $criteria);
+		$query->joinWith('afCrmAccount', $join_behavior);
+
+		return $this->getafCrmOpportunitys($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related afCrmOpportunitys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
+	 */
+	public function getafCrmOpportunitysJoinafCrmContact($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = afCrmOpportunityQuery::create(null, $criteria);
+		$query->joinWith('afCrmContact', $join_behavior);
+
+		return $this->getafCrmOpportunitys($query, $con);
+	}
+
+	/**
+	 * Clears out the collafCrmActivitys collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addafCrmActivitys()
+	 */
+	public function clearafCrmActivitys()
+	{
+		$this->collafCrmActivitys = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collafCrmActivitys collection.
+	 *
+	 * By default this just sets the collafCrmActivitys collection to an empty array (like clearcollafCrmActivitys());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @return     void
+	 */
+	public function initafCrmActivitys()
+	{
+		$this->collafCrmActivitys = new PropelObjectCollection();
+		$this->collafCrmActivitys->setModel('afCrmActivity');
+	}
+
+	/**
+	 * Gets an array of afCrmActivity objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
+	 * @throws     PropelException
+	 */
+	public function getafCrmActivitys($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collafCrmActivitys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafCrmActivitys) {
+				// return empty collection
+				$this->initafCrmActivitys();
+			} else {
+				$collafCrmActivitys = afCrmActivityQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collafCrmActivitys;
+				}
+				$this->collafCrmActivitys = $collafCrmActivitys;
+			}
+		}
+		return $this->collafCrmActivitys;
+	}
+
+	/**
+	 * Returns the number of related afCrmActivity objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related afCrmActivity objects.
+	 * @throws     PropelException
+	 */
+	public function countafCrmActivitys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collafCrmActivitys || null !== $criteria) {
+			if ($this->isNew() && null === $this->collafCrmActivitys) {
+				return 0;
+			} else {
+				$query = afCrmActivityQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collafCrmActivitys);
+		}
+	}
+
+	/**
+	 * Method called to associate a afCrmActivity object to this object
+	 * through the afCrmActivity foreign key attribute.
+	 *
+	 * @param      afCrmActivity $l afCrmActivity
+	 * @return     void
+	 * @throws     PropelException
+	 */
+	public function addafCrmActivity(afCrmActivity $l)
+	{
+		if ($this->collafCrmActivitys === null) {
+			$this->initafCrmActivitys();
+		}
+		if (!$this->collafCrmActivitys->contains($l)) { // only add it if the **same** object is not already associated
+			$this->collafCrmActivitys[]= $l;
+			$l->setafGuardUser($this);
+		}
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related afCrmActivitys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
+	 */
+	public function getafCrmActivitysJoinafCrmAccount($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = afCrmActivityQuery::create(null, $criteria);
+		$query->joinWith('afCrmAccount', $join_behavior);
+
+		return $this->getafCrmActivitys($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related afCrmActivitys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
+	 */
+	public function getafCrmActivitysJoinafCrmContact($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = afCrmActivityQuery::create(null, $criteria);
+		$query->joinWith('afCrmContact', $join_behavior);
+
+		return $this->getafCrmActivitys($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related afCrmActivitys from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
+	 */
+	public function getafCrmActivitysJoinafCrmStatus($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = afCrmActivityQuery::create(null, $criteria);
+		$query->joinWith('afCrmStatus', $join_behavior);
+
+		return $this->getafCrmActivitys($query, $con);
 	}
 
 	/**
@@ -1971,1732 +2058,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
-	 * Clears out the collComponents collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addComponents()
-	 */
-	public function clearComponents()
-	{
-		$this->collComponents = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collComponents collection.
-	 *
-	 * By default this just sets the collComponents collection to an empty array (like clearcollComponents());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initComponents()
-	{
-		$this->collComponents = new PropelObjectCollection();
-		$this->collComponents->setModel('Component');
-	}
-
-	/**
-	 * Gets an array of Component objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array Component[] List of Component objects
-	 * @throws     PropelException
-	 */
-	public function getComponents($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collComponents || null !== $criteria) {
-			if ($this->isNew() && null === $this->collComponents) {
-				// return empty collection
-				$this->initComponents();
-			} else {
-				$collComponents = ComponentQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collComponents;
-				}
-				$this->collComponents = $collComponents;
-			}
-		}
-		return $this->collComponents;
-	}
-
-	/**
-	 * Returns the number of related Component objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related Component objects.
-	 * @throws     PropelException
-	 */
-	public function countComponents(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collComponents || null !== $criteria) {
-			if ($this->isNew() && null === $this->collComponents) {
-				return 0;
-			} else {
-				$query = ComponentQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collComponents);
-		}
-	}
-
-	/**
-	 * Method called to associate a Component object to this object
-	 * through the Component foreign key attribute.
-	 *
-	 * @param      Component $l Component
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addComponent(Component $l)
-	{
-		if ($this->collComponents === null) {
-			$this->initComponents();
-		}
-		if (!$this->collComponents->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collComponents[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related Components from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Component[] List of Component objects
-	 */
-	public function getComponentsJoinProject($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = ComponentQuery::create(null, $criteria);
-		$query->joinWith('Project', $join_behavior);
-
-		return $this->getComponents($query, $con);
-	}
-
-	/**
-	 * Gets a single UserProfile object, which is related to this object by a one-to-one relationship.
-	 *
-	 * @param      PropelPDO $con optional connection object
-	 * @return     UserProfile
-	 * @throws     PropelException
-	 */
-	public function getUserProfile(PropelPDO $con = null)
-	{
-
-		if ($this->singleUserProfile === null && !$this->isNew()) {
-			$this->singleUserProfile = UserProfileQuery::create()->findPk($this->getPrimaryKey(), $con);
-		}
-
-		return $this->singleUserProfile;
-	}
-
-	/**
-	 * Sets a single UserProfile object as related to this object by a one-to-one relationship.
-	 *
-	 * @param      UserProfile $v UserProfile
-	 * @return     afGuardUser The current object (for fluent API support)
-	 * @throws     PropelException
-	 */
-	public function setUserProfile(UserProfile $v = null)
-	{
-		$this->singleUserProfile = $v;
-
-		// Make sure that that the passed-in UserProfile isn't already associated with this object
-		if ($v !== null && $v->getafGuardUser() === null) {
-			$v->setafGuardUser($this);
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Clears out the collTicketsRelatedByUserId collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addTicketsRelatedByUserId()
-	 */
-	public function clearTicketsRelatedByUserId()
-	{
-		$this->collTicketsRelatedByUserId = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collTicketsRelatedByUserId collection.
-	 *
-	 * By default this just sets the collTicketsRelatedByUserId collection to an empty array (like clearcollTicketsRelatedByUserId());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initTicketsRelatedByUserId()
-	{
-		$this->collTicketsRelatedByUserId = new PropelObjectCollection();
-		$this->collTicketsRelatedByUserId->setModel('Ticket');
-	}
-
-	/**
-	 * Gets an array of Ticket objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 * @throws     PropelException
-	 */
-	public function getTicketsRelatedByUserId($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketsRelatedByUserId || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketsRelatedByUserId) {
-				// return empty collection
-				$this->initTicketsRelatedByUserId();
-			} else {
-				$collTicketsRelatedByUserId = TicketQuery::create(null, $criteria)
-					->filterByafGuardUserRelatedByUserId($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collTicketsRelatedByUserId;
-				}
-				$this->collTicketsRelatedByUserId = $collTicketsRelatedByUserId;
-			}
-		}
-		return $this->collTicketsRelatedByUserId;
-	}
-
-	/**
-	 * Returns the number of related Ticket objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related Ticket objects.
-	 * @throws     PropelException
-	 */
-	public function countTicketsRelatedByUserId(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketsRelatedByUserId || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketsRelatedByUserId) {
-				return 0;
-			} else {
-				$query = TicketQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUserRelatedByUserId($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collTicketsRelatedByUserId);
-		}
-	}
-
-	/**
-	 * Method called to associate a Ticket object to this object
-	 * through the Ticket foreign key attribute.
-	 *
-	 * @param      Ticket $l Ticket
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addTicketRelatedByUserId(Ticket $l)
-	{
-		if ($this->collTicketsRelatedByUserId === null) {
-			$this->initTicketsRelatedByUserId();
-		}
-		if (!$this->collTicketsRelatedByUserId->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collTicketsRelatedByUserId[]= $l;
-			$l->setafGuardUserRelatedByUserId($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinComponent($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('Component', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinTicketType($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketType', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinTicketPriority($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketPriority', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinTicketResolution($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketResolution', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinTicketResolveAs($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketResolveAs', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinTicketMilestone($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketMilestone', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByUserId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByUserIdJoinCustomer($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('Customer', $join_behavior);
-
-		return $this->getTicketsRelatedByUserId($query, $con);
-	}
-
-	/**
-	 * Clears out the collTicketsRelatedByOwnerId collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addTicketsRelatedByOwnerId()
-	 */
-	public function clearTicketsRelatedByOwnerId()
-	{
-		$this->collTicketsRelatedByOwnerId = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collTicketsRelatedByOwnerId collection.
-	 *
-	 * By default this just sets the collTicketsRelatedByOwnerId collection to an empty array (like clearcollTicketsRelatedByOwnerId());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initTicketsRelatedByOwnerId()
-	{
-		$this->collTicketsRelatedByOwnerId = new PropelObjectCollection();
-		$this->collTicketsRelatedByOwnerId->setModel('Ticket');
-	}
-
-	/**
-	 * Gets an array of Ticket objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 * @throws     PropelException
-	 */
-	public function getTicketsRelatedByOwnerId($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketsRelatedByOwnerId || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketsRelatedByOwnerId) {
-				// return empty collection
-				$this->initTicketsRelatedByOwnerId();
-			} else {
-				$collTicketsRelatedByOwnerId = TicketQuery::create(null, $criteria)
-					->filterByOwner($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collTicketsRelatedByOwnerId;
-				}
-				$this->collTicketsRelatedByOwnerId = $collTicketsRelatedByOwnerId;
-			}
-		}
-		return $this->collTicketsRelatedByOwnerId;
-	}
-
-	/**
-	 * Returns the number of related Ticket objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related Ticket objects.
-	 * @throws     PropelException
-	 */
-	public function countTicketsRelatedByOwnerId(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketsRelatedByOwnerId || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketsRelatedByOwnerId) {
-				return 0;
-			} else {
-				$query = TicketQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByOwner($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collTicketsRelatedByOwnerId);
-		}
-	}
-
-	/**
-	 * Method called to associate a Ticket object to this object
-	 * through the Ticket foreign key attribute.
-	 *
-	 * @param      Ticket $l Ticket
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addTicketRelatedByOwnerId(Ticket $l)
-	{
-		if ($this->collTicketsRelatedByOwnerId === null) {
-			$this->initTicketsRelatedByOwnerId();
-		}
-		if (!$this->collTicketsRelatedByOwnerId->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collTicketsRelatedByOwnerId[]= $l;
-			$l->setOwner($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinComponent($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('Component', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinTicketType($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketType', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinTicketPriority($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketPriority', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinTicketResolution($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketResolution', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinTicketResolveAs($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketResolveAs', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinTicketMilestone($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('TicketMilestone', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketsRelatedByOwnerId from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Ticket[] List of Ticket objects
-	 */
-	public function getTicketsRelatedByOwnerIdJoinCustomer($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketQuery::create(null, $criteria);
-		$query->joinWith('Customer', $join_behavior);
-
-		return $this->getTicketsRelatedByOwnerId($query, $con);
-	}
-
-	/**
-	 * Clears out the collTicketComments collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addTicketComments()
-	 */
-	public function clearTicketComments()
-	{
-		$this->collTicketComments = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collTicketComments collection.
-	 *
-	 * By default this just sets the collTicketComments collection to an empty array (like clearcollTicketComments());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initTicketComments()
-	{
-		$this->collTicketComments = new PropelObjectCollection();
-		$this->collTicketComments->setModel('TicketComment');
-	}
-
-	/**
-	 * Gets an array of TicketComment objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array TicketComment[] List of TicketComment objects
-	 * @throws     PropelException
-	 */
-	public function getTicketComments($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketComments || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketComments) {
-				// return empty collection
-				$this->initTicketComments();
-			} else {
-				$collTicketComments = TicketCommentQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collTicketComments;
-				}
-				$this->collTicketComments = $collTicketComments;
-			}
-		}
-		return $this->collTicketComments;
-	}
-
-	/**
-	 * Returns the number of related TicketComment objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related TicketComment objects.
-	 * @throws     PropelException
-	 */
-	public function countTicketComments(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collTicketComments || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTicketComments) {
-				return 0;
-			} else {
-				$query = TicketCommentQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collTicketComments);
-		}
-	}
-
-	/**
-	 * Method called to associate a TicketComment object to this object
-	 * through the TicketComment foreign key attribute.
-	 *
-	 * @param      TicketComment $l TicketComment
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addTicketComment(TicketComment $l)
-	{
-		if ($this->collTicketComments === null) {
-			$this->initTicketComments();
-		}
-		if (!$this->collTicketComments->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collTicketComments[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketComments from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array TicketComment[] List of TicketComment objects
-	 */
-	public function getTicketCommentsJoinTicket($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketCommentQuery::create(null, $criteria);
-		$query->joinWith('Ticket', $join_behavior);
-
-		return $this->getTicketComments($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related TicketComments from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array TicketComment[] List of TicketComment objects
-	 */
-	public function getTicketCommentsJoinTicketFile($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TicketCommentQuery::create(null, $criteria);
-		$query->joinWith('TicketFile', $join_behavior);
-
-		return $this->getTicketComments($query, $con);
-	}
-
-	/**
-	 * Clears out the collChangelogs collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addChangelogs()
-	 */
-	public function clearChangelogs()
-	{
-		$this->collChangelogs = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collChangelogs collection.
-	 *
-	 * By default this just sets the collChangelogs collection to an empty array (like clearcollChangelogs());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initChangelogs()
-	{
-		$this->collChangelogs = new PropelObjectCollection();
-		$this->collChangelogs->setModel('Changelog');
-	}
-
-	/**
-	 * Gets an array of Changelog objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array Changelog[] List of Changelog objects
-	 * @throws     PropelException
-	 */
-	public function getChangelogs($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collChangelogs || null !== $criteria) {
-			if ($this->isNew() && null === $this->collChangelogs) {
-				// return empty collection
-				$this->initChangelogs();
-			} else {
-				$collChangelogs = ChangelogQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collChangelogs;
-				}
-				$this->collChangelogs = $collChangelogs;
-			}
-		}
-		return $this->collChangelogs;
-	}
-
-	/**
-	 * Returns the number of related Changelog objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related Changelog objects.
-	 * @throws     PropelException
-	 */
-	public function countChangelogs(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collChangelogs || null !== $criteria) {
-			if ($this->isNew() && null === $this->collChangelogs) {
-				return 0;
-			} else {
-				$query = ChangelogQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collChangelogs);
-		}
-	}
-
-	/**
-	 * Method called to associate a Changelog object to this object
-	 * through the Changelog foreign key attribute.
-	 *
-	 * @param      Changelog $l Changelog
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addChangelog(Changelog $l)
-	{
-		if ($this->collChangelogs === null) {
-			$this->initChangelogs();
-		}
-		if (!$this->collChangelogs->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collChangelogs[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-	/**
-	 * Clears out the collProjectUsers collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addProjectUsers()
-	 */
-	public function clearProjectUsers()
-	{
-		$this->collProjectUsers = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collProjectUsers collection.
-	 *
-	 * By default this just sets the collProjectUsers collection to an empty array (like clearcollProjectUsers());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initProjectUsers()
-	{
-		$this->collProjectUsers = new PropelObjectCollection();
-		$this->collProjectUsers->setModel('ProjectUser');
-	}
-
-	/**
-	 * Gets an array of ProjectUser objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array ProjectUser[] List of ProjectUser objects
-	 * @throws     PropelException
-	 */
-	public function getProjectUsers($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collProjectUsers || null !== $criteria) {
-			if ($this->isNew() && null === $this->collProjectUsers) {
-				// return empty collection
-				$this->initProjectUsers();
-			} else {
-				$collProjectUsers = ProjectUserQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collProjectUsers;
-				}
-				$this->collProjectUsers = $collProjectUsers;
-			}
-		}
-		return $this->collProjectUsers;
-	}
-
-	/**
-	 * Returns the number of related ProjectUser objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related ProjectUser objects.
-	 * @throws     PropelException
-	 */
-	public function countProjectUsers(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collProjectUsers || null !== $criteria) {
-			if ($this->isNew() && null === $this->collProjectUsers) {
-				return 0;
-			} else {
-				$query = ProjectUserQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collProjectUsers);
-		}
-	}
-
-	/**
-	 * Method called to associate a ProjectUser object to this object
-	 * through the ProjectUser foreign key attribute.
-	 *
-	 * @param      ProjectUser $l ProjectUser
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addProjectUser(ProjectUser $l)
-	{
-		if ($this->collProjectUsers === null) {
-			$this->initProjectUsers();
-		}
-		if (!$this->collProjectUsers->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collProjectUsers[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related ProjectUsers from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array ProjectUser[] List of ProjectUser objects
-	 */
-	public function getProjectUsersJoinProject($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = ProjectUserQuery::create(null, $criteria);
-		$query->joinWith('Project', $join_behavior);
-
-		return $this->getProjectUsers($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related ProjectUsers from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array ProjectUser[] List of ProjectUser objects
-	 */
-	public function getProjectUsersJoinafGuardGroup($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = ProjectUserQuery::create(null, $criteria);
-		$query->joinWith('afGuardGroup', $join_behavior);
-
-		return $this->getProjectUsers($query, $con);
-	}
-
-	/**
-	 * Clears out the collTimetracks collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addTimetracks()
-	 */
-	public function clearTimetracks()
-	{
-		$this->collTimetracks = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collTimetracks collection.
-	 *
-	 * By default this just sets the collTimetracks collection to an empty array (like clearcollTimetracks());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initTimetracks()
-	{
-		$this->collTimetracks = new PropelObjectCollection();
-		$this->collTimetracks->setModel('Timetrack');
-	}
-
-	/**
-	 * Gets an array of Timetrack objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array Timetrack[] List of Timetrack objects
-	 * @throws     PropelException
-	 */
-	public function getTimetracks($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collTimetracks || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTimetracks) {
-				// return empty collection
-				$this->initTimetracks();
-			} else {
-				$collTimetracks = TimetrackQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collTimetracks;
-				}
-				$this->collTimetracks = $collTimetracks;
-			}
-		}
-		return $this->collTimetracks;
-	}
-
-	/**
-	 * Returns the number of related Timetrack objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related Timetrack objects.
-	 * @throws     PropelException
-	 */
-	public function countTimetracks(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collTimetracks || null !== $criteria) {
-			if ($this->isNew() && null === $this->collTimetracks) {
-				return 0;
-			} else {
-				$query = TimetrackQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collTimetracks);
-		}
-	}
-
-	/**
-	 * Method called to associate a Timetrack object to this object
-	 * through the Timetrack foreign key attribute.
-	 *
-	 * @param      Timetrack $l Timetrack
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addTimetrack(Timetrack $l)
-	{
-		if ($this->collTimetracks === null) {
-			$this->initTimetracks();
-		}
-		if (!$this->collTimetracks->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collTimetracks[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related Timetracks from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Timetrack[] List of Timetrack objects
-	 */
-	public function getTimetracksJoinProject($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TimetrackQuery::create(null, $criteria);
-		$query->joinWith('Project', $join_behavior);
-
-		return $this->getTimetracks($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related Timetracks from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Timetrack[] List of Timetrack objects
-	 */
-	public function getTimetracksJoinTicketMilestone($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TimetrackQuery::create(null, $criteria);
-		$query->joinWith('TicketMilestone', $join_behavior);
-
-		return $this->getTimetracks($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related Timetracks from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array Timetrack[] List of Timetrack objects
-	 */
-	public function getTimetracksJoinTicket($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = TimetrackQuery::create(null, $criteria);
-		$query->joinWith('Ticket', $join_behavior);
-
-		return $this->getTimetracks($query, $con);
-	}
-
-	/**
-	 * Clears out the collFilterHistorys collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addFilterHistorys()
-	 */
-	public function clearFilterHistorys()
-	{
-		$this->collFilterHistorys = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collFilterHistorys collection.
-	 *
-	 * By default this just sets the collFilterHistorys collection to an empty array (like clearcollFilterHistorys());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initFilterHistorys()
-	{
-		$this->collFilterHistorys = new PropelObjectCollection();
-		$this->collFilterHistorys->setModel('FilterHistory');
-	}
-
-	/**
-	 * Gets an array of FilterHistory objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array FilterHistory[] List of FilterHistory objects
-	 * @throws     PropelException
-	 */
-	public function getFilterHistorys($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collFilterHistorys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collFilterHistorys) {
-				// return empty collection
-				$this->initFilterHistorys();
-			} else {
-				$collFilterHistorys = FilterHistoryQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collFilterHistorys;
-				}
-				$this->collFilterHistorys = $collFilterHistorys;
-			}
-		}
-		return $this->collFilterHistorys;
-	}
-
-	/**
-	 * Returns the number of related FilterHistory objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related FilterHistory objects.
-	 * @throws     PropelException
-	 */
-	public function countFilterHistorys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collFilterHistorys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collFilterHistorys) {
-				return 0;
-			} else {
-				$query = FilterHistoryQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collFilterHistorys);
-		}
-	}
-
-	/**
-	 * Method called to associate a FilterHistory object to this object
-	 * through the FilterHistory foreign key attribute.
-	 *
-	 * @param      FilterHistory $l FilterHistory
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addFilterHistory(FilterHistory $l)
-	{
-		if ($this->collFilterHistorys === null) {
-			$this->initFilterHistorys();
-		}
-		if (!$this->collFilterHistorys->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collFilterHistorys[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-	/**
-	 * Clears out the collProjectPermissions collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addProjectPermissions()
-	 */
-	public function clearProjectPermissions()
-	{
-		$this->collProjectPermissions = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collProjectPermissions collection.
-	 *
-	 * By default this just sets the collProjectPermissions collection to an empty array (like clearcollProjectPermissions());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initProjectPermissions()
-	{
-		$this->collProjectPermissions = new PropelObjectCollection();
-		$this->collProjectPermissions->setModel('ProjectPermission');
-	}
-
-	/**
-	 * Gets an array of ProjectPermission objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array ProjectPermission[] List of ProjectPermission objects
-	 * @throws     PropelException
-	 */
-	public function getProjectPermissions($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collProjectPermissions || null !== $criteria) {
-			if ($this->isNew() && null === $this->collProjectPermissions) {
-				// return empty collection
-				$this->initProjectPermissions();
-			} else {
-				$collProjectPermissions = ProjectPermissionQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collProjectPermissions;
-				}
-				$this->collProjectPermissions = $collProjectPermissions;
-			}
-		}
-		return $this->collProjectPermissions;
-	}
-
-	/**
-	 * Returns the number of related ProjectPermission objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related ProjectPermission objects.
-	 * @throws     PropelException
-	 */
-	public function countProjectPermissions(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collProjectPermissions || null !== $criteria) {
-			if ($this->isNew() && null === $this->collProjectPermissions) {
-				return 0;
-			} else {
-				$query = ProjectPermissionQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collProjectPermissions);
-		}
-	}
-
-	/**
-	 * Method called to associate a ProjectPermission object to this object
-	 * through the ProjectPermission foreign key attribute.
-	 *
-	 * @param      ProjectPermission $l ProjectPermission
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addProjectPermission(ProjectPermission $l)
-	{
-		if ($this->collProjectPermissions === null) {
-			$this->initProjectPermissions();
-		}
-		if (!$this->collProjectPermissions->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collProjectPermissions[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related ProjectPermissions from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array ProjectPermission[] List of ProjectPermission objects
-	 */
-	public function getProjectPermissionsJoinProject($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = ProjectPermissionQuery::create(null, $criteria);
-		$query->joinWith('Project', $join_behavior);
-
-		return $this->getProjectPermissions($query, $con);
-	}
-
-	/**
-	 * Clears out the collFavoriteTickets collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addFavoriteTickets()
-	 */
-	public function clearFavoriteTickets()
-	{
-		$this->collFavoriteTickets = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collFavoriteTickets collection.
-	 *
-	 * By default this just sets the collFavoriteTickets collection to an empty array (like clearcollFavoriteTickets());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initFavoriteTickets()
-	{
-		$this->collFavoriteTickets = new PropelObjectCollection();
-		$this->collFavoriteTickets->setModel('FavoriteTicket');
-	}
-
-	/**
-	 * Gets an array of FavoriteTicket objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array FavoriteTicket[] List of FavoriteTicket objects
-	 * @throws     PropelException
-	 */
-	public function getFavoriteTickets($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collFavoriteTickets || null !== $criteria) {
-			if ($this->isNew() && null === $this->collFavoriteTickets) {
-				// return empty collection
-				$this->initFavoriteTickets();
-			} else {
-				$collFavoriteTickets = FavoriteTicketQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collFavoriteTickets;
-				}
-				$this->collFavoriteTickets = $collFavoriteTickets;
-			}
-		}
-		return $this->collFavoriteTickets;
-	}
-
-	/**
-	 * Returns the number of related FavoriteTicket objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related FavoriteTicket objects.
-	 * @throws     PropelException
-	 */
-	public function countFavoriteTickets(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collFavoriteTickets || null !== $criteria) {
-			if ($this->isNew() && null === $this->collFavoriteTickets) {
-				return 0;
-			} else {
-				$query = FavoriteTicketQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collFavoriteTickets);
-		}
-	}
-
-	/**
-	 * Method called to associate a FavoriteTicket object to this object
-	 * through the FavoriteTicket foreign key attribute.
-	 *
-	 * @param      FavoriteTicket $l FavoriteTicket
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addFavoriteTicket(FavoriteTicket $l)
-	{
-		if ($this->collFavoriteTickets === null) {
-			$this->initFavoriteTickets();
-		}
-		if (!$this->collFavoriteTickets->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collFavoriteTickets[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related FavoriteTickets from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array FavoriteTicket[] List of FavoriteTicket objects
-	 */
-	public function getFavoriteTicketsJoinTicket($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = FavoriteTicketQuery::create(null, $criteria);
-		$query->joinWith('Ticket', $join_behavior);
-
-		return $this->getFavoriteTickets($query, $con);
-	}
-
-	/**
 	 * Clears the current object and sets all attributes to their default values
 	 */
 	public function clear()
@@ -3731,6 +2092,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	public function clearAllReferences($deep = false)
 	{
 		if ($deep) {
+			if ($this->collafCrmOpportunitys) {
+				foreach ((array) $this->collafCrmOpportunitys as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
+			if ($this->collafCrmActivitys) {
+				foreach ((array) $this->collafCrmActivitys as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
 			if ($this->collafGuardUserPermissions) {
 				foreach ((array) $this->collafGuardUserPermissions as $o) {
 					$o->clearAllReferences($deep);
@@ -3746,75 +2117,13 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 					$o->clearAllReferences($deep);
 				}
 			}
-			if ($this->collComponents) {
-				foreach ((array) $this->collComponents as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->singleUserProfile) {
-				$this->singleUserProfile->clearAllReferences($deep);
-			}
-			if ($this->collTicketsRelatedByUserId) {
-				foreach ((array) $this->collTicketsRelatedByUserId as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collTicketsRelatedByOwnerId) {
-				foreach ((array) $this->collTicketsRelatedByOwnerId as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collTicketComments) {
-				foreach ((array) $this->collTicketComments as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collChangelogs) {
-				foreach ((array) $this->collChangelogs as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collProjectUsers) {
-				foreach ((array) $this->collProjectUsers as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collTimetracks) {
-				foreach ((array) $this->collTimetracks as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collFilterHistorys) {
-				foreach ((array) $this->collFilterHistorys as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collProjectPermissions) {
-				foreach ((array) $this->collProjectPermissions as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collFavoriteTickets) {
-				foreach ((array) $this->collFavoriteTickets as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
 		} // if ($deep)
 
+		$this->collafCrmOpportunitys = null;
+		$this->collafCrmActivitys = null;
 		$this->collafGuardUserPermissions = null;
 		$this->collafGuardUserGroups = null;
 		$this->collafGuardRememberKeys = null;
-		$this->collComponents = null;
-		$this->singleUserProfile = null;
-		$this->collTicketsRelatedByUserId = null;
-		$this->collTicketsRelatedByOwnerId = null;
-		$this->collTicketComments = null;
-		$this->collChangelogs = null;
-		$this->collProjectUsers = null;
-		$this->collTimetracks = null;
-		$this->collFilterHistorys = null;
-		$this->collProjectPermissions = null;
-		$this->collFavoriteTickets = null;
 	}
 
 	/**

@@ -6,6 +6,28 @@ class PluginafGuardGroupPeer extends BaseafGuardGroupPeer
 		return new Criteria();
 	}
 
+    public static function getAll($list = false) {
+
+    	$c = new Criteria();
+
+		$c->addAscendingOrderByColumn(self::NAME);
+
+		if($list) {
+			return $c;
+		}
+
+		$res = self::doSelect($c);
+
+		$options = array();
+
+		foreach($res as $p) {
+			$options[$p->getId()] = $p->getName();
+		}
+
+		return $options;
+
+	}
+
 //	public static function getAll()
 //	{
 //		$timezones = self::doSelect(new Criteria());

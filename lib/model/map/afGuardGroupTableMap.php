@@ -50,7 +50,6 @@ class afGuardGroupTableMap extends TableMap {
 	{
     $this->addRelation('afGuardGroupPermission', 'afGuardGroupPermission', RelationMap::ONE_TO_MANY, array('id' => 'group_id', ), 'CASCADE', null);
     $this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'group_id', ), 'CASCADE', null);
-    $this->addRelation('ProjectUser', 'ProjectUser', RelationMap::ONE_TO_MANY, array('id' => 'group_id', ), 'SET NULL', null);
 	} // buildRelations()
 
 	/**

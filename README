@@ -18,9 +18,8 @@ As always you should rebuild model and sql, running:
 Now you should initiate proper database structure with (thiw will delete all your data:O):
 ./symfony propel:insert-sql
 
-Make your application secure with apps/frontend/config/security.yml like:
-default:
-  is_secure: true
+This will drop and re-create all your tables. If you don't want to do that, you may also 
+paste the SQL into Studio's DB Query tool and execute the query.
 
 Change settings.yml like:
 all:
@@ -32,6 +31,10 @@ all:
     secure_module: afGuardAuth
     secure_action: insufficientCredentials
 
+Copy the following files from the Plugin dir to your appllication:
+
+config/pages/security.xml to apps/frontend/config/pages/security.xml
+modules/pages/actions/securityAction.class.php to apps/frontend/modules/pages/actions
 
 Make sure that you ProjectConfiguration class implements AppFlowerApplication interface correctly.
 If you use Propel 1.6 you can do it by adding following method to configuration class:
@@ -58,17 +61,29 @@ You should change it to:
     }
 
 
-You can also enable (in settings.yml) more modules like: afGuardUser, afGuardGroup to manage users and groups through AF interface.
+You should also enable (in settings.yml) more modules like: afGuardUser, afGuardGroup to manage users and groups through AF interface.
 all:
   .settings:
-    .enabled_modules: [defaul, ..., afGuardAuth, afGuardUser, afGuardGroup]
+    .enabled_modules: [defaul, ..., afGuardAuth, afGuardUser, afGuardGroup, afGuardPermission]
 
 After this you can access them using url: http://yourapp/#/afGuardUser/list
 
-
-Finally if you want to use "remember me" functionality change security filer in your apps/frontend/config/filters.yml:
+If you want to use "remember me" functionality change security filer in your apps/frontend/config/filters.yml:
 security:
   class: afGuardBasicSecurityFilter
+
+That's it. Now it's time enable the security layer and secure your application. You should load up 
+your app and open:
+
+http://yourapp/#/pages/security
+
+This is the security dashboard, which allows you to manage permissions, users and groups. You should create at least one user (admin).
+
+Detailed usage instructions can be found here:
+
+http://www.appflower.com/cms/practical_users
+
+This will secure your application, you'll have to login from now on to access it.
 
 Another feature you might want to use is captcha.
 You just need to install sfCaptchaPlugin (from AppFlower repository). After this when user fails to log in few times - captcha files will be added to login form to protect against brute force login attacks.
