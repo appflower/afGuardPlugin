@@ -16,7 +16,7 @@ $username=new afExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'
 $password=new afExtjsFieldInput($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'emptyText'=>'write your password','width'=>'150','PasswordFocus'=>'true'));
 
 $captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
-if(/*$captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())*/1){
+if($captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())){
 	$captcha=new afExtjsFieldCaptcha($col,array('name'=>'signin[captcha]','label'=>'Verify','width'=>'150','src'=>'/sfCaptcha/index','imgStyle'=>''));
 }
 
