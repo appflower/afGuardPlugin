@@ -1,0 +1,5 @@
+# default values
+all:
+  afGuardPlugin:
+    subject: afGuardPlugin password recovery
+    from: afGuardPlugin

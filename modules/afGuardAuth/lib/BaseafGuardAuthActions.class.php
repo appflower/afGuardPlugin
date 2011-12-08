@@ -145,8 +145,8 @@ class BaseafGuardAuthActions extends sfActions
                             $parameters = array(
                                 'userObj'  => $user,
                                 'email'    => $user->getUsername(),
-                                'subject'  => 'seedControl password recovery',
-                                'from'     => 'Seedcontrol',
+                                'subject'  => sfConfig::get('app_afGuardPlugin_subject'),
+                                'from'     => sfConfig::get('app_afGuardPlugin_from'),
                             	'validate' => md5($user->getSalt().$user->getPassword())
                             );
 

@@ -406,7 +406,7 @@
 															<h1>Password reset confirmation</h1>
                                                           
 															<div>
-																We have received your request to reset your password on seedControl account.<br><br>
+																We have received your request to reset your password on <?php echo $sf_request->getHost()?> account.<br><br>
  
 																To do that, just click on the link that follows:
 															</div>
