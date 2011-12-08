@@ -140,27 +140,22 @@ class BaseafGuardAuthActions extends sfActions
 		// email exists?
 		if ($user)
 		{
-			// set new random password
-			$password = substr(md5(rand(100000, 999999)), 0, 6);
-			$user->setPassword($password);
-			$user->save(); // save new password
-
 
                         if ($user->getUsername()) {
                             $parameters = array(
                                 'userObj'  => $user,
-                                'password' => $password,
                                 'email'    => $user->getUsername(),
                                 'subject'  => 'seedControl password recovery',
-                                'from'     => 'Seedcontrol'
+                                'from'     => 'Seedcontrol',
+                            	'validate' => md5($user->getSalt().$user->getPassword())
                             );
 
-                            afAutomailer::saveMail('afGuardAuth', 'sendPasswordRequest', $parameters);
+                            afAutomailer::saveMail('afGuardAuth', 'sendPasswordResetConfirmation', $parameters);
                         }
 
 
 			sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag"));
-			$result = array('success' => true,'message'=>'Your login information was sent to '.$this->getRequestParameter('email').'. <br>You should receive it shortly, so you can proceed to the '.link_to('login page', '@af_guard_signin').'.');
+			$result = array('success' => true,'message'=>'Confirmation message has been sent to the email address associated with this account. ');
 
 		}
 		else
@@ -172,4 +167,45 @@ class BaseafGuardAuthActions extends sfActions
 		return $this->renderText($result);
 	}
 
+	public function executePasswordReset()
+	{
+		$c = new Criteria();
+		$c->add(afGuardUserPeer::ID, $this->getRequestParameter('uid'));
+		$user = afGuardUserPeer::doSelectOne($c);
+		
+		// user exist and validate code is correct
+		if($user && $this->getRequestParameter('validate')==md5($user->getSalt().$user->getPassword()))
+		{
+			
+			if ($this->getRequest()->getMethod() == sfRequest::POST)
+			{
+				if ($this->getRequestParameter('password')!=$this->getRequestParameter('confirm_password'))
+				{
+					
+					$result = array('success' => false,'message'=>'The "Confirm Password" you entered does not match your original password.');
+					
+				}
+				else 
+				{
+					
+					$user->setPassword($this->getRequestParameter('password'));
+					$user->save(); // save new password
+					
+					sfProjectConfiguration::getActive()->loadHelpers(array("Url","Tag"));
+					$result = array('success' => true,'message'=>'You have successfully changed your password and you can proceed to the '.link_to('login page', '@af_guard_signin').'.');
+				}
+				
+				$result = json_encode($result);
+				return $this->renderText($result);
+			}
+			
+			// display the form
+			return sfView::SUCCESS;
+		}
+		
+		// 'That confirmation code is invalid.'
+		$this->setTemplate('passwordResetFailed');
+		return sfView::SUCCESS;
+	}
+	
 }

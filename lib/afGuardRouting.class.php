@@ -14,6 +14,9 @@ class afGuardRouting
     $r->prependRoute('af_guard_signin', new sfRoute('/login', array('module' => 'afGuardAuth', 'action' => 'signin')));
     $r->prependRoute('af_guard_signout', new sfRoute('/logout', array('module' => 'afGuardAuth', 'action' => 'signout')));
     $r->prependRoute('af_guard_password', new sfRoute('/forgot-password', array('module' => 'afGuardAuth', 'action' => 'passwordRequest')));
+    $r->prependRoute('af_guard_password_reset', new sfRoute('/password-reset/:validate/:uid', array('module' => 'afGuardAuth', 'action' => 'passwordReset')));
+    $r->prependRoute('af_guard_password_reset2', new sfRoute('/password-reset', array('module' => 'afGuardAuth', 'action' => 'passwordReset')));
+    
   }
 
   static public function addRouteForAdminUser(sfEvent $event)
