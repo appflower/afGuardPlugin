@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="list" xsi:schemaLocation="http://www.appflower.com/schema/appflower.xsd">
+    <i:title><![CDATA[Permissions]]></i:title>
+    <i:params>
+        <i:param name="maxperpage">10</i:param>
+    </i:params>
+    <i:datasource modelName="afGuardPermission" type="orm">
+        <i:class>ModelCriteriaFetcher</i:class>
+        <i:method name="getDataForList">
+            <i:param name="modelName">afGuardPermission</i:param>
+        </i:method>
+    </i:datasource>
+    <i:fields remoteSort="true">
+        <i:column label="No." name="id" width="50"/>
+        <i:column filter="[type:string]" label="Name" link="true" name="html_name" width="326"/>
+    </i:fields>
+    <i:rowactions>
+        <i:action iconCls="icon-edit" name="edit" url="/afGuardPermission/editPermission"/>
+        <i:action iconCls="icon-minus" name="delete" post="true" url="/afGuardPermission/delete"/>
+    </i:rowactions>
+    <i:actions>
+        <i:action iconCls="icon-plus" name="New Permission" url="/afGuardPermission/editPermission"/>
+    </i:actions>
+    <i:moreactions>
+        <i:action confirmMsg="Are you sure to delete selected permissions?" forceSelection="true" icon="/images/famfamfam/cross.png" name="Delete Selected" post="true" url="/afGuardPermission/massDelete"/>
+        <i:action confirmMsg="Are you sure to delete all permissions?" forceSelection="false" icon="/images/famfamfam/cross.png" name="Delete All" post="true" url="/afGuardPermission/massDelete"/>
+    </i:moreactions>
+    <i:description><![CDATA[The widget lists all permissions. These are the access rights you can assign to users via roles.]]></i:description>
+</i:view>

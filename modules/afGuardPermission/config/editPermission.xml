@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="edit" xsi:schemaLocation="http://www.appflower.com/schema/appflower.xsd">
+    <i:title><![CDATA[Edit Permission]]></i:title>
+    <i:datasource type="orm">
+        <i:class>afGuardPermissionPeer</i:class>
+        <i:method name="retrieveByPk">
+            <i:param name="id">{id}</i:param>
+        </i:method>
+    </i:datasource>
+    <i:fields url="/afGuardPermission/update">
+        <i:field label="Permission" name="name">
+            <i:value type="orm">
+				<i:source name="getName" />
+			</i:value>
+            <i:tooltip>Type in a unique name for this permission</i:tooltip>
+            <i:help>The name of the permission</i:help>
+            <i:validator name="immValidatorRequired"/>
+             <i:validator name="immValidatorUnique">
+                <i:param name="class">afGuardPermission</i:param>
+                <i:param name="column">name</i:param>
+                <i:param name="unique_error">A permission with this name already exists. Please choose another one.</i:param>
+            </i:validator>
+        </i:field>
+        <i:field label="Description" name="description" type="textarea" width="400">
+            <i:value type="orm">
+				<i:source name="getDescription" />
+			</i:value>
+            <i:tooltip>Provide a short description</i:tooltip>
+            <i:help>A short description</i:help>
+        </i:field>
+        <i:field name="id" type="hidden" value="{id}" />
+    </i:fields>
+</i:view>

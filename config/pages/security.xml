@@ -1,0 +1,13 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="layout" xsi:schemaLocation="http://www.appflower.com/schema/appflower.xsd">
+    <i:title><![CDATA[afGuard Security]]></i:title>
+    <i:area layout="1" type="content">
+        <i:tab title="Users" layout="1">
+    <i:component column="0" module="afGuardUser" name="listUsers"/>
+    <i:component column="0" module="afGuardGroup" name="listGroups"/>
+	</i:tab>
+        <i:tab title="Permissions" layout="1">
+    <i:component column="0" module="afGuardPermission" name="listPermissions"/>
+	</i:tab>
+    </i:area>
+</i:view>

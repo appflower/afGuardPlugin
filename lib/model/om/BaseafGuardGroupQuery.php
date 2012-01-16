@@ -26,10 +26,6 @@
  * @method     afGuardGroupQuery rightJoinafGuardUserGroup($relationAlias = null) Adds a RIGHT JOIN clause to the query using the afGuardUserGroup relation
  * @method     afGuardGroupQuery innerJoinafGuardUserGroup($relationAlias = null) Adds a INNER JOIN clause to the query using the afGuardUserGroup relation
  *
- * @method     afGuardGroupQuery leftJoinProjectUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the ProjectUser relation
- * @method     afGuardGroupQuery rightJoinProjectUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ProjectUser relation
- * @method     afGuardGroupQuery innerJoinProjectUser($relationAlias = null) Adds a INNER JOIN clause to the query using the ProjectUser relation
- *
  * @method     afGuardGroup findOne(PropelPDO $con = null) Return the first afGuardGroup matching the query
  * @method     afGuardGroup findOneOrCreate(PropelPDO $con = null) Return the first afGuardGroup matching the query, or a new afGuardGroup object populated from the query conditions when no match is found
  *
@@ -336,70 +332,6 @@ abstract class BaseafGuardGroupQuery extends ModelCriteria
 		return $this
 			->joinafGuardUserGroup($relationAlias, $joinType)
 			->useQuery($relationAlias ? $relationAlias : 'afGuardUserGroup', 'afGuardUserGroupQuery');
-	}
-
-	/**
-	 * Filter the query by a related ProjectUser object
-	 *
-	 * @param     ProjectUser $projectUser  the related object to use as filter
-	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-	 *
-	 * @return    afGuardGroupQuery The current query, for fluid interface
-	 */
-	public function filterByProjectUser($projectUser, $comparison = null)
-	{
-		return $this
-			->addUsingAlias(afGuardGroupPeer::ID, $projectUser->getGroupId(), $comparison);
-	}
-
-	/**
-	 * Adds a JOIN clause to the query using the ProjectUser relation
-	 * 
-	 * @param     string $relationAlias optional alias for the relation
-	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-	 *
-	 * @return    afGuardGroupQuery The current query, for fluid interface
-	 */
-	public function joinProjectUser($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-	{
-		$tableMap = $this->getTableMap();
-		$relationMap = $tableMap->getRelation('ProjectUser');
-		
-		// create a ModelJoin object for this join
-		$join = new ModelJoin();
-		$join->setJoinType($joinType);
-		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-		if ($previousJoin = $this->getPreviousJoin()) {
-			$join->setPreviousJoin($previousJoin);
-		}
-		
-		// add the ModelJoin to the current object
-		if($relationAlias) {
-			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-			$this->addJoinObject($join, $relationAlias);
-		} else {
-			$this->addJoinObject($join, 'ProjectUser');
-		}
-		
-		return $this;
-	}
-
-	/**
-	 * Use the ProjectUser relation ProjectUser object
-	 *
-	 * @see       useQuery()
-	 * 
-	 * @param     string $relationAlias optional alias for the relation,
-	 *                                   to be used as main alias in the secondary query
-	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-	 *
-	 * @return    ProjectUserQuery A secondary query class using the current class as primary query
-	 */
-	public function useProjectUserQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-	{
-		return $this
-			->joinProjectUser($relationAlias, $joinType)
-			->useQuery($relationAlias ? $relationAlias : 'ProjectUser', 'ProjectUserQuery');
 	}
 
 	/**

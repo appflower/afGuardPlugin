@@ -5,11 +5,30 @@ class BaseafGuardGroupActions extends sfActions
 	public function executeList()
 	{
 	}
+    
+    public function executeMassDelete()
+    {
+            
+        if(afGuardUserPeer::deleteFromPeer(json_decode($this->getRequestParameter("selections")),"afGuardGroupPeer")) {
+            $result['message']= 'The selected roles have been deleted';
+            $result['success']= true;
+            $result['reload'] = true;
+        } else {
+            $result['message']= 'Could not delete roles';
+            $result['success']= false;
+        }
+        
+        return $result;
+        
+    }
+    
+    public function executeEditGroup(sfWebRequest $request)
+	{
+        $this->id = $this->getRequestParameter('id');
+	}
 
 	public function executeEdit()
 	{
-
-		$this->id = $this->getRequestParameter("id",0);
 
 		if($this->getRequest()->getMethod() === sfRequest::POST) {
             $formData = $this->getRequestParameter('edit');
@@ -72,9 +91,8 @@ class BaseafGuardGroupActions extends sfActions
 
 		$af_guard_group->delete();
 
-        $result['message']= 'The group has been deleted';
+        $result['message']= 'The role has been deleted';
         $result['success']= true;
-        $result['redirect']='afGuardGroup/list';
         $result['group'] = $af_guard_group;
         return $result;
 	}

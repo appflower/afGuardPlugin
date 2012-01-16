@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="list" xsi:schemaLocation="http://www.appflower.com /schema/appflower.xsd">
+    <i:title><![CDATA[User Management]]></i:title>
+    <i:params>
+        <i:param name="maxperpage">20</i:param>
+    </i:params>
+    <i:datasource type="orm">
+        <i:class>afGuardUserPeer</i:class>
+        <i:method name="getAllUsers">
+            <i:param name="foo">1</i:param>
+        </i:method>
+    </i:datasource>
+    <i:fields remoteSort="true" select="true">
+        <i:column editable="false" filter="[type:string]" label="Username" name="html_name" resizable="false" sortable="false" style="css" width="137"/>
+        <i:column label="Status" name="html_status" sortable="false" width="66"/>
+    </i:fields>
+    <i:rowactions>
+        <i:action iconCls="icon-edit" name="edit" tooltip="Edit User" url="afGuardUser/editUser"/>
+        <i:action iconCls="icon-minus" name="delete" post="true" tooltip="Delete User" url="afGuardUser/delete"/>
+    </i:rowactions>
+    <i:actions>
+        <i:action iconCls="icon-plus" name="Add User" url="/afGuardUser/editUser"/>
+        <i:action icon="/images/famfamfam/lock.png" name="Toggle Security" post="true" url="/afGuardUser/secure"/>
+    </i:actions>
+    <i:moreactions>
+        <i:action confirmMsg="Are you sure to delete selected users?" forceSelection="true" icon="/images/famfamfam/cross.png" name="Delete Selected" post="true" url="/afGuardUser/massDelete"/>
+        <i:action confirmMsg="Are you sure to delete all users?" forceSelection="false" icon="/images/famfamfam/cross.png" name="Delete All" post="true" url="/afGuardUser/massDelete"/>
+    </i:moreactions>
+    <i:description><![CDATA[This widget lists the basic information about all the users of the system. You can add, edit or delete the users of the system.]]></i:description>
+</i:view>

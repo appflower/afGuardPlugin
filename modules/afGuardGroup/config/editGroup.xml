@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:view xmlns:i="http://www.appflower.com/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="edit" xsi:schemaLocation="http://www.appflower.com /schema/appflower.xsd">
+    <i:title><![CDATA[Edit Role]]></i:title>
+    <i:datasource type="orm">
+        <i:class>afGuardGroupPeer</i:class>
+        <i:method name="retrieveByPk">
+            <i:param name="id">{id}</i:param>
+        </i:method>
+    </i:datasource>
+    <i:fields url="/afGuardGroup/edit">
+        <i:field label="Name" name="name" state="editable" style="" type="input">
+            <i:value type="orm">
+                <i:source name="getName"/>
+            </i:value>
+            <i:tooltip>The name must be unique.</i:tooltip>
+            <i:help>The name of the role.</i:help>
+            <i:validator name="immValidatorName"/>
+            <i:validator name="immValidatorUnique">
+                <i:param name="class">afGuardGroup</i:param>
+                <i:param name="column">name</i:param>
+                <i:param name="unique_error">A role with this name already exists. Please choose another one.</i:param>
+            </i:validator>
+        </i:field>
+        <i:field label="Permissions" name="associated_af_guard_group" state="editable" style="" type="doublemulticombo">
+            <i:value type="orm">
+                <i:class>afGuardGroupPermissionPeer</i:class>
+                <i:method name="getGroupPermissions">
+                    <i:param name="id">{id}</i:param>
+                </i:method>
+            </i:value>
+            <i:tooltip>Select the permissions to be added to this role.</i:tooltip>
+            <i:help>The selected permissions will be associated with this role.</i:help>
+            <i:validator name="immValidatorRequired"/>
+        </i:field>
+        <i:field label="Description" name="description" state="editable" style="" type="textarea">
+            <i:value type="orm">
+                <i:source name="getDescription"/>
+            </i:value>
+            <i:tooltip>Provide a brief descirption.</i:tooltip>
+            <i:help>A brief description of the role.</i:help>
+        </i:field>
+	<i:field name="id" label="id" type="hidden" value="{id}" />
+    </i:fields>
+    <i:description><![CDATA[You can create a new role (a.k.a permission group) or edit an existing one using this widget. Select the permissions you want to assign to this role from the left text area and then move them to the right one.]]></i:description>
+</i:view>

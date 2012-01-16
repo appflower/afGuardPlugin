@@ -4,6 +4,29 @@
 
 class PluginafGuardUserPeer extends BaseafGuardUserPeer implements AppFlowerUserQuery
 {
+    
+    public static function deleteFromPeer($selection, $peer = 'afGuardUserPeer') {
+        
+        $ids = array();
+ 
+        if($selection) {
+            foreach($selection as $s) {
+                $ids[] = $s->id;
+            }    
+        }
+                
+        $c = new Criteria();
+        if(!empty($ids)) {
+            $c->add($peer::ID,$ids,Criteria::IN);    
+            $res = $peer::doDelete($c);
+        } else {
+            $res = $peer::doDeleteAll();
+        }
+        
+        return $res;
+        
+    }
+    
     public static function retrieveByUsername($username, $isActive = true)
     {
         $c = new Criteria();

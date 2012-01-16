@@ -7,7 +7,7 @@ class PluginafGuardGroup extends BaseafGuardGroup
 
 	public function getHtmlName()
     {
-        return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardGroup/edit?id='.$this->getId(), true).'"> '.$this->getName().' </a>';
+        return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardGroup/editGroup?id='.$this->getId(), true).'"> '.$this->getName().' </a>';
     }
 
     public function getIsProjectOwner()

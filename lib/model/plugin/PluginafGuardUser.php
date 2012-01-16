@@ -303,6 +303,17 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
   function  isWidgetHelpEnabled() {
       afWidgetHelpSettingsPeer::retrieveCurrent()->getIsWidgetHelpEnabled();
   }
+  
+  public function getHtmlName()
+  {
+    return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardUser/editUser?id='.$this->getId(), true).'"> '.$this->getUsername().' </a>';
+  }
+  
+  public function getHtmlStatus()
+  {
+    $img = array("src" => $this->getIsActive() ? "accept" : "cancel", "alt" => $this->getIsActive() ? "active" : "inactive");
+    return '<a class="widgetLoad" title="User is '.$img["alt"].'" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardUser/activate?id='.$this->getId(), false).'"><img src="/images/famfamfam/'.$img["src"].'.png" /></a>';
+  }
 
   function  isAnonymous() {
         return false;
