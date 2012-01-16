@@ -5,15 +5,15 @@ $layout=new afExtjsSfGuardLayout();
  * EXTJS SIGN IN FORM
  */
 
-$form=new afExtjsForm(array('action'=>url_for('@af_guard_signin'),"columnWidth"=>".88"/*,'fileUpload'=>true*/));
+$form=new afExtjsForm(array('action'=>url_for('@af_guard_signin'),"columnWidth"=>".88" ));
 
 $fieldset=$form->startFieldset(array('legend'=>'Login','collapsible'=>'false'));
 $columns = $fieldset->startColumns(array("columnWidth"=>1));
 $col = $columns->startColumn(array("columnWidth"=>1));
 
-$username=new afExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'emptyText'=>'write your username','width'=>'150'));
+$username=new afExtjsFieldInput($col,array('name'=>'signin[username]','label'=>'Username','value'=>'','help'=>"Enter the username",'width'=>'150'));
 
-$password=new afExtjsFieldInput($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'emptyText'=>'write your password','width'=>'150','PasswordFocus'=>'true'));
+$password=new afExtjsFieldPassword($col,array('name'=>'signin[password]','label'=>'Password','value'=>'','help'=>"Enter the password",'width'=>'150'));
 
 $captchaEnabled = in_array( 'sfCaptchaPlugin', sfProjectConfiguration::getActive()->getPlugins());
 if($captchaEnabled && afRateLimit::isCaptchaNeeded(sfContext::getInstance()->getRequest())){
