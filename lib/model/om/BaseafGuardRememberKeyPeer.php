@@ -24,12 +24,15 @@ abstract class BaseafGuardRememberKeyPeer {
 
 	/** the related TableMap class for this table */
 	const TM_CLASS = 'afGuardRememberKeyTableMap';
-	
+
 	/** The total number of columns. */
 	const NUM_COLUMNS = 4;
 
 	/** The number of lazy-loaded columns. */
 	const NUM_LAZY_LOAD_COLUMNS = 0;
+
+	/** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
+	const NUM_HYDRATE_COLUMNS = 4;
 
 	/** the column name for the USER_ID field */
 	const USER_ID = 'af_guard_remember_key.USER_ID';
@@ -43,6 +46,9 @@ abstract class BaseafGuardRememberKeyPeer {
 	/** the column name for the CREATED_AT field */
 	const CREATED_AT = 'af_guard_remember_key.CREATED_AT';
 
+	/** The default string format for model objects of the related table **/
+	const DEFAULT_STRING_FORMAT = 'YAML';
+
 	/**
 	 * An identiy map to hold any loaded instances of afGuardRememberKey objects.
 	 * This must be public so that other peer classes can access this when hydrating from JOIN
@@ -52,20 +58,13 @@ abstract class BaseafGuardRememberKeyPeer {
 	public static $instances = array();
 
 
-	// symfony behavior
-	
-	/**
-	 * Indicates whether the current model includes I18N.
-	 */
-	const IS_I18N = false;
-
 	/**
 	 * holds an array of fieldnames
 	 *
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
 	 */
-	private static $fieldNames = array (
+	protected static $fieldNames = array (
 		BasePeer::TYPE_PHPNAME => array ('UserId', 'RememberKey', 'IpAddress', 'CreatedAt', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId', 'rememberKey', 'ipAddress', 'createdAt', ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID, self::REMEMBER_KEY, self::IP_ADDRESS, self::CREATED_AT, ),
@@ -80,7 +79,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
 	 */
-	private static $fieldKeys = array (
+	protected static $fieldKeys = array (
 		BasePeer::TYPE_PHPNAME => array ('UserId' => 0, 'RememberKey' => 1, 'IpAddress' => 2, 'CreatedAt' => 3, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId' => 0, 'rememberKey' => 1, 'ipAddress' => 2, 'createdAt' => 3, ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID => 0, self::REMEMBER_KEY => 1, self::IP_ADDRESS => 2, self::CREATED_AT => 3, ),
@@ -220,7 +219,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		return $count;
 	}
 	/**
-	 * Method to select one object from the DB.
+	 * Selects one object from the DB.
 	 *
 	 * @param      Criteria $criteria object used to create the SELECT statement.
 	 * @param      PropelPDO $con
@@ -239,7 +238,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		return null;
 	}
 	/**
-	 * Method to do selects.
+	 * Selects several row from the DB.
 	 *
 	 * @param      Criteria $criteria The Criteria object used to build the SELECT statement.
 	 * @param      PropelPDO $con
@@ -299,7 +298,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	 * @param      afGuardRememberKey $value A afGuardRememberKey object.
 	 * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
 	 */
-	public static function addInstanceToPool(afGuardRememberKey $obj, $key = null)
+	public static function addInstanceToPool($obj, $key = null)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
 			if ($key === null) {
@@ -394,7 +393,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
-	 * Retrieves the primary key from the DB resultset row 
+	 * Retrieves the primary key from the DB resultset row
 	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
 	 * a multi-column primary key, an array of the primary key columns will be returned.
 	 *
@@ -454,7 +453,7 @@ abstract class BaseafGuardRememberKeyPeer {
 			// We no longer rehydrate the object, since this can cause data loss.
 			// See http://www.propelorm.org/ticket/509
 			// $obj->hydrate($row, $startcol, true); // rehydrate
-			$col = $startcol + afGuardRememberKeyPeer::NUM_COLUMNS;
+			$col = $startcol + afGuardRememberKeyPeer::NUM_HYDRATE_COLUMNS;
 		} else {
 			$cls = afGuardRememberKeyPeer::OM_CLASS;
 			$obj = new $cls();
@@ -463,6 +462,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		}
 		return array($obj, $col);
 	}
+
 
 	/**
 	 * Returns the number of rows matching criteria, joining the related afGuardUser table
@@ -490,9 +490,9 @@ abstract class BaseafGuardRememberKeyPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardRememberKeyPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -539,7 +539,7 @@ abstract class BaseafGuardRememberKeyPeer {
 		}
 
 		afGuardRememberKeyPeer::addSelectColumns($criteria);
-		$startcol = (afGuardRememberKeyPeer::NUM_COLUMNS - afGuardRememberKeyPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol = afGuardRememberKeyPeer::NUM_HYDRATE_COLUMNS;
 		afGuardUserPeer::addSelectColumns($criteria);
 
 		$criteria->addJoin(afGuardRememberKeyPeer::USER_ID, afGuardUserPeer::ID, $join_behavior);
@@ -618,9 +618,9 @@ abstract class BaseafGuardRememberKeyPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardRememberKeyPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -667,10 +667,10 @@ abstract class BaseafGuardRememberKeyPeer {
 		}
 
 		afGuardRememberKeyPeer::addSelectColumns($criteria);
-		$startcol2 = (afGuardRememberKeyPeer::NUM_COLUMNS - afGuardRememberKeyPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol2 = afGuardRememberKeyPeer::NUM_HYDRATE_COLUMNS;
 
 		afGuardUserPeer::addSelectColumns($criteria);
-		$startcol3 = $startcol2 + (afGuardUserPeer::NUM_COLUMNS - afGuardUserPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol3 = $startcol2 + afGuardUserPeer::NUM_HYDRATE_COLUMNS;
 
 		$criteria->addJoin(afGuardRememberKeyPeer::USER_ID, afGuardUserPeer::ID, $join_behavior);
 
@@ -762,7 +762,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
-	 * Method perform an INSERT on the database, given a afGuardRememberKey or Criteria object.
+	 * Performs an INSERT on the database, given a afGuardRememberKey or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardRememberKey object containing data that is used to create the INSERT statement.
 	 * @param      PropelPDO $con the PropelPDO connection to use
@@ -801,7 +801,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
-	 * Method perform an UPDATE on the database, given a afGuardRememberKey or Criteria object.
+	 * Performs an UPDATE on the database, given a afGuardRememberKey or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardRememberKey object containing data that is used to create the UPDATE statement.
 	 * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
@@ -848,11 +848,12 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
-	 * Method to DELETE all rows from the af_guard_remember_key table.
+	 * Deletes all rows from the af_guard_remember_key table.
 	 *
+	 * @param      PropelPDO $con the connection to use
 	 * @return     int The number of affected rows (if supported by underlying database driver).
 	 */
-	public static function doDeleteAll($con = null)
+	public static function doDeleteAll(PropelPDO $con = null)
 	{
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardRememberKeyPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
@@ -877,7 +878,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	}
 
 	/**
-	 * Method perform a DELETE on the database, given a afGuardRememberKey or Criteria object OR a primary key value.
+	 * Performs a DELETE on the database, given a afGuardRememberKey or Criteria object OR a primary key value.
 	 *
 	 * @param      mixed $values Criteria or afGuardRememberKey object or primary key or array of primary keys
 	 *              which is used to create the DELETE statement
@@ -954,7 +955,7 @@ abstract class BaseafGuardRememberKeyPeer {
 	 *
 	 * @return     mixed TRUE if all columns are valid or the error message of the first invalid column.
 	 */
-	public static function doValidate(afGuardRememberKey $obj, $cols = null)
+	public static function doValidate($obj, $cols = null)
 	{
 		$columns = array();
 

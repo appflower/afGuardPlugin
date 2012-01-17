@@ -37,7 +37,7 @@
  */
 abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 {
-
+	
 	/**
 	 * Initializes internal state of BaseafGuardUserGroupQuery object.
 	 *
@@ -74,10 +74,14 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	}
 
 	/**
-	 * Find object by primary key
+	 * Find object by primary key.
+	 * Propel uses the instance pool to skip the database if the object exists.
+	 * Go fast if the query is untouched.
+	 *
 	 * <code>
 	 * $obj = $c->findPk(array(12, 34), $con);
 	 * </code>
+	 *
 	 * @param     array[$user_id, $group_id] $key Primary key to use for the query
 	 * @param     PropelPDO $con an optional connection object
 	 *
@@ -85,17 +89,74 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	 */
 	public function findPk($key, $con = null)
 	{
-		if ((null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && $this->getFormatter()->isObjectFormatter()) {
+		if ($key === null) {
+			return null;
+		}
+		if ((null !== ($obj = afGuardUserGroupPeer::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
 			// the object is alredy in the instance pool
 			return $obj;
-		} else {
-			// the object has not been requested yet, or the formatter is not an object formatter
-			$criteria = $this->isKeepQuery() ? clone $this : $this;
-			$stmt = $criteria
-				->filterByPrimaryKey($key)
-				->getSelectStatement($con);
-			return $criteria->getFormatter()->init($criteria)->formatOne($stmt);
 		}
+		if ($con === null) {
+			$con = Propel::getConnection(afGuardUserGroupPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+		}
+		$this->basePreSelect($con);
+		if ($this->formatter || $this->modelAlias || $this->with || $this->select
+		 || $this->selectColumns || $this->asColumns || $this->selectModifiers
+		 || $this->map || $this->having || $this->joins) {
+			return $this->findPkComplex($key, $con);
+		} else {
+			return $this->findPkSimple($key, $con);
+		}
+	}
+
+	/**
+	 * Find object by primary key using raw SQL to go fast.
+	 * Bypass doSelect() and the object formatter by using generated code.
+	 *
+	 * @param     mixed $key Primary key to use for the query
+	 * @param     PropelPDO $con A connection object
+	 *
+	 * @return    afGuardUserGroup A model object, or null if the key is not found
+	 */
+	protected function findPkSimple($key, $con)
+	{
+		$sql = 'SELECT `USER_ID`, `GROUP_ID` FROM `af_guard_user_group` WHERE `USER_ID` = :p0 AND `GROUP_ID` = :p1';
+		try {
+			$stmt = $con->prepare($sql);
+			$stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
+			$stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
+			$stmt->execute();
+		} catch (Exception $e) {
+			Propel::log($e->getMessage(), Propel::LOG_ERR);
+			throw new PropelException(sprintf('Unable to execute SELECT statement [%s]', $sql), $e);
+		}
+		$obj = null;
+		if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+			$obj = new afGuardUserGroup();
+			$obj->hydrate($row);
+			afGuardUserGroupPeer::addInstanceToPool($obj, serialize(array((string) $row[0], (string) $row[1])));
+		}
+		$stmt->closeCursor();
+
+		return $obj;
+	}
+
+	/**
+	 * Find object by primary key.
+	 *
+	 * @param     mixed $key Primary key to use for the query
+	 * @param     PropelPDO $con A connection object
+	 *
+	 * @return    afGuardUserGroup|array|mixed the result, formatted by the current formatter
+	 */
+	protected function findPkComplex($key, $con)
+	{
+		// As the query uses a PK condition, no limit(1) is necessary.
+		$criteria = $this->isKeepQuery() ? clone $this : $this;
+		$stmt = $criteria
+			->filterByPrimaryKey($key)
+			->doSelect($con);
+		return $criteria->getFormatter()->init($criteria)->formatOne($stmt);
 	}
 
 	/**
@@ -109,11 +170,16 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	 * @return    PropelObjectCollection|array|mixed the list of results, formatted by the current formatter
 	 */
 	public function findPks($keys, $con = null)
-	{	
+	{
+		if ($con === null) {
+			$con = Propel::getConnection($this->getDbName(), Propel::CONNECTION_READ);
+		}
+		$this->basePreSelect($con);
 		$criteria = $this->isKeepQuery() ? clone $this : $this;
-		return $this
+		$stmt = $criteria
 			->filterByPrimaryKeys($keys)
-			->find($con);
+			->doSelect($con);
+		return $criteria->getFormatter()->init($criteria)->format($stmt);
 	}
 
 	/**
@@ -127,7 +193,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	{
 		$this->addUsingAlias(afGuardUserGroupPeer::USER_ID, $key[0], Criteria::EQUAL);
 		$this->addUsingAlias(afGuardUserGroupPeer::GROUP_ID, $key[1], Criteria::EQUAL);
-		
+
 		return $this;
 	}
 
@@ -149,15 +215,26 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 			$cton0->addAnd($cton1);
 			$this->addOr($cton0);
 		}
-		
+
 		return $this;
 	}
 
 	/**
 	 * Filter the query on the user_id column
-	 * 
-	 * @param     int|array $userId The value to use as filter.
-	 *            Accepts an associative array('min' => $minValue, 'max' => $maxValue)
+	 *
+	 * Example usage:
+	 * <code>
+	 * $query->filterByUserId(1234); // WHERE user_id = 1234
+	 * $query->filterByUserId(array(12, 34)); // WHERE user_id IN (12, 34)
+	 * $query->filterByUserId(array('min' => 12)); // WHERE user_id > 12
+	 * </code>
+	 *
+	 * @see       filterByafGuardUser()
+	 *
+	 * @param     mixed $userId The value to use as filter.
+	 *              Use scalar values for equality.
+	 *              Use array values for in_array() equivalent.
+	 *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserGroupQuery The current query, for fluid interface
@@ -172,9 +249,20 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 
 	/**
 	 * Filter the query on the group_id column
-	 * 
-	 * @param     int|array $groupId The value to use as filter.
-	 *            Accepts an associative array('min' => $minValue, 'max' => $maxValue)
+	 *
+	 * Example usage:
+	 * <code>
+	 * $query->filterByGroupId(1234); // WHERE group_id = 1234
+	 * $query->filterByGroupId(array(12, 34)); // WHERE group_id IN (12, 34)
+	 * $query->filterByGroupId(array('min' => 12)); // WHERE group_id > 12
+	 * </code>
+	 *
+	 * @see       filterByafGuardGroup()
+	 *
+	 * @param     mixed $groupId The value to use as filter.
+	 *              Use scalar values for equality.
+	 *              Use array values for in_array() equivalent.
+	 *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserGroupQuery The current query, for fluid interface
@@ -190,20 +278,30 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	/**
 	 * Filter the query by a related afGuardUser object
 	 *
-	 * @param     afGuardUser $afGuardUser  the related object to use as filter
+	 * @param     afGuardUser|PropelCollection $afGuardUser The related object(s) to use as filter
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserGroupQuery The current query, for fluid interface
 	 */
 	public function filterByafGuardUser($afGuardUser, $comparison = null)
 	{
-		return $this
-			->addUsingAlias(afGuardUserGroupPeer::USER_ID, $afGuardUser->getId(), $comparison);
+		if ($afGuardUser instanceof afGuardUser) {
+			return $this
+				->addUsingAlias(afGuardUserGroupPeer::USER_ID, $afGuardUser->getId(), $comparison);
+		} elseif ($afGuardUser instanceof PropelCollection) {
+			if (null === $comparison) {
+				$comparison = Criteria::IN;
+			}
+			return $this
+				->addUsingAlias(afGuardUserGroupPeer::USER_ID, $afGuardUser->toKeyValue('PrimaryKey', 'Id'), $comparison);
+		} else {
+			throw new PropelException('filterByafGuardUser() only accepts arguments of type afGuardUser or PropelCollection');
+		}
 	}
 
 	/**
 	 * Adds a JOIN clause to the query using the afGuardUser relation
-	 * 
+	 *
 	 * @param     string $relationAlias optional alias for the relation
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
@@ -213,7 +311,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	{
 		$tableMap = $this->getTableMap();
 		$relationMap = $tableMap->getRelation('afGuardUser');
-		
+
 		// create a ModelJoin object for this join
 		$join = new ModelJoin();
 		$join->setJoinType($joinType);
@@ -221,7 +319,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 		if ($previousJoin = $this->getPreviousJoin()) {
 			$join->setPreviousJoin($previousJoin);
 		}
-		
+
 		// add the ModelJoin to the current object
 		if($relationAlias) {
 			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
@@ -229,7 +327,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 		} else {
 			$this->addJoinObject($join, 'afGuardUser');
 		}
-		
+
 		return $this;
 	}
 
@@ -237,7 +335,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	 * Use the afGuardUser relation afGuardUser object
 	 *
 	 * @see       useQuery()
-	 * 
+	 *
 	 * @param     string $relationAlias optional alias for the relation,
 	 *                                   to be used as main alias in the secondary query
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
@@ -254,20 +352,30 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	/**
 	 * Filter the query by a related afGuardGroup object
 	 *
-	 * @param     afGuardGroup $afGuardGroup  the related object to use as filter
+	 * @param     afGuardGroup|PropelCollection $afGuardGroup The related object(s) to use as filter
 	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
 	 *
 	 * @return    afGuardUserGroupQuery The current query, for fluid interface
 	 */
 	public function filterByafGuardGroup($afGuardGroup, $comparison = null)
 	{
-		return $this
-			->addUsingAlias(afGuardUserGroupPeer::GROUP_ID, $afGuardGroup->getId(), $comparison);
+		if ($afGuardGroup instanceof afGuardGroup) {
+			return $this
+				->addUsingAlias(afGuardUserGroupPeer::GROUP_ID, $afGuardGroup->getId(), $comparison);
+		} elseif ($afGuardGroup instanceof PropelCollection) {
+			if (null === $comparison) {
+				$comparison = Criteria::IN;
+			}
+			return $this
+				->addUsingAlias(afGuardUserGroupPeer::GROUP_ID, $afGuardGroup->toKeyValue('PrimaryKey', 'Id'), $comparison);
+		} else {
+			throw new PropelException('filterByafGuardGroup() only accepts arguments of type afGuardGroup or PropelCollection');
+		}
 	}
 
 	/**
 	 * Adds a JOIN clause to the query using the afGuardGroup relation
-	 * 
+	 *
 	 * @param     string $relationAlias optional alias for the relation
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
 	 *
@@ -277,7 +385,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	{
 		$tableMap = $this->getTableMap();
 		$relationMap = $tableMap->getRelation('afGuardGroup');
-		
+
 		// create a ModelJoin object for this join
 		$join = new ModelJoin();
 		$join->setJoinType($joinType);
@@ -285,7 +393,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 		if ($previousJoin = $this->getPreviousJoin()) {
 			$join->setPreviousJoin($previousJoin);
 		}
-		
+
 		// add the ModelJoin to the current object
 		if($relationAlias) {
 			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
@@ -293,7 +401,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 		} else {
 			$this->addJoinObject($join, 'afGuardGroup');
 		}
-		
+
 		return $this;
 	}
 
@@ -301,7 +409,7 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 	 * Use the afGuardGroup relation afGuardGroup object
 	 *
 	 * @see       useQuery()
-	 * 
+	 *
 	 * @param     string $relationAlias optional alias for the relation,
 	 *                                   to be used as main alias in the secondary query
 	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
@@ -328,8 +436,8 @@ abstract class BaseafGuardUserGroupQuery extends ModelCriteria
 			$this->addCond('pruneCond0', $this->getAliasedColName(afGuardUserGroupPeer::USER_ID), $afGuardUserGroup->getUserId(), Criteria::NOT_EQUAL);
 			$this->addCond('pruneCond1', $this->getAliasedColName(afGuardUserGroupPeer::GROUP_ID), $afGuardUserGroup->getGroupId(), Criteria::NOT_EQUAL);
 			$this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
-	  }
-	  
+		}
+
 		return $this;
 	}
 

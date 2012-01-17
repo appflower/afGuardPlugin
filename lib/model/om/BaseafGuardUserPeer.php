@@ -24,12 +24,15 @@ abstract class BaseafGuardUserPeer {
 
 	/** the related TableMap class for this table */
 	const TM_CLASS = 'afGuardUserTableMap';
-	
+
 	/** The total number of columns. */
 	const NUM_COLUMNS = 9;
 
 	/** The number of lazy-loaded columns. */
 	const NUM_LAZY_LOAD_COLUMNS = 0;
+
+	/** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
+	const NUM_HYDRATE_COLUMNS = 9;
 
 	/** the column name for the ID field */
 	const ID = 'af_guard_user.ID';
@@ -58,6 +61,9 @@ abstract class BaseafGuardUserPeer {
 	/** the column name for the IS_SUPER_ADMIN field */
 	const IS_SUPER_ADMIN = 'af_guard_user.IS_SUPER_ADMIN';
 
+	/** The default string format for model objects of the related table **/
+	const DEFAULT_STRING_FORMAT = 'YAML';
+
 	/**
 	 * An identiy map to hold any loaded instances of afGuardUser objects.
 	 * This must be public so that other peer classes can access this when hydrating from JOIN
@@ -67,20 +73,13 @@ abstract class BaseafGuardUserPeer {
 	public static $instances = array();
 
 
-	// symfony behavior
-	
-	/**
-	 * Indicates whether the current model includes I18N.
-	 */
-	const IS_I18N = false;
-
 	/**
 	 * holds an array of fieldnames
 	 *
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
 	 */
-	private static $fieldNames = array (
+	protected static $fieldNames = array (
 		BasePeer::TYPE_PHPNAME => array ('Id', 'Username', 'Algorithm', 'Salt', 'Password', 'CreatedAt', 'LastLogin', 'IsActive', 'IsSuperAdmin', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'username', 'algorithm', 'salt', 'password', 'createdAt', 'lastLogin', 'isActive', 'isSuperAdmin', ),
 		BasePeer::TYPE_COLNAME => array (self::ID, self::USERNAME, self::ALGORITHM, self::SALT, self::PASSWORD, self::CREATED_AT, self::LAST_LOGIN, self::IS_ACTIVE, self::IS_SUPER_ADMIN, ),
@@ -95,7 +94,7 @@ abstract class BaseafGuardUserPeer {
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
 	 */
-	private static $fieldKeys = array (
+	protected static $fieldKeys = array (
 		BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Username' => 1, 'Algorithm' => 2, 'Salt' => 3, 'Password' => 4, 'CreatedAt' => 5, 'LastLogin' => 6, 'IsActive' => 7, 'IsSuperAdmin' => 8, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'username' => 1, 'algorithm' => 2, 'salt' => 3, 'password' => 4, 'createdAt' => 5, 'lastLogin' => 6, 'isActive' => 7, 'isSuperAdmin' => 8, ),
 		BasePeer::TYPE_COLNAME => array (self::ID => 0, self::USERNAME => 1, self::ALGORITHM => 2, self::SALT => 3, self::PASSWORD => 4, self::CREATED_AT => 5, self::LAST_LOGIN => 6, self::IS_ACTIVE => 7, self::IS_SUPER_ADMIN => 8, ),
@@ -245,7 +244,7 @@ abstract class BaseafGuardUserPeer {
 		return $count;
 	}
 	/**
-	 * Method to select one object from the DB.
+	 * Selects one object from the DB.
 	 *
 	 * @param      Criteria $criteria object used to create the SELECT statement.
 	 * @param      PropelPDO $con
@@ -264,7 +263,7 @@ abstract class BaseafGuardUserPeer {
 		return null;
 	}
 	/**
-	 * Method to do selects.
+	 * Selects several row from the DB.
 	 *
 	 * @param      Criteria $criteria The Criteria object used to build the SELECT statement.
 	 * @param      PropelPDO $con
@@ -324,7 +323,7 @@ abstract class BaseafGuardUserPeer {
 	 * @param      afGuardUser $value A afGuardUser object.
 	 * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
 	 */
-	public static function addInstanceToPool(afGuardUser $obj, $key = null)
+	public static function addInstanceToPool($obj, $key = null)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
 			if ($key === null) {
@@ -397,19 +396,13 @@ abstract class BaseafGuardUserPeer {
 	 */
 	public static function clearRelatedInstancePool()
 	{
-		// Invalidate objects in afCrmOpportunityPeer instance pool, 
-		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-		afCrmOpportunityPeer::clearInstancePool();
-		// Invalidate objects in afCrmActivityPeer instance pool, 
-		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-		afCrmActivityPeer::clearInstancePool();
-		// Invalidate objects in afGuardUserPermissionPeer instance pool, 
+		// Invalidate objects in afGuardUserPermissionPeer instance pool,
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserPermissionPeer::clearInstancePool();
-		// Invalidate objects in afGuardUserGroupPeer instance pool, 
+		// Invalidate objects in afGuardUserGroupPeer instance pool,
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardUserGroupPeer::clearInstancePool();
-		// Invalidate objects in afGuardRememberKeyPeer instance pool, 
+		// Invalidate objects in afGuardRememberKeyPeer instance pool,
 		// since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
 		afGuardRememberKeyPeer::clearInstancePool();
 	}
@@ -434,7 +427,7 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
-	 * Retrieves the primary key from the DB resultset row 
+	 * Retrieves the primary key from the DB resultset row
 	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
 	 * a multi-column primary key, an array of the primary key columns will be returned.
 	 *
@@ -494,7 +487,7 @@ abstract class BaseafGuardUserPeer {
 			// We no longer rehydrate the object, since this can cause data loss.
 			// See http://www.propelorm.org/ticket/509
 			// $obj->hydrate($row, $startcol, true); // rehydrate
-			$col = $startcol + afGuardUserPeer::NUM_COLUMNS;
+			$col = $startcol + afGuardUserPeer::NUM_HYDRATE_COLUMNS;
 		} else {
 			$cls = afGuardUserPeer::OM_CLASS;
 			$obj = new $cls();
@@ -503,6 +496,7 @@ abstract class BaseafGuardUserPeer {
 		}
 		return array($obj, $col);
 	}
+
 	/**
 	 * Returns the TableMap related to this peer.
 	 * This method is not needed for general use but a specific application could have a need.
@@ -544,7 +538,7 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
-	 * Method perform an INSERT on the database, given a afGuardUser or Criteria object.
+	 * Performs an INSERT on the database, given a afGuardUser or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardUser object containing data that is used to create the INSERT statement.
 	 * @param      PropelPDO $con the PropelPDO connection to use
@@ -587,7 +581,7 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
-	 * Method perform an UPDATE on the database, given a afGuardUser or Criteria object.
+	 * Performs an UPDATE on the database, given a afGuardUser or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardUser object containing data that is used to create the UPDATE statement.
 	 * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
@@ -626,11 +620,12 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
-	 * Method to DELETE all rows from the af_guard_user table.
+	 * Deletes all rows from the af_guard_user table.
 	 *
+	 * @param      PropelPDO $con the connection to use
 	 * @return     int The number of affected rows (if supported by underlying database driver).
 	 */
-	public static function doDeleteAll($con = null)
+	public static function doDeleteAll(PropelPDO $con = null)
 	{
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
@@ -656,7 +651,7 @@ abstract class BaseafGuardUserPeer {
 	}
 
 	/**
-	 * Method perform a DELETE on the database, given a afGuardUser or Criteria object OR a primary key value.
+	 * Performs a DELETE on the database, given a afGuardUser or Criteria object OR a primary key value.
 	 *
 	 * @param      mixed $values Criteria or afGuardUser object or primary key or array of primary keys
 	 *              which is used to create the DELETE statement
@@ -743,18 +738,6 @@ abstract class BaseafGuardUserPeer {
 		foreach ($objects as $obj) {
 
 
-			// delete related afCrmOpportunity objects
-			$criteria = new Criteria(afCrmOpportunityPeer::DATABASE_NAME);
-			
-			$criteria->add(afCrmOpportunityPeer::CREATED_BY, $obj->getId());
-			$affectedRows += afCrmOpportunityPeer::doDelete($criteria, $con);
-
-			// delete related afCrmActivity objects
-			$criteria = new Criteria(afCrmActivityPeer::DATABASE_NAME);
-			
-			$criteria->add(afCrmActivityPeer::CREATED_BY, $obj->getId());
-			$affectedRows += afCrmActivityPeer::doDelete($criteria, $con);
-
 			// delete related afGuardUserPermission objects
 			$criteria = new Criteria(afGuardUserPermissionPeer::DATABASE_NAME);
 			
@@ -788,7 +771,7 @@ abstract class BaseafGuardUserPeer {
 	 *
 	 * @return     mixed TRUE if all columns are valid or the error message of the first invalid column.
 	 */
-	public static function doValidate(afGuardUser $obj, $cols = null)
+	public static function doValidate($obj, $cols = null)
 	{
 		$columns = array();
 

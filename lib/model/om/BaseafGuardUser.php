@@ -82,16 +82,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	protected $is_super_admin;
 
 	/**
-	 * @var        array afCrmOpportunity[] Collection to store aggregation of afCrmOpportunity objects.
-	 */
-	protected $collafCrmOpportunitys;
-
-	/**
-	 * @var        array afCrmActivity[] Collection to store aggregation of afCrmActivity objects.
-	 */
-	protected $collafCrmActivitys;
-
-	/**
 	 * @var        array afGuardUserPermission[] Collection to store aggregation of afGuardUserPermission objects.
 	 */
 	protected $collafGuardUserPermissions;
@@ -119,6 +109,24 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * @var        boolean
 	 */
 	protected $alreadyInValidation = false;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $afGuardUserPermissionsScheduledForDeletion = null;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $afGuardUserGroupsScheduledForDeletion = null;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $afGuardRememberKeysScheduledForDeletion = null;
 
 	/**
 	 * Applies default values to this object.
@@ -341,7 +349,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$v = (string) $v;
 		}
 
-		if ($this->algorithm !== $v || $this->isNew()) {
+		if ($this->algorithm !== $v) {
 			$this->algorithm = $v;
 			$this->modifiedColumns[] = afGuardUserPeer::ALGORITHM;
 		}
@@ -392,45 +400,18 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	/**
 	 * Sets the value of [created_at] column to a normalized version of the date/time value specified.
 	 * 
-	 * @param      mixed $v string, integer (timestamp), or DateTime value.  Empty string will
-	 *						be treated as NULL for temporal objects.
+	 * @param      mixed $v string, integer (timestamp), or DateTime value.
+	 *               Empty strings are treated as NULL.
 	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function setCreatedAt($v)
 	{
-		// we treat '' as NULL for temporal objects because DateTime('') == DateTime('now')
-		// -- which is unexpected, to say the least.
-		if ($v === null || $v === '') {
-			$dt = null;
-		} elseif ($v instanceof DateTime) {
-			$dt = $v;
-		} else {
-			// some string/numeric value passed; we normalize that so that we can
-			// validate it.
-			try {
-				if (is_numeric($v)) { // if it's a unix timestamp
-					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
-					// We have to explicitly specify and then change the time zone because of a
-					// DateTime bug: http://bugs.php.net/bug.php?id=43003
-					$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
-				} else {
-					$dt = new DateTime($v);
-				}
-			} catch (Exception $x) {
-				throw new PropelException('Error parsing date/time value: ' . var_export($v, true), $x);
-			}
-		}
-
-		if ( $this->created_at !== null || $dt !== null ) {
-			// (nested ifs are a little easier to read in this case)
-
-			$currNorm = ($this->created_at !== null && $tmpDt = new DateTime($this->created_at)) ? $tmpDt->format('Y-m-d H:i:s') : null;
-			$newNorm = ($dt !== null) ? $dt->format('Y-m-d H:i:s') : null;
-
-			if ( ($currNorm !== $newNorm) // normalized values don't match 
-					)
-			{
-				$this->created_at = ($dt ? $dt->format('Y-m-d H:i:s') : null);
+		$dt = PropelDateTime::newInstance($v, null, 'DateTime');
+		if ($this->created_at !== null || $dt !== null) {
+			$currentDateAsString = ($this->created_at !== null && $tmpDt = new DateTime($this->created_at)) ? $tmpDt->format('Y-m-d H:i:s') : null;
+			$newDateAsString = $dt ? $dt->format('Y-m-d H:i:s') : null;
+			if ($currentDateAsString !== $newDateAsString) {
+				$this->created_at = $newDateAsString;
 				$this->modifiedColumns[] = afGuardUserPeer::CREATED_AT;
 			}
 		} // if either are not null
@@ -441,45 +422,18 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	/**
 	 * Sets the value of [last_login] column to a normalized version of the date/time value specified.
 	 * 
-	 * @param      mixed $v string, integer (timestamp), or DateTime value.  Empty string will
-	 *						be treated as NULL for temporal objects.
+	 * @param      mixed $v string, integer (timestamp), or DateTime value.
+	 *               Empty strings are treated as NULL.
 	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function setLastLogin($v)
 	{
-		// we treat '' as NULL for temporal objects because DateTime('') == DateTime('now')
-		// -- which is unexpected, to say the least.
-		if ($v === null || $v === '') {
-			$dt = null;
-		} elseif ($v instanceof DateTime) {
-			$dt = $v;
-		} else {
-			// some string/numeric value passed; we normalize that so that we can
-			// validate it.
-			try {
-				if (is_numeric($v)) { // if it's a unix timestamp
-					$dt = new DateTime('@'.$v, new DateTimeZone('UTC'));
-					// We have to explicitly specify and then change the time zone because of a
-					// DateTime bug: http://bugs.php.net/bug.php?id=43003
-					$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
-				} else {
-					$dt = new DateTime($v);
-				}
-			} catch (Exception $x) {
-				throw new PropelException('Error parsing date/time value: ' . var_export($v, true), $x);
-			}
-		}
-
-		if ( $this->last_login !== null || $dt !== null ) {
-			// (nested ifs are a little easier to read in this case)
-
-			$currNorm = ($this->last_login !== null && $tmpDt = new DateTime($this->last_login)) ? $tmpDt->format('Y-m-d H:i:s') : null;
-			$newNorm = ($dt !== null) ? $dt->format('Y-m-d H:i:s') : null;
-
-			if ( ($currNorm !== $newNorm) // normalized values don't match 
-					)
-			{
-				$this->last_login = ($dt ? $dt->format('Y-m-d H:i:s') : null);
+		$dt = PropelDateTime::newInstance($v, null, 'DateTime');
+		if ($this->last_login !== null || $dt !== null) {
+			$currentDateAsString = ($this->last_login !== null && $tmpDt = new DateTime($this->last_login)) ? $tmpDt->format('Y-m-d H:i:s') : null;
+			$newDateAsString = $dt ? $dt->format('Y-m-d H:i:s') : null;
+			if ($currentDateAsString !== $newDateAsString) {
+				$this->last_login = $newDateAsString;
 				$this->modifiedColumns[] = afGuardUserPeer::LAST_LOGIN;
 			}
 		} // if either are not null
@@ -488,18 +442,26 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	} // setLastLogin()
 
 	/**
-	 * Set the value of [is_active] column.
+	 * Sets the value of the [is_active] column.
+	 * Non-boolean arguments are converted using the following rules:
+	 *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+	 *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+	 * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
 	 * 
-	 * @param      boolean $v new value
+	 * @param      boolean|integer|string $v The new value
 	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function setIsActive($v)
 	{
 		if ($v !== null) {
-			$v = (boolean) $v;
+			if (is_string($v)) {
+				$v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+			} else {
+				$v = (boolean) $v;
+			}
 		}
 
-		if ($this->is_active !== $v || $this->isNew()) {
+		if ($this->is_active !== $v) {
 			$this->is_active = $v;
 			$this->modifiedColumns[] = afGuardUserPeer::IS_ACTIVE;
 		}
@@ -508,18 +470,26 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	} // setIsActive()
 
 	/**
-	 * Set the value of [is_super_admin] column.
+	 * Sets the value of the [is_super_admin] column.
+	 * Non-boolean arguments are converted using the following rules:
+	 *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+	 *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+	 * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
 	 * 
-	 * @param      boolean $v new value
+	 * @param      boolean|integer|string $v The new value
 	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function setIsSuperAdmin($v)
 	{
 		if ($v !== null) {
-			$v = (boolean) $v;
+			if (is_string($v)) {
+				$v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+			} else {
+				$v = (boolean) $v;
+			}
 		}
 
-		if ($this->is_super_admin !== $v || $this->isNew()) {
+		if ($this->is_super_admin !== $v) {
 			$this->is_super_admin = $v;
 			$this->modifiedColumns[] = afGuardUserPeer::IS_SUPER_ADMIN;
 		}
@@ -588,7 +558,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 				$this->ensureConsistency();
 			}
 
-			return $startcol + 9; // 9 = afGuardUserPeer::NUM_COLUMNS - afGuardUserPeer::NUM_LAZY_LOAD_COLUMNS).
+			return $startcol + 9; // 9 = afGuardUserPeer::NUM_HYDRATE_COLUMNS.
 
 		} catch (Exception $e) {
 			throw new PropelException("Error populating afGuardUser object", $e);
@@ -650,10 +620,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 		if ($deep) {  // also de-associate any related objects?
 
-			$this->collafCrmOpportunitys = null;
-
-			$this->collafCrmActivitys = null;
-
 			$this->collafGuardUserPermissions = null;
 
 			$this->collafGuardUserGroups = null;
@@ -684,6 +650,8 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 		$con->beginTransaction();
 		try {
+			$deleteQuery = afGuardUserQuery::create()
+				->filterByPrimaryKey($this->getPrimaryKey());
 			$ret = $this->preDelete($con);
 			// symfony_behaviors behavior
 			foreach (sfMixer::getCallables('BaseafGuardUser:delete:pre') as $callable)
@@ -696,9 +664,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			}
 
 			if ($ret) {
-				afGuardUserQuery::create()
-					->filterByPrimaryKey($this->getPrimaryKey())
-					->delete($con);
+				$deleteQuery->delete($con);
 				$this->postDelete($con);
 				// symfony_behaviors behavior
 				foreach (sfMixer::getCallables('BaseafGuardUser:delete:post') as $callable)
@@ -711,7 +677,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			} else {
 				$con->commit();
 			}
-		} catch (PropelException $e) {
+		} catch (Exception $e) {
 			$con->rollBack();
 			throw $e;
 		}
@@ -754,8 +720,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			  }
 			}
 
-			// symfony_timestampable behavior
-			
 			if ($isInsert) {
 				$ret = $ret && $this->preInsert($con);
 				// symfony_timestampable behavior
@@ -787,7 +751,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			}
 			$con->commit();
 			return $affectedRows;
-		} catch (PropelException $e) {
+		} catch (Exception $e) {
 			$con->rollBack();
 			throw $e;
 		}
@@ -810,42 +774,23 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 		if (!$this->alreadyInSave) {
 			$this->alreadyInSave = true;
 
-			if ($this->isNew() ) {
-				$this->modifiedColumns[] = afGuardUserPeer::ID;
-			}
-
-			// If this object has been modified, then save it to the database.
-			if ($this->isModified()) {
+			if ($this->isNew() || $this->isModified()) {
+				// persist changes
 				if ($this->isNew()) {
-					$criteria = $this->buildCriteria();
-					if ($criteria->keyContainsValue(afGuardUserPeer::ID) ) {
-						throw new PropelException('Cannot insert a value for auto-increment primary key ('.afGuardUserPeer::ID.')');
-					}
-
-					$pk = BasePeer::doInsert($criteria, $con);
-					$affectedRows = 1;
-					$this->setId($pk);  //[IMV] update autoincrement primary key
-					$this->setNew(false);
+					$this->doInsert($con);
 				} else {
-					$affectedRows = afGuardUserPeer::doUpdate($this, $con);
+					$this->doUpdate($con);
 				}
-
-				$this->resetModified(); // [HL] After being saved an object is no longer 'modified'
+				$affectedRows += 1;
+				$this->resetModified();
 			}
 
-			if ($this->collafCrmOpportunitys !== null) {
-				foreach ($this->collafCrmOpportunitys as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
-				}
-			}
-
-			if ($this->collafCrmActivitys !== null) {
-				foreach ($this->collafCrmActivitys as $referrerFK) {
-					if (!$referrerFK->isDeleted()) {
-						$affectedRows += $referrerFK->save($con);
-					}
+			if ($this->afGuardUserPermissionsScheduledForDeletion !== null) {
+				if (!$this->afGuardUserPermissionsScheduledForDeletion->isEmpty()) {
+					afGuardUserPermissionQuery::create()
+						->filterByPrimaryKeys($this->afGuardUserPermissionsScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->afGuardUserPermissionsScheduledForDeletion = null;
 				}
 			}
 
@@ -857,11 +802,29 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 				}
 			}
 
+			if ($this->afGuardUserGroupsScheduledForDeletion !== null) {
+				if (!$this->afGuardUserGroupsScheduledForDeletion->isEmpty()) {
+					afGuardUserGroupQuery::create()
+						->filterByPrimaryKeys($this->afGuardUserGroupsScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->afGuardUserGroupsScheduledForDeletion = null;
+				}
+			}
+
 			if ($this->collafGuardUserGroups !== null) {
 				foreach ($this->collafGuardUserGroups as $referrerFK) {
 					if (!$referrerFK->isDeleted()) {
 						$affectedRows += $referrerFK->save($con);
 					}
+				}
+			}
+
+			if ($this->afGuardRememberKeysScheduledForDeletion !== null) {
+				if (!$this->afGuardRememberKeysScheduledForDeletion->isEmpty()) {
+					afGuardRememberKeyQuery::create()
+						->filterByPrimaryKeys($this->afGuardRememberKeysScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->afGuardRememberKeysScheduledForDeletion = null;
 				}
 			}
 
@@ -878,6 +841,122 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 		}
 		return $affectedRows;
 	} // doSave()
+
+	/**
+	 * Insert the row in the database.
+	 *
+	 * @param      PropelPDO $con
+	 *
+	 * @throws     PropelException
+	 * @see        doSave()
+	 */
+	protected function doInsert(PropelPDO $con)
+	{
+		$modifiedColumns = array();
+		$index = 0;
+
+		$this->modifiedColumns[] = afGuardUserPeer::ID;
+		if (null !== $this->id) {
+			throw new PropelException('Cannot insert a value for auto-increment primary key (' . afGuardUserPeer::ID . ')');
+		}
+
+		 // check the columns in natural order for more readable SQL queries
+		if ($this->isColumnModified(afGuardUserPeer::ID)) {
+			$modifiedColumns[':p' . $index++]  = '`ID`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::USERNAME)) {
+			$modifiedColumns[':p' . $index++]  = '`USERNAME`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::ALGORITHM)) {
+			$modifiedColumns[':p' . $index++]  = '`ALGORITHM`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::SALT)) {
+			$modifiedColumns[':p' . $index++]  = '`SALT`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::PASSWORD)) {
+			$modifiedColumns[':p' . $index++]  = '`PASSWORD`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::CREATED_AT)) {
+			$modifiedColumns[':p' . $index++]  = '`CREATED_AT`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::LAST_LOGIN)) {
+			$modifiedColumns[':p' . $index++]  = '`LAST_LOGIN`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::IS_ACTIVE)) {
+			$modifiedColumns[':p' . $index++]  = '`IS_ACTIVE`';
+		}
+		if ($this->isColumnModified(afGuardUserPeer::IS_SUPER_ADMIN)) {
+			$modifiedColumns[':p' . $index++]  = '`IS_SUPER_ADMIN`';
+		}
+
+		$sql = sprintf(
+			'INSERT INTO `af_guard_user` (%s) VALUES (%s)',
+			implode(', ', $modifiedColumns),
+			implode(', ', array_keys($modifiedColumns))
+		);
+
+		try {
+			$stmt = $con->prepare($sql);
+			foreach ($modifiedColumns as $identifier => $columnName) {
+				switch ($columnName) {
+					case '`ID`':
+						$stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+						break;
+					case '`USERNAME`':
+						$stmt->bindValue($identifier, $this->username, PDO::PARAM_STR);
+						break;
+					case '`ALGORITHM`':
+						$stmt->bindValue($identifier, $this->algorithm, PDO::PARAM_STR);
+						break;
+					case '`SALT`':
+						$stmt->bindValue($identifier, $this->salt, PDO::PARAM_STR);
+						break;
+					case '`PASSWORD`':
+						$stmt->bindValue($identifier, $this->password, PDO::PARAM_STR);
+						break;
+					case '`CREATED_AT`':
+						$stmt->bindValue($identifier, $this->created_at, PDO::PARAM_STR);
+						break;
+					case '`LAST_LOGIN`':
+						$stmt->bindValue($identifier, $this->last_login, PDO::PARAM_STR);
+						break;
+					case '`IS_ACTIVE`':
+						$stmt->bindValue($identifier, (int) $this->is_active, PDO::PARAM_INT);
+						break;
+					case '`IS_SUPER_ADMIN`':
+						$stmt->bindValue($identifier, (int) $this->is_super_admin, PDO::PARAM_INT);
+						break;
+				}
+			}
+			$stmt->execute();
+		} catch (Exception $e) {
+			Propel::log($e->getMessage(), Propel::LOG_ERR);
+			throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), $e);
+		}
+
+		try {
+			$pk = $con->lastInsertId();
+		} catch (Exception $e) {
+			throw new PropelException('Unable to get autoincrement id.', $e);
+		}
+		$this->setId($pk);
+
+		$this->setNew(false);
+	}
+
+	/**
+	 * Update the row in the database.
+	 *
+	 * @param      PropelPDO $con
+	 *
+	 * @see        doSave()
+	 */
+	protected function doUpdate(PropelPDO $con)
+	{
+		$selectCriteria = $this->buildPkeyCriteria();
+		$valuesCriteria = $this->buildCriteria();
+		BasePeer::doUpdate($selectCriteria, $valuesCriteria, $con);
+	}
 
 	/**
 	 * Array of ValidationFailed objects.
@@ -943,22 +1022,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 				$failureMap = array_merge($failureMap, $retval);
 			}
 
-
-				if ($this->collafCrmOpportunitys !== null) {
-					foreach ($this->collafCrmOpportunitys as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
-
-				if ($this->collafCrmActivitys !== null) {
-					foreach ($this->collafCrmActivitys as $referrerFK) {
-						if (!$referrerFK->validate($columns)) {
-							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-						}
-					}
-				}
 
 				if ($this->collafGuardUserPermissions !== null) {
 					foreach ($this->collafGuardUserPermissions as $referrerFK) {
@@ -1060,11 +1123,17 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 *                    BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM.
 	 *                    Defaults to BasePeer::TYPE_PHPNAME.
 	 * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
+	 * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+	 * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
 	 *
 	 * @return    array an associative array containing the field names (as keys) and field values
 	 */
-	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true)
+	public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
 	{
+		if (isset($alreadyDumpedObjects['afGuardUser'][$this->getPrimaryKey()])) {
+			return '*RECURSION*';
+		}
+		$alreadyDumpedObjects['afGuardUser'][$this->getPrimaryKey()] = true;
 		$keys = afGuardUserPeer::getFieldNames($keyType);
 		$result = array(
 			$keys[0] => $this->getId(),
@@ -1077,6 +1146,17 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$keys[7] => $this->getIsActive(),
 			$keys[8] => $this->getIsSuperAdmin(),
 		);
+		if ($includeForeignObjects) {
+			if (null !== $this->collafGuardUserPermissions) {
+				$result['afGuardUserPermissions'] = $this->collafGuardUserPermissions->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+			if (null !== $this->collafGuardUserGroups) {
+				$result['afGuardUserGroups'] = $this->collafGuardUserGroups->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+			if (null !== $this->collafGuardRememberKeys) {
+				$result['afGuardRememberKeys'] = $this->collafGuardRememberKeys->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+		}
 		return $result;
 	}
 
@@ -1244,35 +1324,24 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 *
 	 * @param      object $copyObj An object of afGuardUser (or compatible) type.
 	 * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
+	 * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
 	 * @throws     PropelException
 	 */
-	public function copyInto($copyObj, $deepCopy = false)
+	public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
 	{
-		$copyObj->setUsername($this->username);
-		$copyObj->setAlgorithm($this->algorithm);
-		$copyObj->setSalt($this->salt);
-		$copyObj->setPassword($this->password);
-		$copyObj->setCreatedAt($this->created_at);
-		$copyObj->setLastLogin($this->last_login);
-		$copyObj->setIsActive($this->is_active);
-		$copyObj->setIsSuperAdmin($this->is_super_admin);
+		$copyObj->setUsername($this->getUsername());
+		$copyObj->setAlgorithm($this->getAlgorithm());
+		$copyObj->setSalt($this->getSalt());
+		$copyObj->setPassword($this->getPassword());
+		$copyObj->setCreatedAt($this->getCreatedAt());
+		$copyObj->setLastLogin($this->getLastLogin());
+		$copyObj->setIsActive($this->getIsActive());
+		$copyObj->setIsSuperAdmin($this->getIsSuperAdmin());
 
 		if ($deepCopy) {
 			// important: temporarily setNew(false) because this affects the behavior of
 			// the getter/setter methods for fkey referrer objects.
 			$copyObj->setNew(false);
-
-			foreach ($this->getafCrmOpportunitys() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addafCrmOpportunity($relObj->copy($deepCopy));
-				}
-			}
-
-			foreach ($this->getafCrmActivitys() as $relObj) {
-				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-					$copyObj->addafCrmActivity($relObj->copy($deepCopy));
-				}
-			}
 
 			foreach ($this->getafGuardUserPermissions() as $relObj) {
 				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
@@ -1294,9 +1363,10 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 		} // if ($deepCopy)
 
-
-		$copyObj->setNew(true);
-		$copyObj->setId(NULL); // this is a auto-increment column, so set to default value
+		if ($makeNew) {
+			$copyObj->setNew(true);
+			$copyObj->setId(NULL); // this is a auto-increment column, so set to default value
+		}
 	}
 
 	/**
@@ -1337,347 +1407,26 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 		return self::$peer;
 	}
 
-	/**
-	 * Clears out the collafCrmOpportunitys collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addafCrmOpportunitys()
-	 */
-	public function clearafCrmOpportunitys()
-	{
-		$this->collafCrmOpportunitys = null; // important to set this to NULL since that means it is uninitialized
-	}
 
 	/**
-	 * Initializes the collafCrmOpportunitys collection.
+	 * Initializes a collection based on the name of a relation.
+	 * Avoids crafting an 'init[$relationName]s' method name
+	 * that wouldn't work when StandardEnglishPluralizer is used.
 	 *
-	 * By default this just sets the collafCrmOpportunitys collection to an empty array (like clearcollafCrmOpportunitys());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
+	 * @param      string $relationName The name of the relation to initialize
 	 * @return     void
 	 */
-	public function initafCrmOpportunitys()
+	public function initRelation($relationName)
 	{
-		$this->collafCrmOpportunitys = new PropelObjectCollection();
-		$this->collafCrmOpportunitys->setModel('afCrmOpportunity');
-	}
-
-	/**
-	 * Gets an array of afCrmOpportunity objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
-	 * @throws     PropelException
-	 */
-	public function getafCrmOpportunitys($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collafCrmOpportunitys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collafCrmOpportunitys) {
-				// return empty collection
-				$this->initafCrmOpportunitys();
-			} else {
-				$collafCrmOpportunitys = afCrmOpportunityQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collafCrmOpportunitys;
-				}
-				$this->collafCrmOpportunitys = $collafCrmOpportunitys;
-			}
+		if ('afGuardUserPermission' == $relationName) {
+			return $this->initafGuardUserPermissions();
 		}
-		return $this->collafCrmOpportunitys;
-	}
-
-	/**
-	 * Returns the number of related afCrmOpportunity objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related afCrmOpportunity objects.
-	 * @throws     PropelException
-	 */
-	public function countafCrmOpportunitys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collafCrmOpportunitys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collafCrmOpportunitys) {
-				return 0;
-			} else {
-				$query = afCrmOpportunityQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collafCrmOpportunitys);
+		if ('afGuardUserGroup' == $relationName) {
+			return $this->initafGuardUserGroups();
 		}
-	}
-
-	/**
-	 * Method called to associate a afCrmOpportunity object to this object
-	 * through the afCrmOpportunity foreign key attribute.
-	 *
-	 * @param      afCrmOpportunity $l afCrmOpportunity
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addafCrmOpportunity(afCrmOpportunity $l)
-	{
-		if ($this->collafCrmOpportunitys === null) {
-			$this->initafCrmOpportunitys();
+		if ('afGuardRememberKey' == $relationName) {
+			return $this->initafGuardRememberKeys();
 		}
-		if (!$this->collafCrmOpportunitys->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collafCrmOpportunitys[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related afCrmOpportunitys from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
-	 */
-	public function getafCrmOpportunitysJoinafCrmAccount($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = afCrmOpportunityQuery::create(null, $criteria);
-		$query->joinWith('afCrmAccount', $join_behavior);
-
-		return $this->getafCrmOpportunitys($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related afCrmOpportunitys from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array afCrmOpportunity[] List of afCrmOpportunity objects
-	 */
-	public function getafCrmOpportunitysJoinafCrmContact($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = afCrmOpportunityQuery::create(null, $criteria);
-		$query->joinWith('afCrmContact', $join_behavior);
-
-		return $this->getafCrmOpportunitys($query, $con);
-	}
-
-	/**
-	 * Clears out the collafCrmActivitys collection
-	 *
-	 * This does not modify the database; however, it will remove any associated objects, causing
-	 * them to be refetched by subsequent calls to accessor method.
-	 *
-	 * @return     void
-	 * @see        addafCrmActivitys()
-	 */
-	public function clearafCrmActivitys()
-	{
-		$this->collafCrmActivitys = null; // important to set this to NULL since that means it is uninitialized
-	}
-
-	/**
-	 * Initializes the collafCrmActivitys collection.
-	 *
-	 * By default this just sets the collafCrmActivitys collection to an empty array (like clearcollafCrmActivitys());
-	 * however, you may wish to override this method in your stub class to provide setting appropriate
-	 * to your application -- for example, setting the initial array to the values stored in database.
-	 *
-	 * @return     void
-	 */
-	public function initafCrmActivitys()
-	{
-		$this->collafCrmActivitys = new PropelObjectCollection();
-		$this->collafCrmActivitys->setModel('afCrmActivity');
-	}
-
-	/**
-	 * Gets an array of afCrmActivity objects which contain a foreign key that references this object.
-	 *
-	 * If the $criteria is not null, it is used to always fetch the results from the database.
-	 * Otherwise the results are fetched from the database the first time, then cached.
-	 * Next time the same method is called without $criteria, the cached collection is returned.
-	 * If this afGuardUser is new, it will return
-	 * an empty collection or the current collection; the criteria is ignored on a new object.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
-	 * @throws     PropelException
-	 */
-	public function getafCrmActivitys($criteria = null, PropelPDO $con = null)
-	{
-		if(null === $this->collafCrmActivitys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collafCrmActivitys) {
-				// return empty collection
-				$this->initafCrmActivitys();
-			} else {
-				$collafCrmActivitys = afCrmActivityQuery::create(null, $criteria)
-					->filterByafGuardUser($this)
-					->find($con);
-				if (null !== $criteria) {
-					return $collafCrmActivitys;
-				}
-				$this->collafCrmActivitys = $collafCrmActivitys;
-			}
-		}
-		return $this->collafCrmActivitys;
-	}
-
-	/**
-	 * Returns the number of related afCrmActivity objects.
-	 *
-	 * @param      Criteria $criteria
-	 * @param      boolean $distinct
-	 * @param      PropelPDO $con
-	 * @return     int Count of related afCrmActivity objects.
-	 * @throws     PropelException
-	 */
-	public function countafCrmActivitys(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-	{
-		if(null === $this->collafCrmActivitys || null !== $criteria) {
-			if ($this->isNew() && null === $this->collafCrmActivitys) {
-				return 0;
-			} else {
-				$query = afCrmActivityQuery::create(null, $criteria);
-				if($distinct) {
-					$query->distinct();
-				}
-				return $query
-					->filterByafGuardUser($this)
-					->count($con);
-			}
-		} else {
-			return count($this->collafCrmActivitys);
-		}
-	}
-
-	/**
-	 * Method called to associate a afCrmActivity object to this object
-	 * through the afCrmActivity foreign key attribute.
-	 *
-	 * @param      afCrmActivity $l afCrmActivity
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function addafCrmActivity(afCrmActivity $l)
-	{
-		if ($this->collafCrmActivitys === null) {
-			$this->initafCrmActivitys();
-		}
-		if (!$this->collafCrmActivitys->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collafCrmActivitys[]= $l;
-			$l->setafGuardUser($this);
-		}
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related afCrmActivitys from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
-	 */
-	public function getafCrmActivitysJoinafCrmAccount($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = afCrmActivityQuery::create(null, $criteria);
-		$query->joinWith('afCrmAccount', $join_behavior);
-
-		return $this->getafCrmActivitys($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related afCrmActivitys from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
-	 */
-	public function getafCrmActivitysJoinafCrmContact($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = afCrmActivityQuery::create(null, $criteria);
-		$query->joinWith('afCrmContact', $join_behavior);
-
-		return $this->getafCrmActivitys($query, $con);
-	}
-
-
-	/**
-	 * If this collection has already been initialized with
-	 * an identical criteria, it returns the collection.
-	 * Otherwise if this afGuardUser is new, it will return
-	 * an empty collection; or if this afGuardUser has previously
-	 * been saved, it will retrieve related afCrmActivitys from storage.
-	 *
-	 * This method is protected by default in order to keep the public
-	 * api reasonable.  You can provide public methods for those you
-	 * actually need in afGuardUser.
-	 *
-	 * @param      Criteria $criteria optional Criteria object to narrow the query
-	 * @param      PropelPDO $con optional connection object
-	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-	 * @return     PropelCollection|array afCrmActivity[] List of afCrmActivity objects
-	 */
-	public function getafCrmActivitysJoinafCrmStatus($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-	{
-		$query = afCrmActivityQuery::create(null, $criteria);
-		$query->joinWith('afCrmStatus', $join_behavior);
-
-		return $this->getafCrmActivitys($query, $con);
 	}
 
 	/**
@@ -1701,10 +1450,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
 	 * to your application -- for example, setting the initial array to the values stored in database.
 	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
 	 * @return     void
 	 */
-	public function initafGuardUserPermissions()
+	public function initafGuardUserPermissions($overrideExisting = true)
 	{
+		if (null !== $this->collafGuardUserPermissions && !$overrideExisting) {
+			return;
+		}
 		$this->collafGuardUserPermissions = new PropelObjectCollection();
 		$this->collafGuardUserPermissions->setModel('afGuardUserPermission');
 	}
@@ -1743,6 +1498,30 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
+	 * Sets a collection of afGuardUserPermission objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $afGuardUserPermissions A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setafGuardUserPermissions(PropelCollection $afGuardUserPermissions, PropelPDO $con = null)
+	{
+		$this->afGuardUserPermissionsScheduledForDeletion = $this->getafGuardUserPermissions(new Criteria(), $con)->diff($afGuardUserPermissions);
+
+		foreach ($afGuardUserPermissions as $afGuardUserPermission) {
+			// Fix issue with collection modified by reference
+			if ($afGuardUserPermission->isNew()) {
+				$afGuardUserPermission->setafGuardUser($this);
+			}
+			$this->addafGuardUserPermission($afGuardUserPermission);
+		}
+
+		$this->collafGuardUserPermissions = $afGuardUserPermissions;
+	}
+
+	/**
 	 * Returns the number of related afGuardUserPermission objects.
 	 *
 	 * @param      Criteria $criteria
@@ -1775,8 +1554,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * through the afGuardUserPermission foreign key attribute.
 	 *
 	 * @param      afGuardUserPermission $l afGuardUserPermission
-	 * @return     void
-	 * @throws     PropelException
+	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function addafGuardUserPermission(afGuardUserPermission $l)
 	{
@@ -1784,9 +1562,19 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$this->initafGuardUserPermissions();
 		}
 		if (!$this->collafGuardUserPermissions->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collafGuardUserPermissions[]= $l;
-			$l->setafGuardUser($this);
+			$this->doAddafGuardUserPermission($l);
 		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	afGuardUserPermission $afGuardUserPermission The afGuardUserPermission object to add.
+	 */
+	protected function doAddafGuardUserPermission($afGuardUserPermission)
+	{
+		$this->collafGuardUserPermissions[]= $afGuardUserPermission;
+		$afGuardUserPermission->setafGuardUser($this);
 	}
 
 
@@ -1835,10 +1623,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
 	 * to your application -- for example, setting the initial array to the values stored in database.
 	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
 	 * @return     void
 	 */
-	public function initafGuardUserGroups()
+	public function initafGuardUserGroups($overrideExisting = true)
 	{
+		if (null !== $this->collafGuardUserGroups && !$overrideExisting) {
+			return;
+		}
 		$this->collafGuardUserGroups = new PropelObjectCollection();
 		$this->collafGuardUserGroups->setModel('afGuardUserGroup');
 	}
@@ -1877,6 +1671,30 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
+	 * Sets a collection of afGuardUserGroup objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $afGuardUserGroups A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setafGuardUserGroups(PropelCollection $afGuardUserGroups, PropelPDO $con = null)
+	{
+		$this->afGuardUserGroupsScheduledForDeletion = $this->getafGuardUserGroups(new Criteria(), $con)->diff($afGuardUserGroups);
+
+		foreach ($afGuardUserGroups as $afGuardUserGroup) {
+			// Fix issue with collection modified by reference
+			if ($afGuardUserGroup->isNew()) {
+				$afGuardUserGroup->setafGuardUser($this);
+			}
+			$this->addafGuardUserGroup($afGuardUserGroup);
+		}
+
+		$this->collafGuardUserGroups = $afGuardUserGroups;
+	}
+
+	/**
 	 * Returns the number of related afGuardUserGroup objects.
 	 *
 	 * @param      Criteria $criteria
@@ -1909,8 +1727,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * through the afGuardUserGroup foreign key attribute.
 	 *
 	 * @param      afGuardUserGroup $l afGuardUserGroup
-	 * @return     void
-	 * @throws     PropelException
+	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function addafGuardUserGroup(afGuardUserGroup $l)
 	{
@@ -1918,9 +1735,19 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$this->initafGuardUserGroups();
 		}
 		if (!$this->collafGuardUserGroups->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collafGuardUserGroups[]= $l;
-			$l->setafGuardUser($this);
+			$this->doAddafGuardUserGroup($l);
 		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	afGuardUserGroup $afGuardUserGroup The afGuardUserGroup object to add.
+	 */
+	protected function doAddafGuardUserGroup($afGuardUserGroup)
+	{
+		$this->collafGuardUserGroups[]= $afGuardUserGroup;
+		$afGuardUserGroup->setafGuardUser($this);
 	}
 
 
@@ -1969,10 +1796,16 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * however, you may wish to override this method in your stub class to provide setting appropriate
 	 * to your application -- for example, setting the initial array to the values stored in database.
 	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
 	 * @return     void
 	 */
-	public function initafGuardRememberKeys()
+	public function initafGuardRememberKeys($overrideExisting = true)
 	{
+		if (null !== $this->collafGuardRememberKeys && !$overrideExisting) {
+			return;
+		}
 		$this->collafGuardRememberKeys = new PropelObjectCollection();
 		$this->collafGuardRememberKeys->setModel('afGuardRememberKey');
 	}
@@ -2011,6 +1844,30 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
+	 * Sets a collection of afGuardRememberKey objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $afGuardRememberKeys A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setafGuardRememberKeys(PropelCollection $afGuardRememberKeys, PropelPDO $con = null)
+	{
+		$this->afGuardRememberKeysScheduledForDeletion = $this->getafGuardRememberKeys(new Criteria(), $con)->diff($afGuardRememberKeys);
+
+		foreach ($afGuardRememberKeys as $afGuardRememberKey) {
+			// Fix issue with collection modified by reference
+			if ($afGuardRememberKey->isNew()) {
+				$afGuardRememberKey->setafGuardUser($this);
+			}
+			$this->addafGuardRememberKey($afGuardRememberKey);
+		}
+
+		$this->collafGuardRememberKeys = $afGuardRememberKeys;
+	}
+
+	/**
 	 * Returns the number of related afGuardRememberKey objects.
 	 *
 	 * @param      Criteria $criteria
@@ -2043,8 +1900,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * through the afGuardRememberKey foreign key attribute.
 	 *
 	 * @param      afGuardRememberKey $l afGuardRememberKey
-	 * @return     void
-	 * @throws     PropelException
+	 * @return     afGuardUser The current object (for fluent API support)
 	 */
 	public function addafGuardRememberKey(afGuardRememberKey $l)
 	{
@@ -2052,9 +1908,19 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$this->initafGuardRememberKeys();
 		}
 		if (!$this->collafGuardRememberKeys->contains($l)) { // only add it if the **same** object is not already associated
-			$this->collafGuardRememberKeys[]= $l;
-			$l->setafGuardUser($this);
+			$this->doAddafGuardRememberKey($l);
 		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	afGuardRememberKey $afGuardRememberKey The afGuardRememberKey object to add.
+	 */
+	protected function doAddafGuardRememberKey($afGuardRememberKey)
+	{
+		$this->collafGuardRememberKeys[]= $afGuardRememberKey;
+		$afGuardRememberKey->setafGuardUser($this);
 	}
 
 	/**
@@ -2081,49 +1947,56 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
-	 * Resets all collections of referencing foreign keys.
+	 * Resets all references to other model objects or collections of model objects.
 	 *
-	 * This method is a user-space workaround for PHP's inability to garbage collect objects
-	 * with circular references.  This is currently necessary when using Propel in certain
-	 * daemon or large-volumne/high-memory operations.
+	 * This method is a user-space workaround for PHP's inability to garbage collect
+	 * objects with circular references (even in PHP 5.3). This is currently necessary
+	 * when using Propel in certain daemon or large-volumne/high-memory operations.
 	 *
-	 * @param      boolean $deep Whether to also clear the references on all associated objects.
+	 * @param      boolean $deep Whether to also clear the references on all referrer objects.
 	 */
 	public function clearAllReferences($deep = false)
 	{
 		if ($deep) {
-			if ($this->collafCrmOpportunitys) {
-				foreach ((array) $this->collafCrmOpportunitys as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
-			if ($this->collafCrmActivitys) {
-				foreach ((array) $this->collafCrmActivitys as $o) {
-					$o->clearAllReferences($deep);
-				}
-			}
 			if ($this->collafGuardUserPermissions) {
-				foreach ((array) $this->collafGuardUserPermissions as $o) {
+				foreach ($this->collafGuardUserPermissions as $o) {
 					$o->clearAllReferences($deep);
 				}
 			}
 			if ($this->collafGuardUserGroups) {
-				foreach ((array) $this->collafGuardUserGroups as $o) {
+				foreach ($this->collafGuardUserGroups as $o) {
 					$o->clearAllReferences($deep);
 				}
 			}
 			if ($this->collafGuardRememberKeys) {
-				foreach ((array) $this->collafGuardRememberKeys as $o) {
+				foreach ($this->collafGuardRememberKeys as $o) {
 					$o->clearAllReferences($deep);
 				}
 			}
 		} // if ($deep)
 
-		$this->collafCrmOpportunitys = null;
-		$this->collafCrmActivitys = null;
+		if ($this->collafGuardUserPermissions instanceof PropelCollection) {
+			$this->collafGuardUserPermissions->clearIterator();
+		}
 		$this->collafGuardUserPermissions = null;
+		if ($this->collafGuardUserGroups instanceof PropelCollection) {
+			$this->collafGuardUserGroups->clearIterator();
+		}
 		$this->collafGuardUserGroups = null;
+		if ($this->collafGuardRememberKeys instanceof PropelCollection) {
+			$this->collafGuardRememberKeys->clearIterator();
+		}
 		$this->collafGuardRememberKeys = null;
+	}
+
+	/**
+	 * Return the string representation of this object
+	 *
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return (string) $this->exportTo(afGuardUserPeer::DEFAULT_STRING_FORMAT);
 	}
 
 	/**
@@ -2131,6 +2004,7 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 */
 	public function __call($name, $params)
 	{
+		
 		// symfony_behaviors behavior
 		if ($callable = sfMixer::getCallable('BaseafGuardUser:' . $name))
 		{
@@ -2138,17 +2012,6 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 		  return call_user_func_array($callable, $params);
 		}
 
-		if (preg_match('/get(\w+)/', $name, $matches)) {
-			$virtualColumn = $matches[1];
-			if ($this->hasVirtualColumn($virtualColumn)) {
-				return $this->getVirtualColumn($virtualColumn);
-			}
-			// no lcfirst in php<5.3...
-			$virtualColumn[0] = strtolower($virtualColumn[0]);
-			if ($this->hasVirtualColumn($virtualColumn)) {
-				return $this->getVirtualColumn($virtualColumn);
-			}
-		}
 		return parent::__call($name, $params);
 	}
 

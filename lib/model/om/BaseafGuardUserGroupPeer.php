@@ -24,18 +24,24 @@ abstract class BaseafGuardUserGroupPeer {
 
 	/** the related TableMap class for this table */
 	const TM_CLASS = 'afGuardUserGroupTableMap';
-	
+
 	/** The total number of columns. */
 	const NUM_COLUMNS = 2;
 
 	/** The number of lazy-loaded columns. */
 	const NUM_LAZY_LOAD_COLUMNS = 0;
 
+	/** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
+	const NUM_HYDRATE_COLUMNS = 2;
+
 	/** the column name for the USER_ID field */
 	const USER_ID = 'af_guard_user_group.USER_ID';
 
 	/** the column name for the GROUP_ID field */
 	const GROUP_ID = 'af_guard_user_group.GROUP_ID';
+
+	/** The default string format for model objects of the related table **/
+	const DEFAULT_STRING_FORMAT = 'YAML';
 
 	/**
 	 * An identiy map to hold any loaded instances of afGuardUserGroup objects.
@@ -46,20 +52,13 @@ abstract class BaseafGuardUserGroupPeer {
 	public static $instances = array();
 
 
-	// symfony behavior
-	
-	/**
-	 * Indicates whether the current model includes I18N.
-	 */
-	const IS_I18N = false;
-
 	/**
 	 * holds an array of fieldnames
 	 *
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
 	 */
-	private static $fieldNames = array (
+	protected static $fieldNames = array (
 		BasePeer::TYPE_PHPNAME => array ('UserId', 'GroupId', ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId', 'groupId', ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID, self::GROUP_ID, ),
@@ -74,7 +73,7 @@ abstract class BaseafGuardUserGroupPeer {
 	 * first dimension keys are the type constants
 	 * e.g. self::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
 	 */
-	private static $fieldKeys = array (
+	protected static $fieldKeys = array (
 		BasePeer::TYPE_PHPNAME => array ('UserId' => 0, 'GroupId' => 1, ),
 		BasePeer::TYPE_STUDLYPHPNAME => array ('userId' => 0, 'groupId' => 1, ),
 		BasePeer::TYPE_COLNAME => array (self::USER_ID => 0, self::GROUP_ID => 1, ),
@@ -210,7 +209,7 @@ abstract class BaseafGuardUserGroupPeer {
 		return $count;
 	}
 	/**
-	 * Method to select one object from the DB.
+	 * Selects one object from the DB.
 	 *
 	 * @param      Criteria $criteria object used to create the SELECT statement.
 	 * @param      PropelPDO $con
@@ -229,7 +228,7 @@ abstract class BaseafGuardUserGroupPeer {
 		return null;
 	}
 	/**
-	 * Method to do selects.
+	 * Selects several row from the DB.
 	 *
 	 * @param      Criteria $criteria The Criteria object used to build the SELECT statement.
 	 * @param      PropelPDO $con
@@ -289,7 +288,7 @@ abstract class BaseafGuardUserGroupPeer {
 	 * @param      afGuardUserGroup $value A afGuardUserGroup object.
 	 * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
 	 */
-	public static function addInstanceToPool(afGuardUserGroup $obj, $key = null)
+	public static function addInstanceToPool($obj, $key = null)
 	{
 		if (Propel::isInstancePoolingEnabled()) {
 			if ($key === null) {
@@ -384,7 +383,7 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
-	 * Retrieves the primary key from the DB resultset row 
+	 * Retrieves the primary key from the DB resultset row
 	 * For tables with a single-column primary key, that simple pkey value will be returned.  For tables with
 	 * a multi-column primary key, an array of the primary key columns will be returned.
 	 *
@@ -444,7 +443,7 @@ abstract class BaseafGuardUserGroupPeer {
 			// We no longer rehydrate the object, since this can cause data loss.
 			// See http://www.propelorm.org/ticket/509
 			// $obj->hydrate($row, $startcol, true); // rehydrate
-			$col = $startcol + afGuardUserGroupPeer::NUM_COLUMNS;
+			$col = $startcol + afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 		} else {
 			$cls = afGuardUserGroupPeer::OM_CLASS;
 			$obj = new $cls();
@@ -453,6 +452,7 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 		return array($obj, $col);
 	}
+
 
 	/**
 	 * Returns the number of rows matching criteria, joining the related afGuardUser table
@@ -480,9 +480,9 @@ abstract class BaseafGuardUserGroupPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardUserGroupPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -536,9 +536,9 @@ abstract class BaseafGuardUserGroupPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardUserGroupPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -585,7 +585,7 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 
 		afGuardUserGroupPeer::addSelectColumns($criteria);
-		$startcol = (afGuardUserGroupPeer::NUM_COLUMNS - afGuardUserGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol = afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 		afGuardUserPeer::addSelectColumns($criteria);
 
 		$criteria->addJoin(afGuardUserGroupPeer::USER_ID, afGuardUserPeer::ID, $join_behavior);
@@ -657,7 +657,7 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 
 		afGuardUserGroupPeer::addSelectColumns($criteria);
-		$startcol = (afGuardUserGroupPeer::NUM_COLUMNS - afGuardUserGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol = afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 		afGuardGroupPeer::addSelectColumns($criteria);
 
 		$criteria->addJoin(afGuardUserGroupPeer::GROUP_ID, afGuardGroupPeer::ID, $join_behavior);
@@ -736,9 +736,9 @@ abstract class BaseafGuardUserGroupPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardUserGroupPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -787,13 +787,13 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 
 		afGuardUserGroupPeer::addSelectColumns($criteria);
-		$startcol2 = (afGuardUserGroupPeer::NUM_COLUMNS - afGuardUserGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol2 = afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 
 		afGuardUserPeer::addSelectColumns($criteria);
-		$startcol3 = $startcol2 + (afGuardUserPeer::NUM_COLUMNS - afGuardUserPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol3 = $startcol2 + afGuardUserPeer::NUM_HYDRATE_COLUMNS;
 
 		afGuardGroupPeer::addSelectColumns($criteria);
-		$startcol4 = $startcol3 + (afGuardGroupPeer::NUM_COLUMNS - afGuardGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol4 = $startcol3 + afGuardGroupPeer::NUM_HYDRATE_COLUMNS;
 
 		$criteria->addJoin(afGuardUserGroupPeer::USER_ID, afGuardUserPeer::ID, $join_behavior);
 
@@ -883,7 +883,7 @@ abstract class BaseafGuardUserGroupPeer {
 		// it will be impossible for the BasePeer::createSelectSql() method to determine which
 		// tables go into the FROM clause.
 		$criteria->setPrimaryTableName(afGuardUserGroupPeer::TABLE_NAME);
-		
+
 		if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
 			$criteria->setDistinct();
 		}
@@ -891,9 +891,9 @@ abstract class BaseafGuardUserGroupPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardUserGroupPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY should not affect count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -939,7 +939,7 @@ abstract class BaseafGuardUserGroupPeer {
 		// it will be impossible for the BasePeer::createSelectSql() method to determine which
 		// tables go into the FROM clause.
 		$criteria->setPrimaryTableName(afGuardUserGroupPeer::TABLE_NAME);
-		
+
 		if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
 			$criteria->setDistinct();
 		}
@@ -947,9 +947,9 @@ abstract class BaseafGuardUserGroupPeer {
 		if (!$criteria->hasSelectClause()) {
 			afGuardUserGroupPeer::addSelectColumns($criteria);
 		}
-		
+
 		$criteria->clearOrderByColumns(); // ORDER BY should not affect count
-		
+
 		// Set the correct dbName
 		$criteria->setDbName(self::DATABASE_NAME);
 
@@ -999,10 +999,10 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 
 		afGuardUserGroupPeer::addSelectColumns($criteria);
-		$startcol2 = (afGuardUserGroupPeer::NUM_COLUMNS - afGuardUserGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol2 = afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 
 		afGuardGroupPeer::addSelectColumns($criteria);
-		$startcol3 = $startcol2 + (afGuardGroupPeer::NUM_COLUMNS - afGuardGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol3 = $startcol2 + afGuardGroupPeer::NUM_HYDRATE_COLUMNS;
 
 		$criteria->addJoin(afGuardUserGroupPeer::GROUP_ID, afGuardGroupPeer::ID, $join_behavior);
 
@@ -1078,10 +1078,10 @@ abstract class BaseafGuardUserGroupPeer {
 		}
 
 		afGuardUserGroupPeer::addSelectColumns($criteria);
-		$startcol2 = (afGuardUserGroupPeer::NUM_COLUMNS - afGuardUserGroupPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol2 = afGuardUserGroupPeer::NUM_HYDRATE_COLUMNS;
 
 		afGuardUserPeer::addSelectColumns($criteria);
-		$startcol3 = $startcol2 + (afGuardUserPeer::NUM_COLUMNS - afGuardUserPeer::NUM_LAZY_LOAD_COLUMNS);
+		$startcol3 = $startcol2 + afGuardUserPeer::NUM_HYDRATE_COLUMNS;
 
 		$criteria->addJoin(afGuardUserGroupPeer::USER_ID, afGuardUserPeer::ID, $join_behavior);
 
@@ -1175,7 +1175,7 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
-	 * Method perform an INSERT on the database, given a afGuardUserGroup or Criteria object.
+	 * Performs an INSERT on the database, given a afGuardUserGroup or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardUserGroup object containing data that is used to create the INSERT statement.
 	 * @param      PropelPDO $con the PropelPDO connection to use
@@ -1214,7 +1214,7 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
-	 * Method perform an UPDATE on the database, given a afGuardUserGroup or Criteria object.
+	 * Performs an UPDATE on the database, given a afGuardUserGroup or Criteria object.
 	 *
 	 * @param      mixed $values Criteria or afGuardUserGroup object containing data that is used to create the UPDATE statement.
 	 * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
@@ -1261,11 +1261,12 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
-	 * Method to DELETE all rows from the af_guard_user_group table.
+	 * Deletes all rows from the af_guard_user_group table.
 	 *
+	 * @param      PropelPDO $con the connection to use
 	 * @return     int The number of affected rows (if supported by underlying database driver).
 	 */
-	public static function doDeleteAll($con = null)
+	public static function doDeleteAll(PropelPDO $con = null)
 	{
 		if ($con === null) {
 			$con = Propel::getConnection(afGuardUserGroupPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
@@ -1290,7 +1291,7 @@ abstract class BaseafGuardUserGroupPeer {
 	}
 
 	/**
-	 * Method perform a DELETE on the database, given a afGuardUserGroup or Criteria object OR a primary key value.
+	 * Performs a DELETE on the database, given a afGuardUserGroup or Criteria object OR a primary key value.
 	 *
 	 * @param      mixed $values Criteria or afGuardUserGroup object or primary key or array of primary keys
 	 *              which is used to create the DELETE statement
@@ -1367,7 +1368,7 @@ abstract class BaseafGuardUserGroupPeer {
 	 *
 	 * @return     mixed TRUE if all columns are valid or the error message of the first invalid column.
 	 */
-	public static function doValidate(afGuardUserGroup $obj, $cols = null)
+	public static function doValidate($obj, $cols = null)
 	{
 		$columns = array();
 

@@ -14,7 +14,8 @@
  *
  * @package    propel.generator.plugins.afGuardPlugin.lib.model.map
  */
-class afGuardUserTableMap extends TableMap {
+class afGuardUserTableMap extends TableMap
+{
 
 	/**
 	 * The (dot-path) name of this class
@@ -30,7 +31,7 @@ class afGuardUserTableMap extends TableMap {
 	 */
 	public function initialize()
 	{
-	  // attributes
+		// attributes
 		$this->setName('af_guard_user');
 		$this->setPhpName('afGuardUser');
 		$this->setClassname('afGuardUser');
@@ -44,8 +45,8 @@ class afGuardUserTableMap extends TableMap {
 		$this->addColumn('PASSWORD', 'Password', 'VARCHAR', true, 128, null);
 		$this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
 		$this->addColumn('LAST_LOGIN', 'LastLogin', 'TIMESTAMP', false, null, null);
-		$this->addColumn('IS_ACTIVE', 'IsActive', 'BOOLEAN', true, null, true);
-		$this->addColumn('IS_SUPER_ADMIN', 'IsSuperAdmin', 'BOOLEAN', true, null, false);
+		$this->addColumn('IS_ACTIVE', 'IsActive', 'BOOLEAN', true, 1, true);
+		$this->addColumn('IS_SUPER_ADMIN', 'IsSuperAdmin', 'BOOLEAN', true, 1, false);
 		// validators
 	} // initialize()
 
@@ -54,17 +55,15 @@ class afGuardUserTableMap extends TableMap {
 	 */
 	public function buildRelations()
 	{
-    $this->addRelation('afCrmOpportunity', 'afCrmOpportunity', RelationMap::ONE_TO_MANY, array('id' => 'created_by', ), 'CASCADE', null);
-    $this->addRelation('afCrmActivity', 'afCrmActivity', RelationMap::ONE_TO_MANY, array('id' => 'created_by', ), 'CASCADE', null);
-    $this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
-    $this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
-    $this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null);
+		$this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserPermissions');
+		$this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserGroups');
+		$this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardRememberKeys');
 	} // buildRelations()
 
 	/**
-	 * 
+	 *
 	 * Gets the list of behaviors registered for this table
-	 * 
+	 *
 	 * @return array Associative array (name => parameters) of behaviors
 	 */
 	public function getBehaviors()
