@@ -306,13 +306,20 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
   
   public function getHtmlName()
   {
-    return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardUser/editUser?id='.$this->getId(), true).'"> '.$this->getUsername().' </a>';
+	$c = new Criteria();
+	$c->add(cdUserDetailPeer::USER_ID,$this->getId());
+	$obj = cdUserDetailPeer::doSelectOne($c);
+	if($obj) {
+		return '<a class="widgetLoad" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardUser/editUser?id='.$this->getId(), true).'"> '.$obj->getFirstName().' '.$obj->getLastName().' </a>';
+	} else {
+		return "";
+	}
   }
   
   public function getHtmlStatus()
   {
-    $img = array("src" => $this->getIsActive() ? "accept" : "cancel", "alt" => $this->getIsActive() ? "active" : "inactive");
-    return '<a class="widgetLoad" title="User is '.$img["alt"].'" href="'.sfContext::getInstance()->getController()->genUrl('/afGuardUser/activate?id='.$this->getId(), false).'"><img src="/images/famfamfam/'.$img["src"].'.png" /></a>';
+    $img = array("src" => $this->getIsActive() ? "green" : "red", "alt" => $this->getIsActive() ? "active" : "inactive");
+    return '<img alt="The user is '.$img["alt"].'" title="The user is '.$img["alt"].'" src="/images/famfamfam/user_'.$img["src"].'.png" />';
   }
 
   function  isAnonymous() {

@@ -11,8 +11,8 @@
         </i:method>
     </i:datasource>
     <i:fields remoteSort="true" select="true">
-        <i:column editable="false" filter="[type:string]" label="Username" name="html_name" resizable="false" sortable="false" style="css" width="137"/>
         <i:column label="Status" name="html_status" sortable="false" width="66"/>
+        <i:column editable="false" filter="[type:string]" label="Username" name="username" resizable="false" sortable="false" style="css" width="137"/>
     </i:fields>
     <i:rowactions>
         <i:action iconCls="icon-edit" name="edit" tooltip="Edit User" url="afGuardUser/editUser"/>
