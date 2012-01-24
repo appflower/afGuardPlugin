@@ -57,7 +57,12 @@ You should change it to:
 
     public function getAppFlowerUser()
     {
-        return $this->getGuardUser();
+        $guardUser = $this->getGuardUser();
+        if ($guardUser) {
+            return $guardUser;
+        } else {
+            return new AppFlowerAnonymousUser;
+        }
     }
 
 
@@ -72,8 +77,10 @@ If you want to use "remember me" functionality change security filer in your app
 security:
   class: afGuardBasicSecurityFilter
 
-That's it. Now it's time enable the security layer and secure your application. You should load up 
-your app and open:
+That's it. Now it's time enable the security layer and secure your application.
+You probably want to have default 404 page not secured so users won't have to log in to see 404 page.
+
+You should load up your app and open:
 
 http://yourapp/#/pages/security
 
