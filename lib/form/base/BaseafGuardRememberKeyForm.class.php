@@ -23,7 +23,7 @@ abstract class BaseafGuardRememberKeyForm extends BaseFormPropel
     $this->setValidators(array(
       'user_id'      => new sfValidatorPropelChoice(array('model' => 'afGuardUser', 'column' => 'id', 'required' => false)),
       'remember_key' => new sfValidatorString(array('max_length' => 32, 'required' => false)),
-      'ip_address'   => new sfValidatorPropelChoice(array('model' => 'afGuardRememberKey', 'column' => 'ip_address', 'required' => false)),
+      'ip_address'   => new sfValidatorChoice(array('choices' => array($this->getObject()->getIpAddress()), 'empty_value' => $this->getObject()->getIpAddress(), 'required' => false)),
       'created_at'   => new sfValidatorDateTime(array('required' => false)),
     ));
 

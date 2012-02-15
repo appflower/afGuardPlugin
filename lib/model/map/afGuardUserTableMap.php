@@ -58,6 +58,9 @@ class afGuardUserTableMap extends TableMap
 		$this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserPermissions');
 		$this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserGroups');
 		$this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardRememberKeys');
+		$this->addRelation('Band', 'Band', RelationMap::ONE_TO_MANY, array('id' => 'primary_contact_id', ), null, null, 'Bands');
+		$this->addRelation('BandHasMember', 'BandHasMember', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'BandHasMembers');
+		$this->addRelation('Fan', 'Fan', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'Fans');
 	} // buildRelations()
 
 	/**

@@ -97,6 +97,21 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	protected $collafGuardRememberKeys;
 
 	/**
+	 * @var        array Band[] Collection to store aggregation of Band objects.
+	 */
+	protected $collBands;
+
+	/**
+	 * @var        array BandHasMember[] Collection to store aggregation of BandHasMember objects.
+	 */
+	protected $collBandHasMembers;
+
+	/**
+	 * @var        array Fan[] Collection to store aggregation of Fan objects.
+	 */
+	protected $collFans;
+
+	/**
 	 * Flag to prevent endless save loop, if this object is referenced
 	 * by another object which falls in this transaction.
 	 * @var        boolean
@@ -127,6 +142,24 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	 * @var		array
 	 */
 	protected $afGuardRememberKeysScheduledForDeletion = null;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $bandsScheduledForDeletion = null;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $bandHasMembersScheduledForDeletion = null;
+
+	/**
+	 * An array of objects scheduled for deletion.
+	 * @var		array
+	 */
+	protected $fansScheduledForDeletion = null;
 
 	/**
 	 * Applies default values to this object.
@@ -626,6 +659,12 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 			$this->collafGuardRememberKeys = null;
 
+			$this->collBands = null;
+
+			$this->collBandHasMembers = null;
+
+			$this->collFans = null;
+
 		} // if (deep)
 	}
 
@@ -830,6 +869,57 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 
 			if ($this->collafGuardRememberKeys !== null) {
 				foreach ($this->collafGuardRememberKeys as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->bandsScheduledForDeletion !== null) {
+				if (!$this->bandsScheduledForDeletion->isEmpty()) {
+					BandQuery::create()
+						->filterByPrimaryKeys($this->bandsScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->bandsScheduledForDeletion = null;
+				}
+			}
+
+			if ($this->collBands !== null) {
+				foreach ($this->collBands as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->bandHasMembersScheduledForDeletion !== null) {
+				if (!$this->bandHasMembersScheduledForDeletion->isEmpty()) {
+					BandHasMemberQuery::create()
+						->filterByPrimaryKeys($this->bandHasMembersScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->bandHasMembersScheduledForDeletion = null;
+				}
+			}
+
+			if ($this->collBandHasMembers !== null) {
+				foreach ($this->collBandHasMembers as $referrerFK) {
+					if (!$referrerFK->isDeleted()) {
+						$affectedRows += $referrerFK->save($con);
+					}
+				}
+			}
+
+			if ($this->fansScheduledForDeletion !== null) {
+				if (!$this->fansScheduledForDeletion->isEmpty()) {
+					FanQuery::create()
+						->filterByPrimaryKeys($this->fansScheduledForDeletion->getPrimaryKeys(false))
+						->delete($con);
+					$this->fansScheduledForDeletion = null;
+				}
+			}
+
+			if ($this->collFans !== null) {
+				foreach ($this->collFans as $referrerFK) {
 					if (!$referrerFK->isDeleted()) {
 						$affectedRows += $referrerFK->save($con);
 					}
@@ -1047,6 +1137,30 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 					}
 				}
 
+				if ($this->collBands !== null) {
+					foreach ($this->collBands as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
+				if ($this->collBandHasMembers !== null) {
+					foreach ($this->collBandHasMembers as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
+				if ($this->collFans !== null) {
+					foreach ($this->collFans as $referrerFK) {
+						if (!$referrerFK->validate($columns)) {
+							$failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+						}
+					}
+				}
+
 
 			$this->alreadyInValidation = false;
 		}
@@ -1155,6 +1269,15 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			}
 			if (null !== $this->collafGuardRememberKeys) {
 				$result['afGuardRememberKeys'] = $this->collafGuardRememberKeys->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+			if (null !== $this->collBands) {
+				$result['Bands'] = $this->collBands->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+			if (null !== $this->collBandHasMembers) {
+				$result['BandHasMembers'] = $this->collBandHasMembers->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+			}
+			if (null !== $this->collFans) {
+				$result['Fans'] = $this->collFans->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
 			}
 		}
 		return $result;
@@ -1361,6 +1484,24 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 				}
 			}
 
+			foreach ($this->getBands() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addBand($relObj->copy($deepCopy));
+				}
+			}
+
+			foreach ($this->getBandHasMembers() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addBandHasMember($relObj->copy($deepCopy));
+				}
+			}
+
+			foreach ($this->getFans() as $relObj) {
+				if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+					$copyObj->addFan($relObj->copy($deepCopy));
+				}
+			}
+
 		} // if ($deepCopy)
 
 		if ($makeNew) {
@@ -1426,6 +1567,15 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 		}
 		if ('afGuardRememberKey' == $relationName) {
 			return $this->initafGuardRememberKeys();
+		}
+		if ('Band' == $relationName) {
+			return $this->initBands();
+		}
+		if ('BandHasMember' == $relationName) {
+			return $this->initBandHasMembers();
+		}
+		if ('Fan' == $relationName) {
+			return $this->initFans();
 		}
 	}
 
@@ -1924,6 +2074,575 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 	}
 
 	/**
+	 * Clears out the collBands collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addBands()
+	 */
+	public function clearBands()
+	{
+		$this->collBands = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collBands collection.
+	 *
+	 * By default this just sets the collBands collection to an empty array (like clearcollBands());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
+	 * @return     void
+	 */
+	public function initBands($overrideExisting = true)
+	{
+		if (null !== $this->collBands && !$overrideExisting) {
+			return;
+		}
+		$this->collBands = new PropelObjectCollection();
+		$this->collBands->setModel('Band');
+	}
+
+	/**
+	 * Gets an array of Band objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array Band[] List of Band objects
+	 * @throws     PropelException
+	 */
+	public function getBands($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collBands || null !== $criteria) {
+			if ($this->isNew() && null === $this->collBands) {
+				// return empty collection
+				$this->initBands();
+			} else {
+				$collBands = BandQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collBands;
+				}
+				$this->collBands = $collBands;
+			}
+		}
+		return $this->collBands;
+	}
+
+	/**
+	 * Sets a collection of Band objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $bands A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setBands(PropelCollection $bands, PropelPDO $con = null)
+	{
+		$this->bandsScheduledForDeletion = $this->getBands(new Criteria(), $con)->diff($bands);
+
+		foreach ($bands as $band) {
+			// Fix issue with collection modified by reference
+			if ($band->isNew()) {
+				$band->setafGuardUser($this);
+			}
+			$this->addBand($band);
+		}
+
+		$this->collBands = $bands;
+	}
+
+	/**
+	 * Returns the number of related Band objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related Band objects.
+	 * @throws     PropelException
+	 */
+	public function countBands(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collBands || null !== $criteria) {
+			if ($this->isNew() && null === $this->collBands) {
+				return 0;
+			} else {
+				$query = BandQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collBands);
+		}
+	}
+
+	/**
+	 * Method called to associate a Band object to this object
+	 * through the Band foreign key attribute.
+	 *
+	 * @param      Band $l Band
+	 * @return     afGuardUser The current object (for fluent API support)
+	 */
+	public function addBand(Band $l)
+	{
+		if ($this->collBands === null) {
+			$this->initBands();
+		}
+		if (!$this->collBands->contains($l)) { // only add it if the **same** object is not already associated
+			$this->doAddBand($l);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	Band $band The band object to add.
+	 */
+	protected function doAddBand($band)
+	{
+		$this->collBands[]= $band;
+		$band->setafGuardUser($this);
+	}
+
+	/**
+	 * Clears out the collBandHasMembers collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addBandHasMembers()
+	 */
+	public function clearBandHasMembers()
+	{
+		$this->collBandHasMembers = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collBandHasMembers collection.
+	 *
+	 * By default this just sets the collBandHasMembers collection to an empty array (like clearcollBandHasMembers());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
+	 * @return     void
+	 */
+	public function initBandHasMembers($overrideExisting = true)
+	{
+		if (null !== $this->collBandHasMembers && !$overrideExisting) {
+			return;
+		}
+		$this->collBandHasMembers = new PropelObjectCollection();
+		$this->collBandHasMembers->setModel('BandHasMember');
+	}
+
+	/**
+	 * Gets an array of BandHasMember objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array BandHasMember[] List of BandHasMember objects
+	 * @throws     PropelException
+	 */
+	public function getBandHasMembers($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collBandHasMembers || null !== $criteria) {
+			if ($this->isNew() && null === $this->collBandHasMembers) {
+				// return empty collection
+				$this->initBandHasMembers();
+			} else {
+				$collBandHasMembers = BandHasMemberQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collBandHasMembers;
+				}
+				$this->collBandHasMembers = $collBandHasMembers;
+			}
+		}
+		return $this->collBandHasMembers;
+	}
+
+	/**
+	 * Sets a collection of BandHasMember objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $bandHasMembers A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setBandHasMembers(PropelCollection $bandHasMembers, PropelPDO $con = null)
+	{
+		$this->bandHasMembersScheduledForDeletion = $this->getBandHasMembers(new Criteria(), $con)->diff($bandHasMembers);
+
+		foreach ($bandHasMembers as $bandHasMember) {
+			// Fix issue with collection modified by reference
+			if ($bandHasMember->isNew()) {
+				$bandHasMember->setafGuardUser($this);
+			}
+			$this->addBandHasMember($bandHasMember);
+		}
+
+		$this->collBandHasMembers = $bandHasMembers;
+	}
+
+	/**
+	 * Returns the number of related BandHasMember objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related BandHasMember objects.
+	 * @throws     PropelException
+	 */
+	public function countBandHasMembers(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collBandHasMembers || null !== $criteria) {
+			if ($this->isNew() && null === $this->collBandHasMembers) {
+				return 0;
+			} else {
+				$query = BandHasMemberQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collBandHasMembers);
+		}
+	}
+
+	/**
+	 * Method called to associate a BandHasMember object to this object
+	 * through the BandHasMember foreign key attribute.
+	 *
+	 * @param      BandHasMember $l BandHasMember
+	 * @return     afGuardUser The current object (for fluent API support)
+	 */
+	public function addBandHasMember(BandHasMember $l)
+	{
+		if ($this->collBandHasMembers === null) {
+			$this->initBandHasMembers();
+		}
+		if (!$this->collBandHasMembers->contains($l)) { // only add it if the **same** object is not already associated
+			$this->doAddBandHasMember($l);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	BandHasMember $bandHasMember The bandHasMember object to add.
+	 */
+	protected function doAddBandHasMember($bandHasMember)
+	{
+		$this->collBandHasMembers[]= $bandHasMember;
+		$bandHasMember->setafGuardUser($this);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related BandHasMembers from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array BandHasMember[] List of BandHasMember objects
+	 */
+	public function getBandHasMembersJoinBand($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = BandHasMemberQuery::create(null, $criteria);
+		$query->joinWith('Band', $join_behavior);
+
+		return $this->getBandHasMembers($query, $con);
+	}
+
+	/**
+	 * Clears out the collFans collection
+	 *
+	 * This does not modify the database; however, it will remove any associated objects, causing
+	 * them to be refetched by subsequent calls to accessor method.
+	 *
+	 * @return     void
+	 * @see        addFans()
+	 */
+	public function clearFans()
+	{
+		$this->collFans = null; // important to set this to NULL since that means it is uninitialized
+	}
+
+	/**
+	 * Initializes the collFans collection.
+	 *
+	 * By default this just sets the collFans collection to an empty array (like clearcollFans());
+	 * however, you may wish to override this method in your stub class to provide setting appropriate
+	 * to your application -- for example, setting the initial array to the values stored in database.
+	 *
+	 * @param      boolean $overrideExisting If set to true, the method call initializes
+	 *                                        the collection even if it is not empty
+	 *
+	 * @return     void
+	 */
+	public function initFans($overrideExisting = true)
+	{
+		if (null !== $this->collFans && !$overrideExisting) {
+			return;
+		}
+		$this->collFans = new PropelObjectCollection();
+		$this->collFans->setModel('Fan');
+	}
+
+	/**
+	 * Gets an array of Fan objects which contain a foreign key that references this object.
+	 *
+	 * If the $criteria is not null, it is used to always fetch the results from the database.
+	 * Otherwise the results are fetched from the database the first time, then cached.
+	 * Next time the same method is called without $criteria, the cached collection is returned.
+	 * If this afGuardUser is new, it will return
+	 * an empty collection or the current collection; the criteria is ignored on a new object.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @return     PropelCollection|array Fan[] List of Fan objects
+	 * @throws     PropelException
+	 */
+	public function getFans($criteria = null, PropelPDO $con = null)
+	{
+		if(null === $this->collFans || null !== $criteria) {
+			if ($this->isNew() && null === $this->collFans) {
+				// return empty collection
+				$this->initFans();
+			} else {
+				$collFans = FanQuery::create(null, $criteria)
+					->filterByafGuardUser($this)
+					->find($con);
+				if (null !== $criteria) {
+					return $collFans;
+				}
+				$this->collFans = $collFans;
+			}
+		}
+		return $this->collFans;
+	}
+
+	/**
+	 * Sets a collection of Fan objects related by a one-to-many relationship
+	 * to the current object.
+	 * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+	 * and new objects from the given Propel collection.
+	 *
+	 * @param      PropelCollection $fans A Propel collection.
+	 * @param      PropelPDO $con Optional connection object
+	 */
+	public function setFans(PropelCollection $fans, PropelPDO $con = null)
+	{
+		$this->fansScheduledForDeletion = $this->getFans(new Criteria(), $con)->diff($fans);
+
+		foreach ($fans as $fan) {
+			// Fix issue with collection modified by reference
+			if ($fan->isNew()) {
+				$fan->setafGuardUser($this);
+			}
+			$this->addFan($fan);
+		}
+
+		$this->collFans = $fans;
+	}
+
+	/**
+	 * Returns the number of related Fan objects.
+	 *
+	 * @param      Criteria $criteria
+	 * @param      boolean $distinct
+	 * @param      PropelPDO $con
+	 * @return     int Count of related Fan objects.
+	 * @throws     PropelException
+	 */
+	public function countFans(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+	{
+		if(null === $this->collFans || null !== $criteria) {
+			if ($this->isNew() && null === $this->collFans) {
+				return 0;
+			} else {
+				$query = FanQuery::create(null, $criteria);
+				if($distinct) {
+					$query->distinct();
+				}
+				return $query
+					->filterByafGuardUser($this)
+					->count($con);
+			}
+		} else {
+			return count($this->collFans);
+		}
+	}
+
+	/**
+	 * Method called to associate a Fan object to this object
+	 * through the Fan foreign key attribute.
+	 *
+	 * @param      Fan $l Fan
+	 * @return     afGuardUser The current object (for fluent API support)
+	 */
+	public function addFan(Fan $l)
+	{
+		if ($this->collFans === null) {
+			$this->initFans();
+		}
+		if (!$this->collFans->contains($l)) { // only add it if the **same** object is not already associated
+			$this->doAddFan($l);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	Fan $fan The fan object to add.
+	 */
+	protected function doAddFan($fan)
+	{
+		$this->collFans[]= $fan;
+		$fan->setafGuardUser($this);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related Fans from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array Fan[] List of Fan objects
+	 */
+	public function getFansJoinFanHasChildren($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = FanQuery::create(null, $criteria);
+		$query->joinWith('FanHasChildren', $join_behavior);
+
+		return $this->getFans($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related Fans from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array Fan[] List of Fan objects
+	 */
+	public function getFansJoinFanHasRelationshipStatus($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = FanQuery::create(null, $criteria);
+		$query->joinWith('FanHasRelationshipStatus', $join_behavior);
+
+		return $this->getFans($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related Fans from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array Fan[] List of Fan objects
+	 */
+	public function getFansJoinFanHasIncome($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = FanQuery::create(null, $criteria);
+		$query->joinWith('FanHasIncome', $join_behavior);
+
+		return $this->getFans($query, $con);
+	}
+
+
+	/**
+	 * If this collection has already been initialized with
+	 * an identical criteria, it returns the collection.
+	 * Otherwise if this afGuardUser is new, it will return
+	 * an empty collection; or if this afGuardUser has previously
+	 * been saved, it will retrieve related Fans from storage.
+	 *
+	 * This method is protected by default in order to keep the public
+	 * api reasonable.  You can provide public methods for those you
+	 * actually need in afGuardUser.
+	 *
+	 * @param      Criteria $criteria optional Criteria object to narrow the query
+	 * @param      PropelPDO $con optional connection object
+	 * @param      string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+	 * @return     PropelCollection|array Fan[] List of Fan objects
+	 */
+	public function getFansJoinGender($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+	{
+		$query = FanQuery::create(null, $criteria);
+		$query->joinWith('Gender', $join_behavior);
+
+		return $this->getFans($query, $con);
+	}
+
+	/**
 	 * Clears the current object and sets all attributes to their default values
 	 */
 	public function clear()
@@ -1973,6 +2692,21 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 					$o->clearAllReferences($deep);
 				}
 			}
+			if ($this->collBands) {
+				foreach ($this->collBands as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
+			if ($this->collBandHasMembers) {
+				foreach ($this->collBandHasMembers as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
+			if ($this->collFans) {
+				foreach ($this->collFans as $o) {
+					$o->clearAllReferences($deep);
+				}
+			}
 		} // if ($deep)
 
 		if ($this->collafGuardUserPermissions instanceof PropelCollection) {
@@ -1987,6 +2721,18 @@ abstract class BaseafGuardUser extends BaseObject  implements Persistent
 			$this->collafGuardRememberKeys->clearIterator();
 		}
 		$this->collafGuardRememberKeys = null;
+		if ($this->collBands instanceof PropelCollection) {
+			$this->collBands->clearIterator();
+		}
+		$this->collBands = null;
+		if ($this->collBandHasMembers instanceof PropelCollection) {
+			$this->collBandHasMembers->clearIterator();
+		}
+		$this->collBandHasMembers = null;
+		if ($this->collFans instanceof PropelCollection) {
+			$this->collFans->clearIterator();
+		}
+		$this->collFans = null;
 	}
 
 	/**

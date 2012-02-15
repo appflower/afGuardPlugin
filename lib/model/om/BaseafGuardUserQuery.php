@@ -42,6 +42,18 @@
  * @method     afGuardUserQuery rightJoinafGuardRememberKey($relationAlias = null) Adds a RIGHT JOIN clause to the query using the afGuardRememberKey relation
  * @method     afGuardUserQuery innerJoinafGuardRememberKey($relationAlias = null) Adds a INNER JOIN clause to the query using the afGuardRememberKey relation
  *
+ * @method     afGuardUserQuery leftJoinBand($relationAlias = null) Adds a LEFT JOIN clause to the query using the Band relation
+ * @method     afGuardUserQuery rightJoinBand($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Band relation
+ * @method     afGuardUserQuery innerJoinBand($relationAlias = null) Adds a INNER JOIN clause to the query using the Band relation
+ *
+ * @method     afGuardUserQuery leftJoinBandHasMember($relationAlias = null) Adds a LEFT JOIN clause to the query using the BandHasMember relation
+ * @method     afGuardUserQuery rightJoinBandHasMember($relationAlias = null) Adds a RIGHT JOIN clause to the query using the BandHasMember relation
+ * @method     afGuardUserQuery innerJoinBandHasMember($relationAlias = null) Adds a INNER JOIN clause to the query using the BandHasMember relation
+ *
+ * @method     afGuardUserQuery leftJoinFan($relationAlias = null) Adds a LEFT JOIN clause to the query using the Fan relation
+ * @method     afGuardUserQuery rightJoinFan($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Fan relation
+ * @method     afGuardUserQuery innerJoinFan($relationAlias = null) Adds a INNER JOIN clause to the query using the Fan relation
+ *
  * @method     afGuardUser findOne(PropelPDO $con = null) Return the first afGuardUser matching the query
  * @method     afGuardUser findOneOrCreate(PropelPDO $con = null) Return the first afGuardUser matching the query, or a new afGuardUser object populated from the query conditions when no match is found
  *
@@ -728,6 +740,225 @@ abstract class BaseafGuardUserQuery extends ModelCriteria
 		return $this
 			->joinafGuardRememberKey($relationAlias, $joinType)
 			->useQuery($relationAlias ? $relationAlias : 'afGuardRememberKey', 'afGuardRememberKeyQuery');
+	}
+
+	/**
+	 * Filter the query by a related Band object
+	 *
+	 * @param     Band $band  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByBand($band, $comparison = null)
+	{
+		if ($band instanceof Band) {
+			return $this
+				->addUsingAlias(afGuardUserPeer::ID, $band->getPrimaryContactId(), $comparison);
+		} elseif ($band instanceof PropelCollection) {
+			return $this
+				->useBandQuery()
+				->filterByPrimaryKeys($band->getPrimaryKeys())
+				->endUse();
+		} else {
+			throw new PropelException('filterByBand() only accepts arguments of type Band or PropelCollection');
+		}
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the Band relation
+	 *
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinBand($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('Band');
+
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'Band');
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Use the Band relation Band object
+	 *
+	 * @see       useQuery()
+	 *
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    BandQuery A secondary query class using the current class as primary query
+	 */
+	public function useBandQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinBand($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'Band', 'BandQuery');
+	}
+
+	/**
+	 * Filter the query by a related BandHasMember object
+	 *
+	 * @param     BandHasMember $bandHasMember  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByBandHasMember($bandHasMember, $comparison = null)
+	{
+		if ($bandHasMember instanceof BandHasMember) {
+			return $this
+				->addUsingAlias(afGuardUserPeer::ID, $bandHasMember->getUserId(), $comparison);
+		} elseif ($bandHasMember instanceof PropelCollection) {
+			return $this
+				->useBandHasMemberQuery()
+				->filterByPrimaryKeys($bandHasMember->getPrimaryKeys())
+				->endUse();
+		} else {
+			throw new PropelException('filterByBandHasMember() only accepts arguments of type BandHasMember or PropelCollection');
+		}
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the BandHasMember relation
+	 *
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinBandHasMember($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('BandHasMember');
+
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'BandHasMember');
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Use the BandHasMember relation BandHasMember object
+	 *
+	 * @see       useQuery()
+	 *
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    BandHasMemberQuery A secondary query class using the current class as primary query
+	 */
+	public function useBandHasMemberQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinBandHasMember($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'BandHasMember', 'BandHasMemberQuery');
+	}
+
+	/**
+	 * Filter the query by a related Fan object
+	 *
+	 * @param     Fan $fan  the related object to use as filter
+	 * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function filterByFan($fan, $comparison = null)
+	{
+		if ($fan instanceof Fan) {
+			return $this
+				->addUsingAlias(afGuardUserPeer::ID, $fan->getUserId(), $comparison);
+		} elseif ($fan instanceof PropelCollection) {
+			return $this
+				->useFanQuery()
+				->filterByPrimaryKeys($fan->getPrimaryKeys())
+				->endUse();
+		} else {
+			throw new PropelException('filterByFan() only accepts arguments of type Fan or PropelCollection');
+		}
+	}
+
+	/**
+	 * Adds a JOIN clause to the query using the Fan relation
+	 *
+	 * @param     string $relationAlias optional alias for the relation
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    afGuardUserQuery The current query, for fluid interface
+	 */
+	public function joinFan($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		$tableMap = $this->getTableMap();
+		$relationMap = $tableMap->getRelation('Fan');
+
+		// create a ModelJoin object for this join
+		$join = new ModelJoin();
+		$join->setJoinType($joinType);
+		$join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+		if ($previousJoin = $this->getPreviousJoin()) {
+			$join->setPreviousJoin($previousJoin);
+		}
+
+		// add the ModelJoin to the current object
+		if($relationAlias) {
+			$this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+			$this->addJoinObject($join, $relationAlias);
+		} else {
+			$this->addJoinObject($join, 'Fan');
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Use the Fan relation Fan object
+	 *
+	 * @see       useQuery()
+	 *
+	 * @param     string $relationAlias optional alias for the relation,
+	 *                                   to be used as main alias in the secondary query
+	 * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+	 *
+	 * @return    FanQuery A secondary query class using the current class as primary query
+	 */
+	public function useFanQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+	{
+		return $this
+			->joinFan($relationAlias, $joinType)
+			->useQuery($relationAlias ? $relationAlias : 'Fan', 'FanQuery');
 	}
 
 	/**
