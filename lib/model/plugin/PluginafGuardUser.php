@@ -147,20 +147,20 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
 //    $ug->save($con);
 //  }
 //
-//  public function addPermissionByName($name, $con = null)
-//  {
-//    $permission = afGuardPermissionPeer::retrieveByName($name);
-//    if (!$permission)
-//    {
-//      throw new Exception(sprintf('The permission "%s" does not exist.', $name));
-//    }
-//
-//    $up = new afGuardUserPermission();
-//    $up->setafGuardUser($this);
-//    $up->setPermissionId($permission->getId());
-//
-//    $up->save($con);
-//  }
+  public function addPermissionByName($name)
+  {
+    $permission = afGuardPermissionPeer::retrieveByName($name);
+    if (!$permission)
+    {
+      throw new Exception(sprintf('The permission "%s" does not exist.', $name));
+    }
+
+    $up = new afGuardUserPermission();
+    $up->setafGuardUser($this);
+    $up->setPermissionId($permission->getId());
+
+    $up->save($con);
+  }
 //
 //  public function hasGroup($name)
 //  {

@@ -215,8 +215,8 @@ class afGuardSecurityUser extends sfBasicSecurityUser
     return $this->getGuardUser()->addGroupByName($name, $con);
   }
 
-  public function addPermissionByName($name, $con = null)
+  public function addPermissionByName($name)
   {
-    return $this->getGuardUser()->addPermissionByName($name, $con);
+    return $this->getGuardUser()->addPermissionByName($name);
   }
 }
