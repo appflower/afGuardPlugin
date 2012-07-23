@@ -197,16 +197,16 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
 //    return array_keys($this->getGroups());
 //  }
 //
-//  public function hasPermission($name)
-//  {
-//    if (!$this->permissions)
-//    {
-//      $this->getPermissions();
-//    }
-//
-//    return isset($this->permissions[$name]);
-//  }
-//
+  public function hasPermission($name)
+  {
+    if (!$this->permissions)
+    {
+      $this->getPermissions();
+    }
+
+    return isset($this->permissions[$name]);
+  }
+
   public function getPermissions()
   {
     if (!$this->permissions)
