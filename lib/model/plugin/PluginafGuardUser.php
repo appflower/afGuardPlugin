@@ -159,18 +159,18 @@ class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
     $up->setafGuardUser($this);
     $up->setPermissionId($permission->getId());
 
-    $up->save($con);
+    $up->save();
   }
-//
-//  public function hasGroup($name)
-//  {
-//    if (!$this->groups)
-//    {
-//      $this->getGroups();
-//    }
-//
-//    return isset($this->groups[$name]);
-//  }
+
+  public function hasGroup($name)
+  {
+    if (!$this->groups)
+    {
+      $this->getGroups();
+    }
+
+    return isset($this->groups[$name]);
+  }
 
   public function getGroups()
   {
