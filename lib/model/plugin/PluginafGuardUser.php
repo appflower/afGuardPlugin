@@ -1,8 +1,8 @@
 <?php
 
-require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerPlugin/lib/interface/AppFlowerUser.interface.php');
-require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerPlugin/lib/interface/AppFlowerUser.interface.php');
-require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerPlugin/lib/interface/AppFlowerUserQuery.interface.php');
+require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerEnginePlugin/lib/interface/AppFlowerUser.interface.php');
+require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerEnginePlugin/lib/interface/AppFlowerUser.interface.php');
+require_once(sfConfig::get('sf_plugins_dir'). '/appFlowerEnginePlugin/lib/interface/AppFlowerUserQuery.interface.php');
 
 class PluginafGuardUser extends BaseafGuardUser implements AppFlowerUser
 {
