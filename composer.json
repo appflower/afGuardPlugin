@@ -1,0 +1,56 @@
+{
+    "name": "appFlower/afGuardPlugin",
+    "version": "2.0.0",
+    "type": "library",
+    "description": "afGuard Plugin AppFlower 2.0; AppFlower is a Rapid Application Development (RAD) tool which automatically generates user interface and backend code",
+    "keywords": ["framework","RAD","builder","samples"],
+    "homepage": "https://github.com/appflower/afGuardPlugin",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Jimmi Andersen",
+            "homepage": "http://www.appflower.com"
+        },
+        {
+            "name": "Radu Topala",
+            "homepage": "http://www.appflower.com"
+        },
+        {
+            "name": "Lukasz Wojciechowski",
+            "homepage": "http://www.appflower.com"
+        },
+        {
+            "name": "Tamas Geschitz",
+            "homepage": "http://www.appflower.com"
+        },
+        {
+            "name": "Nikolai Babinski",
+            "homepage": "http://www.appflower.com"
+        },
+        {
+            "name": "Sergey Startsev",
+            "homepage": "http://www.appflower.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "symfony",
+                "version": "1.4",
+                "dist": {
+                    "url": "https://github.com/symfony/symfony1/zipball/1.4",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "composer/installers": "dev-master",
+        "symfony": "1.4"
+    },
+    "config": {
+        "vendor-dir": "lib/vendor"
+    }
+}
