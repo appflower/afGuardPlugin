@@ -17,65 +17,68 @@
 class afGuardUserTableMap extends TableMap
 {
 
-	/**
-	 * The (dot-path) name of this class
-	 */
-	const CLASS_NAME = 'plugins.afGuardPlugin.lib.model.map.afGuardUserTableMap';
+    /**
+     * The (dot-path) name of this class
+     */
+    const CLASS_NAME = 'plugins.afGuardPlugin.lib.model.map.afGuardUserTableMap';
 
-	/**
-	 * Initialize the table attributes, columns and validators
-	 * Relations are not initialized by this method since they are lazy loaded
-	 *
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function initialize()
-	{
-		// attributes
-		$this->setName('af_guard_user');
-		$this->setPhpName('afGuardUser');
-		$this->setClassname('afGuardUser');
-		$this->setPackage('plugins.afGuardPlugin.lib.model');
-		$this->setUseIdGenerator(true);
-		// columns
-		$this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-		$this->addColumn('USERNAME', 'Username', 'VARCHAR', true, 128, null);
-		$this->addColumn('ALGORITHM', 'Algorithm', 'VARCHAR', true, 128, 'sha1');
-		$this->addColumn('SALT', 'Salt', 'VARCHAR', true, 128, null);
-		$this->addColumn('PASSWORD', 'Password', 'VARCHAR', true, 128, null);
-		$this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
-		$this->addColumn('LAST_LOGIN', 'LastLogin', 'TIMESTAMP', false, null, null);
-		$this->addColumn('IS_ACTIVE', 'IsActive', 'BOOLEAN', true, 1, true);
-		$this->addColumn('IS_SUPER_ADMIN', 'IsSuperAdmin', 'BOOLEAN', true, 1, false);
-		// validators
-	} // initialize()
+    /**
+     * Initialize the table attributes, columns and validators
+     * Relations are not initialized by this method since they are lazy loaded
+     *
+     * @return void
+     * @throws PropelException
+     */
+    public function initialize()
+    {
+        // attributes
+        $this->setName('af_guard_user');
+        $this->setPhpName('afGuardUser');
+        $this->setClassname('afGuardUser');
+        $this->setPackage('plugins.afGuardPlugin.lib.model');
+        $this->setUseIdGenerator(true);
+        // columns
+        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
+        $this->addColumn('username', 'Username', 'VARCHAR', true, 128, null);
+        $this->addColumn('algorithm', 'Algorithm', 'VARCHAR', true, 128, 'sha1');
+        $this->addColumn('salt', 'Salt', 'VARCHAR', true, 128, null);
+        $this->addColumn('password', 'Password', 'VARCHAR', true, 128, null);
+        $this->addColumn('created_at', 'CreatedAt', 'TIMESTAMP', false, null, null);
+        $this->addColumn('last_login', 'LastLogin', 'TIMESTAMP', false, null, null);
+        $this->addColumn('is_active', 'IsActive', 'BOOLEAN', true, 1, true);
+        $this->addColumn('is_super_admin', 'IsSuperAdmin', 'BOOLEAN', true, 1, false);
+        // validators
+    } // initialize()
 
-	/**
-	 * Build the RelationMap objects for this table relationships
-	 */
-	public function buildRelations()
-	{
-		$this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserPermissions');
-		$this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserGroups');
-		$this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardRememberKeys');
-		$this->addRelation('Band', 'Band', RelationMap::ONE_TO_MANY, array('id' => 'primary_contact_id', ), null, null, 'Bands');
-		$this->addRelation('BandHasMember', 'BandHasMember', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'BandHasMembers');
-		$this->addRelation('Fan', 'Fan', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), null, null, 'Fans');
-	} // buildRelations()
+    /**
+     * Build the RelationMap objects for this table relationships
+     */
+    public function buildRelations()
+    {
+        $this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserPermissions');
+        $this->addRelation('afGuardUserGroup', 'afGuardUserGroup', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardUserGroups');
+        $this->addRelation('afGuardRememberKey', 'afGuardRememberKey', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'afGuardRememberKeys');
+    } // buildRelations()
 
-	/**
-	 *
-	 * Gets the list of behaviors registered for this table
-	 *
-	 * @return array Associative array (name => parameters) of behaviors
-	 */
-	public function getBehaviors()
-	{
-		return array(
-			'symfony' => array('form' => 'true', 'filter' => 'true', ),
-			'symfony_behaviors' => array(),
-			'symfony_timestampable' => array('create_column' => 'created_at', ),
-		);
-	} // getBehaviors()
+    /**
+     *
+     * Gets the list of behaviors registered for this table
+     *
+     * @return array Associative array (name => parameters) of behaviors
+     */
+    public function getBehaviors()
+    {
+        return array(
+            'symfony' =>  array (
+  'form' => 'true',
+  'filter' => 'true',
+),
+            'symfony_behaviors' =>  array (
+),
+            'symfony_timestampable' =>  array (
+  'create_column' => 'created_at',
+),
+        );
+    } // getBehaviors()
 
 } // afGuardUserTableMap

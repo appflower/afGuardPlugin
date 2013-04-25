@@ -17,54 +17,58 @@
 class afGuardPermissionTableMap extends TableMap
 {
 
-	/**
-	 * The (dot-path) name of this class
-	 */
-	const CLASS_NAME = 'plugins.afGuardPlugin.lib.model.map.afGuardPermissionTableMap';
+    /**
+     * The (dot-path) name of this class
+     */
+    const CLASS_NAME = 'plugins.afGuardPlugin.lib.model.map.afGuardPermissionTableMap';
 
-	/**
-	 * Initialize the table attributes, columns and validators
-	 * Relations are not initialized by this method since they are lazy loaded
-	 *
-	 * @return     void
-	 * @throws     PropelException
-	 */
-	public function initialize()
-	{
-		// attributes
-		$this->setName('af_guard_permission');
-		$this->setPhpName('afGuardPermission');
-		$this->setClassname('afGuardPermission');
-		$this->setPackage('plugins.afGuardPlugin.lib.model');
-		$this->setUseIdGenerator(true);
-		// columns
-		$this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-		$this->addColumn('NAME', 'Name', 'VARCHAR', true, 255, null);
-		$this->addColumn('DESCRIPTION', 'Description', 'LONGVARCHAR', false, null, null);
-		// validators
-	} // initialize()
+    /**
+     * Initialize the table attributes, columns and validators
+     * Relations are not initialized by this method since they are lazy loaded
+     *
+     * @return void
+     * @throws PropelException
+     */
+    public function initialize()
+    {
+        // attributes
+        $this->setName('af_guard_permission');
+        $this->setPhpName('afGuardPermission');
+        $this->setClassname('afGuardPermission');
+        $this->setPackage('plugins.afGuardPlugin.lib.model');
+        $this->setUseIdGenerator(true);
+        // columns
+        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
+        $this->addColumn('name', 'Name', 'VARCHAR', true, 255, null);
+        $this->addColumn('description', 'Description', 'LONGVARCHAR', false, null, null);
+        // validators
+    } // initialize()
 
-	/**
-	 * Build the RelationMap objects for this table relationships
-	 */
-	public function buildRelations()
-	{
-		$this->addRelation('afGuardGroupPermission', 'afGuardGroupPermission', RelationMap::ONE_TO_MANY, array('id' => 'permission_id', ), 'CASCADE', null, 'afGuardGroupPermissions');
-		$this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'permission_id', ), 'CASCADE', null, 'afGuardUserPermissions');
-	} // buildRelations()
+    /**
+     * Build the RelationMap objects for this table relationships
+     */
+    public function buildRelations()
+    {
+        $this->addRelation('afGuardGroupPermission', 'afGuardGroupPermission', RelationMap::ONE_TO_MANY, array('id' => 'permission_id', ), 'CASCADE', null, 'afGuardGroupPermissions');
+        $this->addRelation('afGuardUserPermission', 'afGuardUserPermission', RelationMap::ONE_TO_MANY, array('id' => 'permission_id', ), 'CASCADE', null, 'afGuardUserPermissions');
+    } // buildRelations()
 
-	/**
-	 *
-	 * Gets the list of behaviors registered for this table
-	 *
-	 * @return array Associative array (name => parameters) of behaviors
-	 */
-	public function getBehaviors()
-	{
-		return array(
-			'symfony' => array('form' => 'true', 'filter' => 'true', ),
-			'symfony_behaviors' => array(),
-		);
-	} // getBehaviors()
+    /**
+     *
+     * Gets the list of behaviors registered for this table
+     *
+     * @return array Associative array (name => parameters) of behaviors
+     */
+    public function getBehaviors()
+    {
+        return array(
+            'symfony' =>  array (
+  'form' => 'true',
+  'filter' => 'true',
+),
+            'symfony_behaviors' =>  array (
+),
+        );
+    } // getBehaviors()
 
 } // afGuardPermissionTableMap
